@@ -112,7 +112,7 @@ async def get_leads(
         filter_query["source"] = source
     
     skip = (page - 1) * limite
-    cursor = db.leads.find(filter_query).skip(skip).limit(limite).sort("créé_le", -1)
+    cursor = db.leads.find(filter_query, {"_id": 0}).skip(skip).limit(limite).sort("créé_le", -1)
     leads = await cursor.to_list(length=None)
     
     # Count total
