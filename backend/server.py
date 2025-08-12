@@ -1,13 +1,16 @@
 import os
 import uuid
 from datetime import datetime, timedelta
-from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Depends
+from typing import List, Optional, Dict
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, EmailStr
 import asyncio
 from enum import Enum
+
+# Import du système d'email automation
+from email_automation import EmailAutomationService, EmailTemplate
 
 # Initialize FastAPI app
 app = FastAPI(title="Efficity Lead Prospection API")
@@ -25,6 +28,9 @@ app.add_middleware(
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(MONGO_URL)
 db = client.efficity_leads
+
+# Initialize Email Automation Service
+email_service = EmailAutomationService(db)
 
 # Pydantic models
 class LeadStatus(str, Enum):
@@ -70,6 +76,7 @@ class Lead(BaseModel):
     créé_le: datetime = None
     modifié_le: datetime = None
     assigné_à: str = "Patrick Almeida"
+    email_automation_active: bool = True
 
 class Campaign(BaseModel):
     id: str = None
@@ -91,6 +98,17 @@ class Activity(BaseModel):
     planifié_pour: datetime = None
     complété_le: datetime = None
     créé_par: str = "Patrick Almeida"
+
+class EmailCampaignRequest(BaseModel):
+    lead_ids: List[str]
+    template: EmailTemplate
+    scheduled_for: Optional[datetime] = None
+
+class EmailWebhookData(BaseModel):
+    email_id: str
+    event: str
+    timestamp: str
+    additional_data: Dict = {}
 
 # API Routes
 @app.get("/api/health")
@@ -127,7 +145,7 @@ async def get_leads(
     }
 
 @app.post("/api/leads", status_code=201)
-async def create_lead(lead: Lead):
+async def create_lead(lead: Lead, background_tasks: BackgroundTasks):
     lead.id = str(uuid.uuid4())
     lead.créé_le = datetime.now()
     lead.modifié_le = datetime.now()
@@ -135,6 +153,14 @@ async def create_lead(lead: Lead):
     
     lead_dict = lead.model_dump()
     await db.leads.insert_one(lead_dict)
+    
+    # Démarrer l'automation email si activée
+    if lead.email_automation_active:
+        background_tasks.add_task(
+            email_service.create_email_sequence,
+            lead.id,
+            lead_dict
+        )
     
     return {"message": "Lead créé avec succès", "lead_id": lead.id}
 
@@ -166,6 +192,71 @@ async def delete_lead(lead_id: str):
         raise HTTPException(status_code=404, detail="Lead non trouvé")
     
     return {"message": "Lead supprimé avec succès"}
+
+# Email Automation Endpoints
+@app.post("/api/email/send")
+async def send_email_campaign(campaign_request: EmailCampaignRequest, background_tasks: BackgroundTasks):
+    """Envoie une campagne email à plusieurs leads"""
+    
+    email_ids = []
+    
+    for lead_id in campaign_request.lead_ids:
+        # Récupérer les données du lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if lead:
+            email_id = await email_service.send_email(
+                lead_id,
+                campaign_request.template,
+                lead,
+                campaign_request.scheduled_for
+            )
+            email_ids.append(email_id)
+    
+    return {
+        "message": f"Campagne programmée pour {len(email_ids)} leads",
+        "email_ids": email_ids
+    }
+
+@app.post("/api/email/sequence/{lead_id}")
+async def create_email_sequence(lead_id: str, background_tasks: BackgroundTasks):
+    """Démarre une séquence d'emails automatisée pour un lead"""
+    
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead non trouvé")
+    
+    background_tasks.add_task(
+        email_service.create_email_sequence,
+        lead_id,
+        lead
+    )
+    
+    return {"message": "Séquence d'emails démarrée", "lead_id": lead_id}
+
+@app.post("/api/email/webhook")
+async def handle_email_webhook(webhook_data: EmailWebhookData):
+    """Gère les webhooks de tracking email"""
+    
+    await email_service.handle_email_webhook(webhook_data.model_dump())
+    return {"message": "Webhook traité avec succès"}
+
+@app.get("/api/email/stats")
+async def get_email_stats(lead_id: Optional[str] = None):
+    """Retourne les statistiques des campagnes email"""
+    
+    stats = await email_service.get_campaign_stats(lead_id)
+    return stats
+
+@app.get("/api/email/campaigns")
+async def get_email_campaigns(lead_id: Optional[str] = None, limite: int = 50):
+    """Retourne l'historique des campagnes email"""
+    
+    filter_query = {}
+    if lead_id:
+        filter_query["lead_id"] = lead_id
+    
+    campaigns = await db.email_campaigns.find(filter_query, {"_id": 0}).sort("created_at", -1).limit(limite).to_list(length=None)
+    return {"campaigns": campaigns}
 
 # Campaign Management
 @app.get("/api/campaigns")
@@ -232,6 +323,9 @@ async def get_dashboard_stats():
     total_campaigns = await db.campaigns.count_documents({})
     active_campaigns = await db.campaigns.count_documents({"statut": "active"})
     
+    # Email campaign stats
+    email_stats = await email_service.get_campaign_stats()
+    
     # Lead sources breakdown
     sources_pipeline = [
         {"$group": {"_id": "$source", "count": {"$sum": 1}}},
@@ -262,6 +356,7 @@ async def get_dashboard_stats():
         "taux_conversion": round((leads_convertis / total_leads * 100) if total_leads > 0 else 0, 2),
         "total_campaigns": total_campaigns,
         "active_campaigns": active_campaigns,
+        "email_stats": email_stats,
         "sources_breakdown": sources_breakdown,
         "monthly_trend": monthly_trend,
         "recent_activities": recent_activities
@@ -301,6 +396,23 @@ async def analyze_lead_behavior(lead_id: str):
     )
     
     return analysis
+
+# Background task to process scheduled emails
+@app.on_event("startup")
+async def startup_event():
+    """Démarre les tâches de background pour l'automation"""
+    
+    async def process_emails_periodically():
+        while True:
+            try:
+                await email_service.process_scheduled_emails()
+                await asyncio.sleep(300)  # Vérifier toutes les 5 minutes
+            except Exception as e:
+                print(f"Erreur lors du traitement des emails programmés: {e}")
+                await asyncio.sleep(60)  # Attendre 1 minute en cas d'erreur
+    
+    # Lancer la tâche en arrière-plan
+    asyncio.create_task(process_emails_periodically())
 
 if __name__ == "__main__":
     import uvicorn
