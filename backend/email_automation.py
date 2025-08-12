@@ -36,11 +36,10 @@ class EmailAutomationService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
         
-        # Configuration email simple (gratuit)
-        self.smtp_server = "smtp.gmail.com"
-        self.smtp_port = 587
-        self.email_user = EFFICITY_EMAIL
-        self.email_password = os.environ.get('GMAIL_APP_PASSWORD', '')  # Optionnel
+        # Configuration Efficity (100% incluse)
+        self.sender_name = "Patrick Almeida - Efficity Lyon"
+        self.sender_email = EFFICITY_EMAIL
+        self.bcc_email = EFFICITY_BCC
         
     def get_email_template(self, template: EmailTemplate, lead_data: Dict) -> Dict[str, str]:
         """Génère les templates d'email personnalisés aux couleurs Efficity"""
