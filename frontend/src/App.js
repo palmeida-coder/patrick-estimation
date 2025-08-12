@@ -566,25 +566,266 @@ function LeadsManager() {
 }
 
 function CampaignManager() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [emailStats, setEmailStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showNewCampaign, setShowNewCampaign] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState([]);
+  const [leads, setLeads] = useState([]);
+
+  useEffect(() => {
+    fetchCampaignData();
+  }, []);
+
+  const fetchCampaignData = async () => {
+    try {
+      const [campaignResponse, statsResponse, leadsResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/email/campaigns`),
+        axios.get(`${API_BASE_URL}/api/email/stats`),
+        axios.get(`${API_BASE_URL}/api/leads`)
+      ]);
+      
+      setCampaigns(campaignResponse.data.campaigns);
+      setEmailStats(statsResponse.data);
+      setLeads(leadsResponse.data.leads);
+    } catch (error) {
+      console.error('Erreur lors du chargement des campagnes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendEmailCampaign = async (template, leadIds) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/email/send`, {
+        lead_ids: leadIds,
+        template: template
+      });
+      
+      setShowNewCampaign(false);
+      setSelectedLeads([]);
+      fetchCampaignData();
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de la campagne:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Gestion des Campagnes</h1>
-          <p className="text-slate-600 mt-1">Automatisation des emails et relances</p>
+          <h1 className="text-3xl font-bold text-slate-900">Email Automation Efficity</h1>
+          <p className="text-slate-600 mt-1">Prospection intelligente aux couleurs Efficity</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button 
+          onClick={() => setShowNewCampaign(true)}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600"
+        >
+          <Mail className="w-4 h-4 mr-2" />
           Nouvelle Campagne
         </Button>
       </div>
 
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Fonctionnalité en cours de développement. L'intégration email sera ajoutée prochainement.
-        </AlertDescription>
-      </Alert>
+      {/* Statistiques Email */}
+      {emailStats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Emails Envoyés</p>
+                  <p className="text-2xl font-bold text-slate-900">{emailStats.sent}</p>
+                </div>
+                <Mail className="w-8 h-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Taux d'Ouverture</p>
+                  <p className="text-2xl font-bold text-green-600">{emailStats.open_rate}%</p>
+                </div>
+                <CheckCircle className="w-8 h-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Taux de Clic</p>
+                  <p className="text-2xl font-bold text-purple-600">{emailStats.click_rate}%</p>
+                </div>
+                <Target className="w-8 h-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600">Taux de Livraison</p>
+                  <p className="text-2xl font-bold text-orange-600">{emailStats.delivery_rate}%</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Templates Efficity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            Templates Efficity - Prospection Immobilière
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+              <h3 className="font-bold text-blue-800 mb-2">🏠 Premier Contact</h3>
+              <p className="text-sm text-blue-600 mb-3">Email de bienvenue personnalisé avec présentation Efficity Lyon</p>
+              <Button 
+                onClick={() => sendEmailCampaign('premier_contact', leads.map(l => l.id))}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                size="sm"
+              >
+                Envoyer à tous les nouveaux leads
+              </Button>
+            </div>
+            
+            <div className="p-4 border border-green-200 rounded-lg bg-green-50">
+              <h3 className="font-bold text-green-800 mb-2">📞 Relance J+3</h3>
+              <p className="text-sm text-green-600 mb-3">3 questions rapides pour qualifier le prospect</p>
+              <Button 
+                onClick={() => sendEmailCampaign('relance_j3', leads.filter(l => l.statut === 'nouveau').map(l => l.id))}
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="sm"
+              >
+                Envoyer aux leads non contactés
+              </Button>
+            </div>
+            
+            <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+              <h3 className="font-bold text-red-800 mb-2">🎁 Estimation Gratuite</h3>
+              <p className="text-sm text-red-600 mb-3">Offre d'estimation gratuite personnalisée</p>
+              <Button 
+                onClick={() => sendEmailCampaign('estimation_gratuite', leads.filter(l => l.statut === 'contacté').map(l => l.id))}
+                className="w-full bg-red-600 hover:bg-red-700"
+                size="sm"
+              >
+                Envoyer aux leads contactés
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Historique des Campagnes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Historique des Campagnes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {campaigns.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Template</TableHead>
+                  <TableHead>Destinataire</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {campaigns.map((campaign) => (
+                  <TableRow key={campaign.id}>
+                    <TableCell>
+                      {new Date(campaign.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {campaign.template.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {campaign.recipient_name}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={
+                        campaign.status === 'sent' ? 'bg-green-100 text-green-800' :
+                        campaign.status === 'opened' ? 'bg-blue-100 text-blue-800' :
+                        campaign.status === 'clicked' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }>
+                        {campaign.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button variant="outline" size="sm">
+                        <Activity className="w-3 h-3" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-8">
+              <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Aucune campagne email pour le moment</p>
+              <p className="text-sm text-gray-400">Les campagnes apparaîtront ici une fois envoyées</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Dialog Nouvelle Campagne */}
+      <Dialog open={showNewCampaign} onOpenChange={setShowNewCampaign}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Créer une nouvelle campagne</DialogTitle>
+            <DialogDescription>
+              Sélectionnez un template et les leads à cibler
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Alert className="mb-4">
+              <Zap className="h-4 w-4" />
+              <AlertDescription>
+                Les templates sont personnalisés aux couleurs Efficity avec vos coordonnées.
+              </AlertDescription>
+            </Alert>
+            <p className="text-sm text-slate-600">
+              Les campagnes automatiques sont déjà configurées. Cette fonction permet l'envoi manuel de templates spécifiques.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setShowNewCampaign(false)}>
+              Annuler
+            </Button>
+            <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">
+              Créer la Campagne
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
