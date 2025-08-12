@@ -4,8 +4,11 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from enum import Enum
 import asyncio
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from emergentintegrations import EmergentMail
+from emergentintegrations.llm import EmergentLLM
 
 # Configuration des emails
 EFFICITY_EMAIL = "palmeida@efficity.com"
@@ -32,7 +35,7 @@ class EmailStatus(str, Enum):
 class EmailAutomationService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
-        self.mail_client = EmergentMail()
+        self.mail_client = None  # TODO: Replace with appropriate email client
         
     def get_email_template(self, template: EmailTemplate, lead_data: Dict) -> Dict[str, str]:
         """Génère les templates d'email personnalisés aux couleurs Efficity"""
