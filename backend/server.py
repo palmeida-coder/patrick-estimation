@@ -170,7 +170,7 @@ async def delete_lead(lead_id: str):
 # Campaign Management
 @app.get("/api/campaigns")
 async def get_campaigns():
-    campaigns = await db.campaigns.find().sort("créé_le", -1).to_list(length=None)
+    campaigns = await db.campaigns.find({}, {"_id": 0}).sort("créé_le", -1).to_list(length=None)
     return {"campaigns": campaigns}
 
 @app.post("/api/campaigns")
