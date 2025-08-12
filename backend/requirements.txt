@@ -24,3 +24,6 @@ python-multipart>=0.0.9
 jq>=1.6.0
 typer>=0.9.0
 emergentintegrations
+google-api-python-client>=2.170.0
+google-auth>=2.40.0
+google-auth-oauthlib>=1.2.0
