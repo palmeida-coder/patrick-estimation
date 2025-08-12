@@ -303,12 +303,9 @@ class EmailAutomationService:
             print(f"📧 Copie cachée: {EFFICITY_BCC}")
             print(f"✅ Email programmé et enregistré en base")
             
-            # Personnalisation IA avec EmergentLLM (inclus)
-            try:
-                personalization = await self._enhance_with_ai(lead_data, email_template)
-                print(f"🤖 Personnalisation IA: {personalization}")
-            except Exception as e:
-                print(f"⚠️ Personnalisation IA optionnelle échouée: {e}")
+            # Personnalisation simple Efficity (100% incluse)
+            personalization = self._enhance_with_local_ai(lead_data)
+            print(f"🏠 Personnalisation Efficity: {personalization}")
             
             # Mettre à jour le statut (simule envoi réussi)
             await self.db.email_campaigns.update_one(
