@@ -380,6 +380,16 @@ function LeadsManager() {
     }
   };
 
+  const startEmailAutomation = async (leadId) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/email/sequence/${leadId}`);
+      // Optionnel: afficher une notification de succès
+      console.log('Automation email démarrée pour le lead:', leadId);
+    } catch (error) {
+      console.error('Erreur lors du démarrage de l\'automation:', error);
+    }
+  };
+
   const getStatusBadge = (status) => {
     const colors = {
       'nouveau': 'bg-blue-100 text-blue-800',
