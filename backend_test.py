@@ -307,6 +307,14 @@ class EfficiencyAPITester:
         # AI Analysis tests
         self.test_lead_analysis()
         
+        # EMAIL AUTOMATION TESTS - PRIORITY FOR EFFICITY
+        print("\n🔥 EMAIL AUTOMATION EFFICITY TESTS")
+        print("-" * 40)
+        self.test_email_automation_stats()
+        self.test_email_campaigns_history()
+        self.test_email_sequence_creation()
+        self.test_email_campaign_send()
+        
         # Cleanup
         self.test_delete_lead()
         
