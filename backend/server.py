@@ -369,7 +369,121 @@ async def get_dashboard_stats():
         "recent_activities": recent_activities
     }
 
-# Behavioral Analysis (AI Integration will be added)
+# Google Sheets Sync Endpoints
+@app.post("/api/sheets/create")
+async def create_efficity_spreadsheet():
+    """Créer une nouvelle feuille Google Sheets pour Efficity"""
+    try:
+        spreadsheet_id = await sheets_service.create_efficity_spreadsheet()
+        spreadsheet_url = await sheets_service.get_spreadsheet_url()
+        
+        return {
+            "message": "Feuille Google Sheets Efficity créée avec succès",
+            "spreadsheet_id": spreadsheet_id,
+            "spreadsheet_url": spreadsheet_url
+        }
+    except Exception as e:
+        logger.error(f"Erreur création spreadsheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur création Google Sheets: {str(e)}")
+
+@app.post("/api/sheets/configure")
+async def configure_spreadsheet(request: dict):
+    """Configurer l'ID du spreadsheet à utiliser"""
+    try:
+        spreadsheet_id = request.get("spreadsheet_id")
+        if not spreadsheet_id:
+            raise HTTPException(status_code=400, detail="spreadsheet_id requis")
+        
+        sheets_service.set_spreadsheet_id(spreadsheet_id)
+        
+        return {
+            "message": "Spreadsheet configuré avec succès",
+            "spreadsheet_id": spreadsheet_id
+        }
+    except Exception as e:
+        logger.error(f"Erreur configuration spreadsheet: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets/sync-to")
+async def sync_leads_to_sheets(background_tasks: BackgroundTasks):
+    """Synchroniser tous les leads vers Google Sheets"""
+    try:
+        # Récupérer tous les leads
+        all_leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        # Synchroniser en arrière-plan
+        for lead in all_leads:
+            background_tasks.add_task(
+                sheets_service.sync_lead_to_sheets,
+                lead,
+                "create"
+            )
+        
+        return {
+            "message": f"Synchronisation de {len(all_leads)} leads vers Google Sheets démarrée",
+            "leads_count": len(all_leads)
+        }
+    except Exception as e:
+        logger.error(f"Erreur sync vers Sheets: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets/sync-from")
+async def sync_leads_from_sheets():
+    """Synchroniser les leads depuis Google Sheets vers MongoDB"""
+    try:
+        # Récupérer les leads depuis Sheets
+        sheets_leads = await sheets_service.sync_from_sheets()
+        
+        updated_count = 0
+        created_count = 0
+        
+        for lead_data in sheets_leads:
+            lead_id = lead_data.get('id')
+            
+            if lead_id:
+                # Mettre à jour lead existant
+                result = await db.leads.update_one(
+                    {"id": lead_id},
+                    {"$set": {
+                        **lead_data,
+                        "date_derniere_modification": datetime.now(),
+                        "sync_status": "synced"
+                    }}
+                )
+                if result.matched_count > 0:
+                    updated_count += 1
+            else:
+                # Créer nouveau lead
+                lead_data["id"] = str(uuid.uuid4())
+                lead_data["date_creation"] = datetime.now()
+                lead_data["date_derniere_modification"] = datetime.now()
+                lead_data["sync_status"] = "synced"
+                
+                await db.leads.insert_one(lead_data)
+                created_count += 1
+        
+        return {
+            "message": "Synchronisation depuis Google Sheets terminée",
+            "leads_updated": updated_count,
+            "leads_created": created_count,
+            "total_processed": len(sheets_leads)
+        }
+    except Exception as e:
+        logger.error(f"Erreur sync depuis Sheets: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sheets/url")
+async def get_spreadsheet_url():
+    """Obtenir l'URL du spreadsheet Google Sheets"""
+    try:
+        url = await sheets_service.get_spreadsheet_url()
+        return {
+            "spreadsheet_url": url,
+            "spreadsheet_id": sheets_service.spreadsheet_id
+        }
+    except Exception as e:
+        logger.error(f"Erreur récupération URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/api/leads/{lead_id}/analyze")
 async def analyze_lead_behavior(lead_id: str):
     lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
