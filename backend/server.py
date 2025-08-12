@@ -196,7 +196,7 @@ async def get_activities(lead_id: Optional[str] = None, limite: int = 50):
     if lead_id:
         filter_query["lead_id"] = lead_id
     
-    activities = await db.activities.find(filter_query).sort("créé_le", -1).limit(limite).to_list(length=None)
+    activities = await db.activities.find(filter_query, {"_id": 0}).sort("créé_le", -1).limit(limite).to_list(length=None)
     return {"activities": activities}
 
 @app.post("/api/activities")
