@@ -226,7 +226,7 @@ async def get_dashboard_stats():
     leads_convertis = await db.leads.count_documents({"statut": "converti"})
     
     # Recent activities
-    recent_activities = await db.activities.find().sort("créé_le", -1).limit(10).to_list(length=None)
+    recent_activities = await db.activities.find({}, {"_id": 0}).sort("créé_le", -1).limit(10).to_list(length=None)
     
     # Campaign stats
     total_campaigns = await db.campaigns.count_documents({})
