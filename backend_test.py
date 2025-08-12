@@ -214,6 +214,59 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Lead Analysis", False, f"- Analysis failed or incomplete {details}")
 
+    def test_email_automation_stats(self):
+        """Test email automation statistics endpoint"""
+        success, response, details = self.make_request('GET', 'api/email/stats', expected_status=200)
+        
+        required_fields = ['total_emails', 'sent', 'delivered', 'opened', 'clicked', 'open_rate', 'click_rate', 'delivery_rate']
+        
+        if success and all(field in response for field in required_fields):
+            stats_summary = f"Sent: {response['sent']}, Open Rate: {response['open_rate']}%, Click Rate: {response['click_rate']}%"
+            return self.log_test("Email Stats", True, f"- {stats_summary} {details}")
+        else:
+            missing_fields = [field for field in required_fields if field not in response]
+            return self.log_test("Email Stats", False, f"- Missing fields: {missing_fields} {details}")
+
+    def test_email_campaigns_history(self):
+        """Test email campaigns history endpoint"""
+        success, response, details = self.make_request('GET', 'api/email/campaigns', expected_status=200)
+        
+        if success and 'campaigns' in response and isinstance(response['campaigns'], list):
+            campaign_count = len(response['campaigns'])
+            return self.log_test("Email Campaigns History", True, f"- Retrieved {campaign_count} email campaigns {details}")
+        else:
+            return self.log_test("Email Campaigns History", False, f"- Failed to retrieve email campaigns {details}")
+
+    def test_email_sequence_creation(self):
+        """Test creating email automation sequence for a lead"""
+        if not self.created_lead_id:
+            return self.log_test("Email Sequence Creation", False, "- No lead ID available (create lead first)")
+        
+        success, response, details = self.make_request('POST', f'api/email/sequence/{self.created_lead_id}', expected_status=200)
+        
+        if success and 'message' in response and 'lead_id' in response:
+            return self.log_test("Email Sequence Creation", True, f"- Email sequence started for lead {response['lead_id']} {details}")
+        else:
+            return self.log_test("Email Sequence Creation", False, f"- Failed to create email sequence {details}")
+
+    def test_email_campaign_send(self):
+        """Test sending email campaign to leads"""
+        if not self.created_lead_id:
+            return self.log_test("Email Campaign Send", False, "- No lead ID available (create lead first)")
+        
+        campaign_data = {
+            "lead_ids": [self.created_lead_id],
+            "template": "premier_contact"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/email/send', data=campaign_data, expected_status=200)
+        
+        if success and 'message' in response and 'email_ids' in response:
+            email_count = len(response['email_ids'])
+            return self.log_test("Email Campaign Send", True, f"- Campaign sent to {email_count} leads {details}")
+        else:
+            return self.log_test("Email Campaign Send", False, f"- Failed to send email campaign {details}")
+
     def test_delete_lead(self):
         """Test deleting a lead (cleanup)"""
         if not self.created_lead_id:
