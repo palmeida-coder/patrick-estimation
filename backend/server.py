@@ -140,7 +140,7 @@ async def create_lead(lead: Lead):
 
 @app.get("/api/leads/{lead_id}")
 async def get_lead(lead_id: str):
-    lead = await db.leads.find_one({"id": lead_id})
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead non trouvé")
     return lead
