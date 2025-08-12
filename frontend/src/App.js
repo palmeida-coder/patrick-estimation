@@ -227,31 +227,76 @@ function Dashboard() {
         </Card>
       </div>
 
-      {/* AI Insights */}
-      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-orange-800">
-            <Zap className="w-5 h-5" />
-            Insights IA - Prédictions de Vente
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-2xl font-bold text-orange-600">23</div>
-              <div className="text-sm text-slate-600">Ventes probables 3 mois</div>
+      {/* AI Insights & Email Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <Zap className="w-5 h-5" />
+              Insights IA - Prédictions de Vente
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-orange-600">23</div>
+                <div className="text-sm text-slate-600">Ventes probables 3 mois</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-amber-600">45</div>
+                <div className="text-sm text-slate-600">Ventes probables 6 mois</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="text-2xl font-bold text-yellow-600">67</div>
+                <div className="text-sm text-slate-600">Ventes probables 9 mois</div>
+              </div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-2xl font-bold text-amber-600">45</div>
-              <div className="text-sm text-slate-600">Ventes probables 6 mois</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <Mail className="w-5 h-5" />
+              Performance Email Automation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Taux d'ouverture</span>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {stats?.email_stats?.open_rate || 0}%
+                  </div>
+                  <Badge variant="secondary">+12%</Badge>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Taux de clic</span>
+                <div className="flex items-center gap-2">
+                  <div className="text-2xl font-bold text-green-600">
+                    {stats?.email_stats?.click_rate || 0}%
+                  </div>
+                  <Badge variant="secondary">+8%</Badge>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Templates actifs</span>
+                <div className="text-lg font-bold text-indigo-600">3</div>
+              </div>
+              <div className="text-center">
+                <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
+                  <Link to="/campaigns" className="flex items-center gap-1">
+                    <Mail className="w-3 h-3" />
+                    Voir les campagnes
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-              <div className="text-2xl font-bold text-yellow-600">67</div>
-              <div className="text-sm text-slate-600">Ventes probables 9 mois</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
