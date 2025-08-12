@@ -35,7 +35,13 @@ class EmailStatus(str, Enum):
 class EmailAutomationService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
-        self.mail_client = None  # TODO: Replace with appropriate email client
+        self.llm_client = EmergentLLM()  # Pour la personnalisation IA
+        
+        # Configuration email simple (gratuit)
+        self.smtp_server = "smtp.gmail.com"
+        self.smtp_port = 587
+        self.email_user = EFFICITY_EMAIL
+        self.email_password = os.environ.get('GMAIL_APP_PASSWORD', '')  # Optionnel
         
     def get_email_template(self, template: EmailTemplate, lead_data: Dict) -> Dict[str, str]:
         """Génère les templates d'email personnalisés aux couleurs Efficity"""
