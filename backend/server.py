@@ -15,6 +15,10 @@ from email_automation import EmailAutomationService, EmailTemplate
 # Import Google Sheets service
 from google_sheets_service import GoogleSheetsService, sheets_service
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Initialize FastAPI app
 app = FastAPI(title="Efficity Lead Prospection API")
 
