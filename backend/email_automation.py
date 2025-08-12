@@ -354,31 +354,38 @@ class EmailAutomationService:
             )
             print(f"❌ Erreur email automation: {e}")
     
-    async def _enhance_with_ai(self, lead_data: Dict, email_template: Dict) -> str:
-        """Utilise EmergentLLM pour personnaliser le contenu (service inclus)"""
-        try:
-            prompt = f"""
-            Personnalise ce message pour un prospect immobilier à Lyon:
-            
-            Prospect: {lead_data['prénom']} {lead_data['nom']}
-            Ville: {lead_data.get('ville', 'Lyon')}
-            Source: {lead_data.get('source', 'site web')}
-            
-            Ajoute une phrase personnalisée pour Patrick Almeida d'Efficity Lyon.
-            Reste professionnel et local (Lyon).
-            """
-            
-            # Utilisation d'EmergentLLM (inclus dans l'abonnement)
-            response = await self.llm_client.complete(
-                prompt=prompt,
-                max_tokens=50,
-                temperature=0.7
-            )
-            
-            return response.get('content', 'Personnalisation immobilière Lyon')
-            
-        except Exception as e:
-            return f"Conseil personnalisé immobilier (IA temporairement indisponible)"
+    def _enhance_with_local_ai(self, lead_data: Dict) -> str:
+        """Personnalisation simple mais efficace Efficity (100% incluse)"""
+        
+        # Logique de personnalisation basée sur les données du lead
+        ville = lead_data.get('ville', 'Lyon')
+        source = lead_data.get('source', 'site web')
+        prénom = lead_data.get('prénom', '')
+        
+        # Templates de personnalisation Efficity
+        personalization_templates = {
+            'seloger': f"Votre recherche sur SeLoger montre un vrai intérêt pour {ville}",
+            'pap': f"Votre consultation PAP révèle une démarche sérieuse à {ville}",  
+            'leboncoin': f"Votre activité LeBoncoin indique une recherche active à {ville}",
+            'manuel': f"Votre projet immobilier à {ville} mérite notre expertise locale",
+            'réseaux_sociaux': f"Vos signaux digitaux montrent un projet concret à {ville}"
+        }
+        
+        base_msg = personalization_templates.get(source, f"Votre projet immobilier à {ville}")
+        
+        # Ajout de conseils selon la localisation
+        if '69001' in lead_data.get('code_postal', ''):
+            location_tip = "Le 1er arrondissement offre d'excellentes opportunités"
+        elif '69002' in lead_data.get('code_postal', ''):
+            location_tip = "Bellecour et ses environs sont très recherchés"
+        elif '69003' in lead_data.get('code_postal', ''):
+            location_tip = "Part-Dieu, un secteur en pleine transformation"
+        elif '69004' in lead_data.get('code_postal', ''):
+            location_tip = "Croix-Rousse, quartier historique très prisé"
+        else:
+            location_tip = "Lyon offre de belles perspectives immobilières"
+        
+        return f"{base_msg}. {location_tip}."
     
     async def create_email_sequence(self, lead_id: str, lead_data: Dict) -> List[str]:
         """Crée une séquence d'emails automatisée pour un lead"""
