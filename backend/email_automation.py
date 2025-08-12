@@ -35,7 +35,6 @@ class EmailStatus(str, Enum):
 class EmailAutomationService:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
-        self.llm_client = EmergentLLM()  # Pour la personnalisation IA
         
         # Configuration email simple (gratuit)
         self.smtp_server = "smtp.gmail.com"
