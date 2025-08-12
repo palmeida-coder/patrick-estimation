@@ -270,7 +270,7 @@ async def get_dashboard_stats():
 # Behavioral Analysis (AI Integration will be added)
 @app.post("/api/leads/{lead_id}/analyze")
 async def analyze_lead_behavior(lead_id: str):
-    lead = await db.leads.find_one({"id": lead_id})
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
     if not lead:
         raise HTTPException(status_code=404, detail="Lead non trouvé")
     
