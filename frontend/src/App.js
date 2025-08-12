@@ -589,14 +589,22 @@ function LeadsManager() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" title="Envoyer email">
                         <Mail className="w-3 h-3" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" title="Appeler">
                         <Phone className="w-3 h-3" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" title="Planifier RDV">
                         <Calendar className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600"
+                        title="Démarrer automation email"
+                        onClick={() => startEmailAutomation(lead.id)}
+                      >
+                        <Zap className="w-3 h-3" />
                       </Button>
                     </div>
                   </TableCell>
