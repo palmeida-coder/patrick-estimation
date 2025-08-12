@@ -126,7 +126,7 @@ async def get_leads(
         "pages": (total // limite) + (1 if total % limite > 0 else 0)
     }
 
-@app.post("/api/leads")
+@app.post("/api/leads", status_code=201)
 async def create_lead(lead: Lead):
     lead.id = str(uuid.uuid4())
     lead.créé_le = datetime.now()
