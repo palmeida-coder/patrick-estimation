@@ -11,6 +11,8 @@ from enum import Enum
 
 # Import du système d'email automation
 from email_automation import EmailAutomationService, EmailTemplate
+# Import Google Sheets service
+from google_sheets_service import GoogleSheetsService, sheets_service
 
 # Initialize FastAPI app
 app = FastAPI(title="Efficity Lead Prospection API")
