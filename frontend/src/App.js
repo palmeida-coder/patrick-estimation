@@ -894,21 +894,181 @@ function CampaignManager() {
 }
 
 function Analytics() {
+  const [sheetsUrl, setSheetsUrl] = useState('');
+  const [sheetsId, setSheetsId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    loadSheetsInfo();
+  }, []);
+
+  const loadSheetsInfo = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/sheets/url`);
+      setSheetsUrl(response.data.spreadsheet_url);
+      setSheetsId(response.data.spreadsheet_id);
+    } catch (error) {
+      console.log('Pas de spreadsheet configuré encore');
+    }
+  };
+
+  const createSpreadsheet = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/sheets/create`);
+      setSheetsUrl(response.data.spreadsheet_url);
+      setSheetsId(response.data.spreadsheet_id);
+      setMessage('✅ Feuille Google Sheets créée avec succès !');
+    } catch (error) {
+      setMessage(`❌ Erreur: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const syncToSheets = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/sheets/sync-to`);
+      setMessage(`✅ ${response.data.message}`);
+    } catch (error) {
+      setMessage(`❌ Erreur sync: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const syncFromSheets = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/sheets/sync-from`);
+      setMessage(`✅ ${response.data.message} - ${response.data.leads_updated} mis à jour, ${response.data.leads_created} créés`);
+    } catch (error) {
+      setMessage(`❌ Erreur sync: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Analytics Avancées</h1>
-          <p className="text-slate-600 mt-1">Performances et prédictions IA</p>
+          <h1 className="text-3xl font-bold text-slate-900">Google Sheets Sync - Efficity</h1>
+          <p className="text-slate-600 mt-1">Synchronisation bi-directionnelle avec Google Sheets</p>
         </div>
       </div>
 
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Tableau de bord analytique en cours de développement. Les métriques détaillées seront disponibles prochainement.
-        </AlertDescription>
-      </Alert>
+      {/* Configuration Google Sheets */}
+      <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-blue-800">
+            <Activity className="w-5 h-5" />
+            Configuration Google Sheets
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!sheetsUrl ? (
+            <div className="text-center py-8">
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Plus className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  Aucune feuille Google Sheets configurée
+                </h3>
+                <p className="text-slate-600 mb-6">
+                  Créez votre feuille Google Sheets personnalisée Efficity pour synchroniser vos leads
+                </p>
+              </div>
+              <Button 
+                onClick={createSpreadsheet}
+                disabled={loading}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              >
+                {loading ? 'Création...' : 'Créer Feuille Google Sheets Efficity'}
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                <div>
+                  <h4 className="font-semibold text-slate-900">Feuille Google Sheets Active</h4>
+                  <p className="text-sm text-slate-600">ID: {sheetsId}</p>
+                </div>
+                <Button 
+                  onClick={() => window.open(sheetsUrl, '_blank')}
+                  variant="outline"
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                >
+                  Ouvrir dans Google Sheets
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button 
+                  onClick={syncToSheets}
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  {loading ? 'Sync...' : 'Sync Leads → Google Sheets'}
+                </Button>
+                
+                <Button 
+                  onClick={syncFromSheets}
+                  disabled={loading}
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  {loading ? 'Sync...' : 'Sync Google Sheets → Leads'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Messages */}
+      {message && (
+        <Alert className={message.includes('✅') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Guide d'utilisation */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Guide d'utilisation - Google Sheets Sync</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">📤 Sync Leads → Google Sheets</h4>
+              <p className="text-sm text-slate-600">
+                Exporte tous vos leads Efficity vers Google Sheets pour collaboration d'équipe
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-900 mb-2">📥 Sync Google Sheets → Leads</h4>
+              <p className="text-sm text-slate-600">
+                Importe les modifications depuis Google Sheets vers votre système Efficity
+              </p>
+            </div>
+          </div>
+          
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Collaboration d'équipe :</strong> Partagez votre feuille Google Sheets avec vos collègues Efficity pour une collaboration en temps réel !
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     </div>
   );
 }
