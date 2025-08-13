@@ -197,7 +197,7 @@ class GoogleSheetsService:
         
         request = self.service.spreadsheets().values().append(
             spreadsheetId=self.spreadsheet_id,
-            range='Feuil1!A:T',  # Utiliser le nom par défaut de la feuille
+            range='Leads!A:T',  # Nom correct de la feuille renommée
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
