@@ -59,7 +59,7 @@ class GoogleSheetsService:
                 },
                 'sheets': [{
                     'properties': {
-                        'title': 'Leads',
+                        'title': 'Feuil1',  # Nom standard Google Sheets
                         'gridProperties': {
                             'rowCount': 1000,
                             'columnCount': 20
