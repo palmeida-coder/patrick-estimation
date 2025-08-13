@@ -104,7 +104,7 @@ class GoogleSheetsService:
             
             request = self.service.spreadsheets().values().update(
                 spreadsheetId=spreadsheet_id,
-                range='Feuil1!A1:T1',  # Utiliser le nom correct de la feuille
+                range='Leads!A1:T1',  # Utiliser le nom correct de la feuille
                 valueInputOption='RAW',
                 body=body
             )
