@@ -20,22 +20,11 @@ class GoogleSheetsService:
     def _initialize_service(self):
         """Initialize Google Sheets service avec credentials Efficity"""
         try:
-            # Charger les credentials depuis variable d'environnement ou fichier
-            credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
-            credentials_file = os.getenv('GOOGLE_CREDENTIALS_FILE')
+            # Chemin direct vers le fichier credentials (solution robuste)
+            credentials_file = "/app/backend/google-credentials.json"
             
-            if credentials_json:
-                # Depuis variable d'environnement (recommandé pour production)
-                credentials_info = json.loads(credentials_json)
-                self.credentials = Credentials.from_service_account_info(
-                    credentials_info,
-                    scopes=[
-                        'https://www.googleapis.com/auth/spreadsheets',
-                        'https://www.googleapis.com/auth/drive'
-                    ]
-                )
-            elif credentials_file and os.path.exists(credentials_file):
-                # Depuis fichier local (développement)
+            if os.path.exists(credentials_file):
+                # Depuis fichier local
                 self.credentials = Credentials.from_service_account_file(
                     credentials_file,
                     scopes=[
@@ -43,14 +32,15 @@ class GoogleSheetsService:
                         'https://www.googleapis.com/auth/drive'
                     ]
                 )
+                logger.info(f"✅ Credentials chargés depuis: {credentials_file}")
             else:
-                raise ValueError("❌ Credentials Google non trouvés. Configurez GOOGLE_CREDENTIALS_JSON ou GOOGLE_CREDENTIALS_FILE")
+                raise ValueError(f"❌ Fichier credentials introuvable: {credentials_file}")
             
             # Créer le service Google Sheets
             self.service = build('sheets', 'v4', credentials=self.credentials)
             
-            # ID du spreadsheet Efficity (sera configuré plus tard)
-            self.spreadsheet_id = os.getenv('EFFICITY_SPREADSHEET_ID', '')
+            # ID du spreadsheet Efficity 
+            self.spreadsheet_id = "1jpnjzjI4cqfKHuDMc1H5SqnR98HrZEarLRE7ik_qOxY"
             
             logger.info("✅ Google Sheets service initialisé avec succès")
             
