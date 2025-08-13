@@ -14,6 +14,8 @@ from enum import Enum
 from email_automation import EmailAutomationService, EmailTemplate
 # Import Google Sheets service
 from google_sheets_service import GoogleSheetsService, sheets_service
+# Import AI Behavioral service  
+from ai_behavioral_service import AIBehavioralService, ai_behavioral_service
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
