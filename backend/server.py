@@ -520,6 +520,194 @@ async def analyze_lead_behavior(lead_id: str):
     
     return analysis
 
+# AI Behavioral Analysis Endpoints
+@app.post("/api/ai/analyze-lead/{lead_id}")
+async def analyze_lead_behavior_ai(lead_id: str):
+    """Analyser le comportement d'un lead avec l'IA"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Analyser avec l'IA
+        analysis = await ai_behavioral_service.analyze_lead_behavior(lead)
+        
+        # Sauvegarder l'analyse
+        await db.ai_analyses.insert_one({
+            "id": str(uuid.uuid4()),
+            "lead_id": lead_id,
+            "analysis": analysis,
+            "created_at": datetime.now()
+        })
+        
+        # Mettre à jour le score du lead
+        new_score = int(analysis.get('probabilite_vente', 0.5) * 100)
+        await db.leads.update_one(
+            {"id": lead_id},
+            {"$set": {
+                "score_qualification": new_score,
+                "intention_vente": analysis.get('intention_vente'),
+                "probabilité_vente": analysis.get('probabilite_vente'),
+                "dernière_activité": datetime.now(),
+                "ai_analyzed": True
+            }}
+        )
+        
+        logger.info(f"Analyse IA terminée pour lead {lead_id}")
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"Erreur analyse IA lead {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ai/analyze-batch")
+async def analyze_leads_batch(background_tasks: BackgroundTasks):
+    """Analyser tous les leads non analysés avec l'IA"""
+    try:
+        # Récupérer les leads non analysés
+        unanalyzed_leads = await db.leads.find({
+            "$or": [
+                {"ai_analyzed": {"$exists": False}},
+                {"ai_analyzed": False}
+            ]
+        }, {"_id": 0}).limit(20).to_list(length=None)
+        
+        if not unanalyzed_leads:
+            return {"message": "Tous les leads sont déjà analysés", "count": 0}
+        
+        # Lancer l'analyse en arrière-plan
+        background_tasks.add_task(
+            process_batch_ai_analysis,
+            unanalyzed_leads
+        )
+        
+        return {
+            "message": f"Analyse IA batch démarrée pour {len(unanalyzed_leads)} leads",
+            "count": len(unanalyzed_leads)
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur analyse batch IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/ai/insights/{lead_id}")
+async def get_lead_ai_insights(lead_id: str):
+    """Récupérer les insights IA d'un lead"""
+    try:
+        analysis = await db.ai_analyses.find_one(
+            {"lead_id": lead_id}, 
+            {"_id": 0}
+        )
+        
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analyse IA non trouvée")
+        
+        return analysis
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur récupération insights {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/ai/market-insights")
+async def get_market_insights(city: str = "Lyon"):
+    """Obtenir les insights marché IA"""
+    try:
+        insights = await ai_behavioral_service.get_market_insights(city)
+        return insights
+        
+    except Exception as e:
+        logger.error(f"Erreur insights marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/ai/dashboard")
+async def get_ai_dashboard():
+    """Dashboard des analyses IA"""
+    try:
+        # Statistiques des analyses
+        total_analyses = await db.ai_analyses.count_documents({})
+        
+        # Répartition par intention de vente
+        pipeline_intentions = [
+            {"$group": {
+                "_id": "$analysis.intention_vente",
+                "count": {"$sum": 1},
+                "avg_probability": {"$avg": "$analysis.probabilite_vente"}
+            }},
+            {"$sort": {"count": -1}}
+        ]
+        intentions_stats = await db.ai_analyses.aggregate(pipeline_intentions).to_list(length=None)
+        
+        # Top recommandations
+        pipeline_recommendations = [
+            {"$unwind": "$analysis.recommandations"},
+            {"$group": {
+                "_id": "$analysis.recommandations",
+                "count": {"$sum": 1}
+            }},
+            {"$sort": {"count": -1}},
+            {"$limit": 5}
+        ]
+        top_recommendations = await db.ai_analyses.aggregate(pipeline_recommendations).to_list(length=None)
+        
+        # Leads haute probabilité (> 0.7)
+        high_probability_leads = await db.leads.find({
+            "probabilité_vente": {"$gt": 0.7}
+        }, {"_id": 0}).limit(10).to_list(length=None)
+        
+        # Insights marché récents
+        market_insights = await ai_behavioral_service.get_market_insights("Lyon")
+        
+        return {
+            "total_analyses": total_analyses,
+            "intentions_breakdown": intentions_stats,
+            "top_recommendations": top_recommendations,
+            "high_probability_leads": high_probability_leads,
+            "market_insights": market_insights,
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Fonction helper pour traitement batch
+async def process_batch_ai_analysis(leads: List[Dict[str, Any]]):
+    """Traiter l'analyse IA en lot (tâche de fond)"""
+    try:
+        analyses = await ai_behavioral_service.analyze_lead_batch(leads)
+        
+        for analysis in analyses:
+            lead_id = analysis.get('lead_id')
+            if lead_id:
+                # Sauvegarder l'analyse
+                await db.ai_analyses.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "lead_id": lead_id,
+                    "analysis": analysis,
+                    "created_at": datetime.now()
+                })
+                
+                # Mettre à jour le lead
+                new_score = int(analysis.get('probabilite_vente', 0.5) * 100)
+                await db.leads.update_one(
+                    {"id": lead_id},
+                    {"$set": {
+                        "score_qualification": new_score,
+                        "intention_vente": analysis.get('intention_vente'),
+                        "probabilité_vente": analysis.get('probabilite_vente'),
+                        "ai_analyzed": True,
+                        "dernière_activité": datetime.now()
+                    }}
+                )
+        
+        logger.info(f"✅ Analyse batch IA terminée: {len(analyses)} leads traités")
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur traitement batch IA: {str(e)}")
+
 # Background task to process scheduled emails
 @app.on_event("startup")
 async def startup_event():
