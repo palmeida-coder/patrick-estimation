@@ -1275,7 +1275,7 @@ function AIInsights() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5" />
-            Leads Haute Probabilité (>70%)
+            Leads Haute Probabilité (&gt;70%)
           </CardTitle>
           <CardDescription>
             Prospects avec forte probabilité de conversion selon l'IA
