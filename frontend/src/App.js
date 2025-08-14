@@ -29,7 +29,10 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Zap
+  Zap,
+  Brain,
+  Eye,
+  Lightbulb
 } from 'lucide-react';
 import './App.css';
 
