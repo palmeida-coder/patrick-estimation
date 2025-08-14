@@ -88,6 +88,10 @@ function Navigation() {
               <TrendingUp className="w-4 h-4" />
               Analytics
             </Link>
+            <Link to="/ai-insights" className="nav-link">
+              <Brain className="w-4 h-4" />
+              IA Insights
+            </Link>
           </div>
           
           <div className="flex items-center space-x-3">
