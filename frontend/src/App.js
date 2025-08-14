@@ -1081,4 +1081,278 @@ function Analytics() {
   );
 }
 
+// AI Insights Component
+function AIInsights() {
+  const [aiDashboard, setAiDashboard] = useState(null);
+  const [marketInsights, setMarketInsights] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    loadAIDashboard();
+  }, []);
+
+  const loadAIDashboard = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/ai/dashboard`);
+      setAiDashboard(response.data);
+    } catch (error) {
+      console.error('Erreur chargement dashboard IA:', error);
+      setMessage('❌ Erreur chargement dashboard IA');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runBatchAnalysis = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/ai/analyze-batch`);
+      setMessage(`✅ ${response.data.message}`);
+      setTimeout(() => loadAIDashboard(), 3000); // Recharger après 3s
+    } catch (error) {
+      setMessage(`❌ Erreur: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIntentionColor = (intention) => {
+    const colors = {
+      '3_mois': 'bg-red-100 text-red-800',
+      '6_mois': 'bg-orange-100 text-orange-800', 
+      '9_mois': 'bg-green-100 text-green-800'
+    };
+    return colors[intention] || 'bg-gray-100 text-gray-800';
+  };
+
+  if (loading && !aiDashboard) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">IA Comportementale Efficity</h1>
+          <p className="text-slate-600 mt-1">Prédictions intelligentes et insights comportementaux</p>
+        </div>
+        <Button 
+          onClick={runBatchAnalysis}
+          disabled={loading}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          <Brain className="w-4 h-4 mr-2" />
+          {loading ? 'Analyse...' : 'Analyser tous les leads'}
+        </Button>
+      </div>
+
+      {/* Messages */}
+      {message && (
+        <Alert className={message.includes('✅') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Statistiques IA */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600">Analyses IA</p>
+                <p className="text-2xl font-bold text-purple-800">{aiDashboard?.total_analyses || 0}</p>
+              </div>
+              <Brain className="w-8 h-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-orange-600">Ventes 3 mois</p>
+                <p className="text-2xl font-bold text-orange-800">
+                  {aiDashboard?.intentions_breakdown?.find(i => i._id === '3_mois')?.count || 0}
+                </p>
+              </div>
+              <Target className="w-8 h-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-600">Leads Haute Prob.</p>
+                <p className="text-2xl font-bold text-blue-800">{aiDashboard?.high_probability_leads?.length || 0}</p>
+              </div>
+              <Star className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600">Marché Lyon</p>
+                <p className="text-lg font-bold text-green-800">
+                  {aiDashboard?.market_insights?.prix_moyen_m2 || 4500}€/m²
+                </p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Répartition Intentions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5" />
+              Intentions de Vente IA
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {aiDashboard?.intentions_breakdown?.map((intention, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Badge className={getIntentionColor(intention._id)}>
+                      {intention._id?.replace('_', ' ') || 'Non défini'}
+                    </Badge>
+                    <span className="text-sm text-slate-600">
+                      Prob. moy: {Math.round((intention.avg_probability || 0) * 100)}%
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-slate-900">{intention.count}</div>
+                    <div className="text-xs text-slate-500">leads</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Recommandations IA */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5" />
+              Recommandations IA les plus fréquentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {aiDashboard?.top_recommendations?.map((rec, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-800">{rec._id}</p>
+                  </div>
+                  <Badge variant="secondary">{rec.count} fois</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Leads Haute Probabilité */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5" />
+            Leads Haute Probabilité (>70%)
+          </CardTitle>
+          <CardDescription>
+            Prospects avec forte probabilité de conversion selon l'IA
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {aiDashboard?.high_probability_leads?.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {aiDashboard.high_probability_leads.map((lead, index) => (
+                <div key={index} className="p-4 border border-green-200 rounded-lg bg-green-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-green-800">
+                      {lead.prénom} {lead.nom}
+                    </h4>
+                    <Badge className="bg-green-100 text-green-800">
+                      {Math.round((lead.probabilité_vente || 0) * 100)}%
+                    </Badge>
+                  </div>
+                  <div className="space-y-1 text-sm text-green-700">
+                    <p><MapPin className="w-3 h-3 inline mr-1" />{lead.ville} ({lead.code_postal})</p>
+                    <p><Phone className="w-3 h-3 inline mr-1" />{lead.téléphone}</p>
+                    <p><Target className="w-3 h-3 inline mr-1" />Source: {lead.source}</p>
+                  </div>
+                  <div className="mt-3">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                      <Phone className="w-3 h-3 mr-1" />
+                      Contacter maintenant
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Star className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Aucun lead haute probabilité pour le moment</p>
+              <p className="text-sm text-gray-400">Lancez une analyse batch pour identifier les prospects prioritaires</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Insights Marché IA */}
+      <Card className="border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-indigo-800">
+            <TrendingUp className="w-5 h-5" />
+            Insights Marché Lyon - IA
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {aiDashboard?.market_insights && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-white rounded-lg">
+                <div className="text-2xl font-bold text-indigo-600">
+                  {aiDashboard.market_insights.prix_moyen_m2}€/m²
+                </div>
+                <div className="text-sm text-slate-600">Prix moyen Lyon</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg">
+                <div className="text-lg font-bold text-indigo-600">
+                  {aiDashboard.market_insights.tendance_prix || 'Stable'}
+                </div>
+                <div className="text-sm text-slate-600">Tendance marché</div>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg">
+                <div className="text-sm font-bold text-indigo-600">
+                  {aiDashboard.market_insights.secteurs_porteurs?.join(', ') || 'Centre, 6ème'}
+                </div>
+                <div className="text-sm text-slate-600">Secteurs porteurs</div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default App;
