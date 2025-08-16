@@ -398,6 +398,23 @@ function LeadsManager() {
     }
   };
 
+  const analyzeLeadWithAI = async (leadId) => {
+    try {
+      console.log('🧠 Démarrage analyse IA pour le lead:', leadId);
+      const response = await axios.post(`${API_BASE_URL}/api/ai/analyze-lead/${leadId}`);
+      console.log('✅ Analyse IA terminée:', response.data);
+      
+      // Recharger les leads pour voir les nouveaux scores
+      fetchLeads();
+      
+      // Optionnel: afficher une notification de succès
+      alert(`✅ Analyse IA terminée!\nIntention: ${response.data.intention_vente}\nProbabilité: ${Math.round(response.data.probabilite_vente * 100)}%`);
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'analyse IA:', error);
+      alert('❌ Erreur lors de l\'analyse IA. Vérifiez la console pour plus de détails.');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const colors = {
       'nouveau': 'bg-blue-100 text-blue-800',
