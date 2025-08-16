@@ -92,6 +92,10 @@ function Navigation() {
               <Brain className="w-4 h-4" />
               IA Insights
             </Link>
+            <Link to="/patrick-ia" className="nav-link">
+              <Lightbulb className="w-4 h-4" />
+              Patrick IA
+            </Link>
           </div>
           
           <div className="flex items-center space-x-3">
