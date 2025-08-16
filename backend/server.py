@@ -522,6 +522,99 @@ async def analyze_lead_behavior(lead_id: str):
     
     return analysis
 
+# Patrick IA Assistant Endpoints - RÉVOLUTIONNAIRE
+@app.post("/api/patrick-ia/ask")
+async def ask_patrick_ia(request: dict):
+    """Poser une question à Patrick IA"""
+    try:
+        question = request.get("question", "")
+        if not question:
+            raise HTTPException(status_code=400, detail="Question requise")
+        
+        # Obtenir l'assistant
+        assistant = get_assistant_instance(db)
+        
+        # Poser la question
+        response = await assistant.ask_assistant(question)
+        
+        return {
+            "question": question,
+            "response": response,
+            "timestamp": datetime.now().isoformat(),
+            "assistant": "Patrick IA Efficity"
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/briefing")
+async def get_daily_briefing():
+    """Briefing quotidien de Patrick IA"""
+    try:
+        assistant = get_assistant_instance(db)
+        briefing = await assistant.get_daily_briefing()
+        
+        return {
+            "briefing": briefing,
+            "date": datetime.now().strftime("%d/%m/%Y"),
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur briefing Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/patrick-ia/analyze-lead/{lead_id}")
+async def analyze_lead_with_patrick_ia(lead_id: str):
+    """Analyse détaillée d'un lead par Patrick IA"""
+    try:
+        assistant = get_assistant_instance(db)
+        analysis = await assistant.analyze_lead_potential(lead_id)
+        
+        return {
+            "lead_id": lead_id,
+            "analysis": analysis,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur analyse lead Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/opportunities")
+async def get_market_opportunities():
+    """Suggestions d'opportunités marché de Patrick IA"""
+    try:
+        assistant = get_assistant_instance(db)
+        opportunities = await assistant.suggest_market_opportunities()
+        
+        return {
+            "opportunities": opportunities,
+            "generated_at": datetime.now().isoformat(),
+            "market": "Lyon"
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur opportunités Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/conversation-history")
+async def get_conversation_history(limit: int = 20):
+    """Historique des conversations avec Patrick IA"""
+    try:
+        assistant = get_assistant_instance(db)
+        history = await assistant.get_conversation_history(limit)
+        
+        return {
+            "conversations": history,
+            "count": len(history)
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur historique Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # AI Behavioral Analysis Endpoints
 @app.post("/api/ai/analyze-lead/{lead_id}")
 async def analyze_lead_behavior_ai(lead_id: str):
