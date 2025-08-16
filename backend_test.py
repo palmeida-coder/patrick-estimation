@@ -199,6 +199,87 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Get Activities", False, f"- Failed to retrieve activities {details}")
 
+    def test_ai_analyze_lead(self):
+        """Test AI behavioral analysis endpoint - CRITICAL FOR BOUTON ÉCLAIR"""
+        if not self.created_lead_id:
+            return self.log_test("AI Analyze Lead", False, "- No lead ID available (create lead first)")
+        
+        success, response, details = self.make_request('POST', f'api/ai/analyze-lead/{self.created_lead_id}', expected_status=200)
+        
+        required_fields = ['intention_vente', 'probabilite_vente', 'signaux_comportementaux', 'recommandations']
+        
+        if success and any(field in response for field in required_fields):
+            analysis_summary = f"Intention: {response.get('intention_vente', 'N/A')}, Probabilité: {response.get('probabilite_vente', 'N/A')}"
+            return self.log_test("AI Analyze Lead", True, f"- {analysis_summary} {details}")
+        else:
+            return self.log_test("AI Analyze Lead", False, f"- AI Analysis failed {details}")
+
+    def test_ai_batch_analysis(self):
+        """Test AI batch analysis endpoint"""
+        success, response, details = self.make_request('POST', 'api/ai/analyze-batch', expected_status=200)
+        
+        if success and 'message' in response:
+            return self.log_test("AI Batch Analysis", True, f"- {response['message']} {details}")
+        else:
+            return self.log_test("AI Batch Analysis", False, f"- Batch analysis failed {details}")
+
+    def test_ai_dashboard(self):
+        """Test AI dashboard endpoint"""
+        success, response, details = self.make_request('GET', 'api/ai/dashboard', expected_status=200)
+        
+        required_fields = ['total_analyses', 'intentions_breakdown', 'high_probability_leads']
+        
+        if success and any(field in response for field in required_fields):
+            stats_summary = f"Total analyses: {response.get('total_analyses', 0)}, High prob leads: {len(response.get('high_probability_leads', []))}"
+            return self.log_test("AI Dashboard", True, f"- {stats_summary} {details}")
+        else:
+            return self.log_test("AI Dashboard", False, f"- AI Dashboard failed {details}")
+
+    def test_ai_market_insights(self):
+        """Test AI market insights endpoint"""
+        success, response, details = self.make_request('GET', 'api/ai/market-insights?city=Lyon', expected_status=200)
+        
+        if success and ('prix_moyen_m2' in response or 'tendance_prix' in response):
+            return self.log_test("AI Market Insights", True, f"- Market insights retrieved {details}")
+        else:
+            return self.log_test("AI Market Insights", False, f"- Market insights failed {details}")
+
+    def test_sheets_create(self):
+        """Test Google Sheets creation endpoint"""
+        success, response, details = self.make_request('POST', 'api/sheets/create', expected_status=200)
+        
+        if success and ('spreadsheet_id' in response or 'message' in response):
+            return self.log_test("Sheets Create", True, f"- Sheets creation attempted {details}")
+        else:
+            return self.log_test("Sheets Create", False, f"- Sheets creation failed {details}")
+
+    def test_sheets_sync_to(self):
+        """Test sync leads to Google Sheets"""
+        success, response, details = self.make_request('POST', 'api/sheets/sync-to', expected_status=200)
+        
+        if success and 'message' in response:
+            return self.log_test("Sheets Sync To", True, f"- {response['message']} {details}")
+        else:
+            return self.log_test("Sheets Sync To", False, f"- Sync to sheets failed {details}")
+
+    def test_sheets_sync_from(self):
+        """Test sync leads from Google Sheets"""
+        success, response, details = self.make_request('POST', 'api/sheets/sync-from', expected_status=200)
+        
+        if success and 'message' in response:
+            return self.log_test("Sheets Sync From", True, f"- {response['message']} {details}")
+        else:
+            return self.log_test("Sheets Sync From", False, f"- Sync from sheets failed {details}")
+
+    def test_sheets_url(self):
+        """Test get Google Sheets URL"""
+        success, response, details = self.make_request('GET', 'api/sheets/url', expected_status=200)
+        
+        if success and ('spreadsheet_url' in response or 'spreadsheet_id' in response):
+            return self.log_test("Sheets URL", True, f"- Sheets URL retrieved {details}")
+        else:
+            return self.log_test("Sheets URL", False, f"- Sheets URL failed {details}")
+
     def test_lead_analysis(self):
         """Test AI lead analysis endpoint"""
         if not self.created_lead_id:
