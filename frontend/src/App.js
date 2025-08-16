@@ -1377,4 +1377,286 @@ function AIInsights() {
   );
 }
 
+// Patrick IA Assistant Component - RÉVOLUTIONNAIRE
+function PatrickIA() {
+  const [messages, setMessages] = useState([]);
+  const [question, setQuestion] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState([]);
+
+  useEffect(() => {
+    // Charger l'historique et un message d'accueil
+    loadConversationHistory();
+    setMessages([{
+      type: 'assistant',
+      content: '🏠 Bonjour Patrick ! Je suis ton assistant IA Efficity.\n\n💼 Je connais tous tes leads Lyon par cœur et je peux t\'aider à :\n• 🎯 Identifier tes priorités du jour\n• 💰 Estimer le potentiel de tes leads\n• ⚡ Recommander les meilleures actions\n• 📊 Analyser ton marché Lyon\n\nQuelle est ta question ?',
+      timestamp: new Date()
+    }]);
+  }, []);
+
+  const loadConversationHistory = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/patrick-ia/conversation-history?limit=5`);
+      setConversationHistory(response.data.conversations);
+    } catch (error) {
+      console.error('Erreur chargement historique:', error);
+    }
+  };
+
+  const askPatrickIA = async () => {
+    if (!question.trim() || loading) return;
+
+    const userMessage = {
+      type: 'user',
+      content: question,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setLoading(true);
+    setQuestion('');
+
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/patrick-ia/ask`, {
+        question: question
+      });
+
+      const assistantMessage = {
+        type: 'assistant',
+        content: response.data.response,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+      loadConversationHistory(); // Recharger l'historique
+
+    } catch (error) {
+      const errorMessage = {
+        type: 'error',
+        content: `❌ Erreur: ${error.response?.data?.detail || error.message}`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDailyBriefing = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/patrick-ia/briefing`);
+      
+      const briefingMessage = {
+        type: 'assistant',
+        content: `📋 **BRIEFING QUOTIDIEN** - ${response.data.date}\n\n${response.data.briefing}`,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, briefingMessage]);
+    } catch (error) {
+      console.error('Erreur briefing:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getOpportunities = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/patrick-ia/opportunities`);
+      
+      const opportunitiesMessage = {
+        type: 'assistant',
+        content: `🚀 **OPPORTUNITÉS MARCHÉ LYON**\n\n${response.data.opportunities}`,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, opportunitiesMessage]);
+    } catch (error) {
+      console.error('Erreur opportunités:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const suggestedQuestions = [
+    "Quels leads dois-je appeler aujourd'hui ?",
+    "Quel est le potentiel de Marie Dubois ?",
+    "Comment négocier dans le Lyon 2ème ?",
+    "Quels secteurs développer cette semaine ?",
+    "Mes leads les plus prometteurs ?"
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            🤖 Patrick IA - Assistant Efficity
+          </h1>
+          <p className="text-slate-600 mt-1">Votre bras droit commercial intelligent - Expert immobilier Lyon</p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            onClick={getDailyBriefing}
+            disabled={loading}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600"
+          >
+            📋 Briefing du jour
+          </Button>
+          <Button 
+            onClick={getOpportunities}
+            disabled={loading}
+            className="bg-gradient-to-r from-green-600 to-emerald-600"
+          >
+            🚀 Opportunités
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Chat Interface - 3/4 de largeur */}
+        <div className="lg:col-span-3">
+          <Card className="h-[600px] flex flex-col">
+            <CardHeader className="border-b bg-gradient-to-r from-purple-50 to-blue-50">
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="w-5 h-5 text-purple-600" />
+                Conversation avec Patrick IA
+              </CardTitle>
+              <CardDescription>
+                Assistant intelligent spécialisé immobilier Lyon - Connait vos leads par cœur
+              </CardDescription>
+            </CardHeader>
+            
+            {/* Messages */}
+            <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-3/4 p-3 rounded-lg ${
+                      message.type === 'user'
+                        ? 'bg-blue-600 text-white ml-12'
+                        : message.type === 'error'
+                        ? 'bg-red-100 text-red-800 mr-12'
+                        : 'bg-gray-100 text-gray-800 mr-12'
+                    }`}
+                  >
+                    {message.type === 'assistant' && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          PA
+                        </div>
+                        <span className="font-medium text-purple-600">Patrick IA</span>
+                      </div>
+                    )}
+                    <div className="whitespace-pre-wrap text-sm">
+                      {message.content}
+                    </div>
+                    <div className="text-xs opacity-60 mt-2">
+                      {message.timestamp.toLocaleTimeString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 p-3 rounded-lg mr-12">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        PA
+                      </div>
+                      <span className="font-medium text-purple-600">Patrick IA réfléchit...</span>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+            
+            {/* Input */}
+            <div className="border-t p-4">
+              <div className="flex gap-2">
+                <Input
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Posez votre question à Patrick IA..."
+                  className="flex-1"
+                  onKeyPress={(e) => e.key === 'Enter' && askPatrickIA()}
+                />
+                <Button 
+                  onClick={askPatrickIA}
+                  disabled={loading || !question.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Sidebar - 1/4 de largeur */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* Questions suggérées */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">💡 Questions suggérées</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {suggestedQuestions.map((suggestedQ, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="w-full text-left justify-start text-xs h-auto p-2"
+                  onClick={() => setQuestion(suggestedQ)}
+                  disabled={loading}
+                >
+                  {suggestedQ}
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Historique récent */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">🕐 Historique récent</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {conversationHistory.slice(0, 3).map((conv, index) => (
+                <div key={index} className="p-2 bg-slate-50 rounded text-xs">
+                  <p className="font-medium text-slate-700">{conv.question.substring(0, 40)}...</p>
+                  <p className="text-slate-500 mt-1">
+                    {new Date(conv.timestamp).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Stats Patrick IA */}
+          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+            <CardHeader>
+              <CardTitle className="text-lg text-purple-800">📊 Votre Assistant</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold mx-auto mb-3">
+                PA
+              </div>
+              <p className="text-sm text-purple-700 font-medium">Patrick IA Efficity</p>
+              <p className="text-xs text-slate-600 mt-1">Expert Lyon • IA Comportementale</p>
+              <Badge className="mt-2 bg-green-100 text-green-800">🟢 En ligne</Badge>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default App;
