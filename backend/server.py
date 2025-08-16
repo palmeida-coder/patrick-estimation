@@ -16,6 +16,8 @@ from email_automation import EmailAutomationService, EmailTemplate
 from google_sheets_service import GoogleSheetsService, sheets_service
 # Import AI Behavioral service  
 from ai_behavioral_service import AIBehavioralService, ai_behavioral_service
+# Import AI Assistant service
+from ai_assistant_service import EfficityAIAssistant, get_assistant_instance
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
