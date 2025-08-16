@@ -635,9 +635,9 @@ function LeadsManager() {
                       </Button>
                       <Button 
                         size="sm" 
-                        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600"
-                        title="Démarrer automation email"
-                        onClick={() => startEmailAutomation(lead.id)}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
+                        title="⚡ Analyse IA Comportementale - Bouton Éclair"
+                        onClick={() => analyzeLeadWithAI(lead.id)}
                       >
                         <Zap className="w-3 h-3" />
                       </Button>
