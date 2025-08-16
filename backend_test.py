@@ -385,8 +385,24 @@ class EfficiencyAPITester:
         self.test_create_activity()
         self.test_get_activities()
         
-        # AI Analysis tests
+        # AI Analysis tests - CRITICAL FOR BOUTON ÉCLAIR
+        print("\n⚡ AI BEHAVIORAL ANALYSIS TESTS - BOUTON ÉCLAIR")
+        print("-" * 50)
+        self.test_ai_analyze_lead()
+        self.test_ai_batch_analysis()
+        self.test_ai_dashboard()
+        self.test_ai_market_insights()
+        
+        # Legacy analysis test
         self.test_lead_analysis()
+        
+        # Google Sheets Integration Tests
+        print("\n📊 GOOGLE SHEETS INTEGRATION TESTS")
+        print("-" * 40)
+        self.test_sheets_url()
+        self.test_sheets_create()
+        self.test_sheets_sync_to()
+        self.test_sheets_sync_from()
         
         # EMAIL AUTOMATION TESTS - PRIORITY FOR EFFICITY
         print("\n🔥 EMAIL AUTOMATION EFFICITY TESTS")
