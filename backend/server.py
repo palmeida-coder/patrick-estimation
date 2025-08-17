@@ -18,6 +18,8 @@ from google_sheets_service import GoogleSheetsService, sheets_service
 from ai_behavioral_service import AIBehavioralService, ai_behavioral_service
 # Import AI Assistant service
 from ai_assistant_service import EfficityAIAssistant, get_assistant_instance
+# Import Advanced Behavioral Engine - RÉVOLUTIONNAIRE
+from advanced_behavioral_engine import AdvancedBehavioralEngine, get_advanced_engine
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
