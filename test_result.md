@@ -101,3 +101,48 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Bug critique dans la synchronisation Google Sheets - les colonnes ne sont pas alignées correctement, 'Patrick Almeida' et 'Score Qualité' apparaissent dans les mauvaises colonnes."
+
+backend:
+  - task: "Google Sheets Column Mapping Fix"
+    implemented: false
+    working: false
+    file: "/app/backend/google_sheets_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Bug identifié - décalage entre ordre des en-têtes et données dans _append_lead function. Headers: [ID, Nom, Prénom, Email, Téléphone, Adresse, Ville, Code_Postal, Source, Statut, Agent_Assigné, Score_Qualité, Budget_Min, Budget_Max, Surface_Min, Notes_Commerciales, Type_Propriété] mais row_data: [id, nom, prénom, email, téléphone, adresse, ville, code_postal, source, statut, type_propriete, budget_min, budget_max, surface_min, notes_commerciales, agent_assigne, score_qualification]. Ordre incorrect cause misalignment des colonnes."
+
+frontend:
+  - task: "Google Sheets UI"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Interface Google Sheets fonctionne correctement, problème uniquement côté backend mapping"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Google Sheets Column Mapping Fix"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Bug critique Google Sheets identifié - fixing column mapping order in _append_lead function to match headers exactly. User provided screenshots showing data misalignment."
