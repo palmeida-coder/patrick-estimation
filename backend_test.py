@@ -535,12 +535,17 @@ class EfficiencyAPITester:
         # Legacy analysis test
         self.test_lead_analysis()
         
-        # Google Sheets Integration Tests - CRITICAL COLUMN MAPPING FIX
-        print("\n📊 GOOGLE SHEETS INTEGRATION TESTS - COLUMN MAPPING FIX")
-        print("-" * 55)
+        # Google Sheets Integration Tests - COMPREHENSIVE SYNC FIXES
+        print("\n📊 GOOGLE SHEETS COMPREHENSIVE SYNC TESTS - CRITICAL FIXES")
+        print("-" * 65)
         self.test_sheets_url()
-        self.test_sheets_column_mapping_fix()  # NEW: Test the specific fix
-        self.test_sheets_data_integrity()      # NEW: Test data integrity
+        self.test_lead_creation_with_auto_sync()      # NEW: Test auto-sync on creation
+        self.test_lead_update_with_auto_sync()        # NEW: Test auto-sync on update
+        self.test_intelligent_sync_to_sheets()        # NEW: Test intelligent create/update logic
+        self.test_clean_sync_endpoint()               # NEW: Test clean-sync endpoint
+        self.test_sheets_column_mapping_fix()         # ENHANCED: Column mapping verification
+        self.test_bidirectional_sync_integrity()      # NEW: Test bidirectional sync
+        self.test_sheets_data_integrity()             # Existing: Data integrity check
         self.test_sheets_create()
         self.test_sheets_sync_to()
         self.test_sheets_sync_from()
