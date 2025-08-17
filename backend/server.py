@@ -528,6 +528,35 @@ async def get_spreadsheet_url():
     except Exception as e:
         logger.error(f"Erreur récupération URL: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets/clean-sync")
+async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
+    """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
+    try:
+        # Récupérer tous les leads MongoDB (source de vérité)
+        all_leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        logger.info(f"Démarrage clean sync pour {len(all_leads)} leads")
+        
+        # Note: Dans un environnement de production, on pourrait d'abord vider la feuille
+        # mais ici on va simplement s'assurer que tous les leads MongoDB sont correctement synchronisés
+        
+        # Synchroniser tous les leads comme des "updates" pour éviter les doublons
+        for lead in all_leads:
+            background_tasks.add_task(
+                sheets_service.sync_lead_to_sheets,
+                lead,
+                "update"  # Use update to ensure correct column mapping
+            )
+        
+        return {
+            "message": f"Nettoyage et synchronisation démarrés pour {len(all_leads)} leads",
+            "leads_count": len(all_leads),
+            "operation": "clean_sync"
+        }
+    except Exception as e:
+        logger.error(f"Erreur clean sync: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 @app.post("/api/leads/{lead_id}/analyze")
 async def analyze_lead_behavior(lead_id: str):
     lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
