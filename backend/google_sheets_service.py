@@ -212,6 +212,76 @@ class GoogleSheetsService:
         response = request.execute()
         return response
     
+    async def _update_lead(self, lead_data: Dict[str, Any]):
+        """Mettre à jour un lead existant dans le spreadsheet"""
+        try:
+            # Rechercher la ligne du lead par ID
+            request = self.service.spreadsheets().values().get(
+                spreadsheetId=self.spreadsheet_id,
+                range='Leads!A:A'  # Colonne ID
+            )
+            response = request.execute()
+            
+            values = response.get('values', [])
+            lead_id = lead_data.get('id')
+            row_index = None
+            
+            # Trouver l'index de la ligne
+            for i, row in enumerate(values):
+                if row and len(row) > 0 and row[0] == lead_id:
+                    row_index = i + 1  # +1 car les indices Sheets commencent à 1
+                    break
+            
+            if row_index is None:
+                logger.warning(f"Lead {lead_id} non trouvé pour mise à jour, ajout en tant que nouveau lead")
+                return await self._append_lead(lead_data)
+            
+            # Préparer les données mises à jour avec le même ordre que les en-têtes
+            row_data = [
+                lead_data.get('id', ''),
+                lead_data.get('nom', ''),
+                lead_data.get('prénom', ''),
+                lead_data.get('email', ''),
+                lead_data.get('téléphone', ''),
+                lead_data.get('adresse', ''),
+                lead_data.get('ville', ''),
+                lead_data.get('code_postal', ''),
+                lead_data.get('source', ''),
+                lead_data.get('statut', ''),
+                lead_data.get('agent_assigne', 'Patrick Almeida'),  # Position 11: Agent Assigné
+                str(lead_data.get('score_qualification', '')),      # Position 12: Score Qualité
+                str(lead_data.get('budget_min', '')),               # Position 13: Budget Min
+                str(lead_data.get('budget_max', '')),               # Position 14: Budget Max
+                str(lead_data.get('surface_min', '')),              # Position 15: Surface Min
+                lead_data.get('notes_commerciales', ''),            # Position 16: Notes Commerciales
+                lead_data.get('type_propriete', ''),                # Position 17: Type Propriété
+                self._format_datetime(lead_data.get('date_creation')),              # Position 18: Date Création
+                self._format_datetime(lead_data.get('date_derniere_modification')), # Position 19: Dernière Modification
+                self._format_datetime(lead_data.get('dernière_activité'))           # Position 20: Dernière Activité
+            ]
+            
+            # Mettre à jour la ligne
+            body = {
+                'values': [row_data],
+                'majorDimension': 'ROWS'
+            }
+            
+            range_name = f'Leads!A{row_index}:T{row_index}'
+            request = self.service.spreadsheets().values().update(
+                spreadsheetId=self.spreadsheet_id,
+                range=range_name,
+                valueInputOption='USER_ENTERED',
+                body=body
+            )
+            
+            response = request.execute()
+            logger.info(f"✅ Lead {lead_id} mis à jour en ligne {row_index}")
+            return response
+            
+        except Exception as e:
+            logger.error(f"❌ Erreur mise à jour lead {lead_data.get('id')}: {str(e)}")
+            raise
+    
     async def sync_from_sheets(self) -> List[Dict[str, Any]]:
         """Synchroniser les données depuis Google Sheets vers MongoDB"""
         if not self.spreadsheet_id:
