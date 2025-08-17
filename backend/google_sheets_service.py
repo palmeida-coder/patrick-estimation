@@ -204,7 +204,7 @@ class GoogleSheetsService:
         
         request = self.service.spreadsheets().values().append(
             spreadsheetId=self.spreadsheet_id,
-            range='Leads!A:T',  # Nom correct de la feuille renommée
+            range='Leads!A:U',  # Utiliser A:U pour 21 colonnes (A à U)
             valueInputOption='USER_ENTERED',
             insertDataOption='INSERT_ROWS',
             body=body
