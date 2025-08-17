@@ -24,11 +24,10 @@ def test_column_mapping_fix():
         "adresse": "456 Avenue Test",
         "ville": "Lyon",
         "code_postal": "69002",
-        "source": "manual",
+        "source": "manuel",
         "statut": "qualifié",
         "score_qualification": 92,
-        "notes": "Test spécifique pour vérifier le mapping des colonnes",
-        "assigné_à": "Patrick Almeida"
+        "notes": "Test spécifique pour vérifier le mapping des colonnes"
     }
     
     try:
