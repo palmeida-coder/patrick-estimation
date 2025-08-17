@@ -106,16 +106,19 @@ user_problem_statement: "Bug critique dans la synchronisation Google Sheets - le
 
 backend:
   - task: "Google Sheets Column Mapping Fix"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "/app/backend/google_sheets_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
         comment: "Bug identifié - décalage entre ordre des en-têtes et données dans _append_lead function. Headers: [ID, Nom, Prénom, Email, Téléphone, Adresse, Ville, Code_Postal, Source, Statut, Agent_Assigné, Score_Qualité, Budget_Min, Budget_Max, Surface_Min, Notes_Commerciales, Type_Propriété] mais row_data: [id, nom, prénom, email, téléphone, adresse, ville, code_postal, source, statut, type_propriete, budget_min, budget_max, surface_min, notes_commerciales, agent_assigne, score_qualification]. Ordre incorrect cause misalignment des colonnes."
+      - working: true
+        agent: "testing"
+        comment: "✅ COLUMN MAPPING FIX VERIFIED - Tested all Google Sheets endpoints successfully. POST /api/leads creates leads with auto-sync, POST /api/sheets/sync-to syncs 5 leads correctly, POST /api/sheets/sync-from updated 33 leads, GET /api/sheets/url returns correct spreadsheet ID 1jpnjzjI4cqfKHuDMc1H5SqnR98HrZEarLRE7ik_qOxY. Column order in _append_lead and _update_lead functions now matches headers exactly: [id, nom, prénom, email, téléphone, adresse, ville, code_postal, source, statut, agent_assigne, score_qualification, budget_min, budget_max, surface_min, notes_commerciales, type_propriete, date_creation, date_derniere_modification, dernière_activité]. Patrick Almeida appears in correct 'Agent Assigné' column (position 11), Score Qualité appears in correct column (position 12). All sync operations working without errors."
 
 frontend:
   - task: "Google Sheets UI"
