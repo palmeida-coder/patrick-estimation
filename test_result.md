@@ -149,3 +149,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Bug critique Google Sheets identifié - fixing column mapping order in _append_lead function to match headers exactly. User provided screenshots showing data misalignment."
+  - agent: "testing"
+    message: "✅ GOOGLE SHEETS COLUMN MAPPING FIX SUCCESSFULLY TESTED - All 4 critical API endpoints working correctly: POST /api/leads (auto-sync), POST /api/sheets/sync-to (sync to sheets), POST /api/sheets/sync-from (sync from sheets), GET /api/sheets/url (spreadsheet access). Column alignment issue RESOLVED - Patrick Almeida now appears in correct 'Agent Assigné' column (position 11), Score Qualité appears in correct column (position 12). Data order in _append_lead and _update_lead functions matches headers exactly. Tested with 96.2% success rate on full backend test suite. Spreadsheet ID 1jpnjzjI4cqfKHuDMc1H5SqnR98HrZEarLRE7ik_qOxY confirmed working. No critical issues found."
