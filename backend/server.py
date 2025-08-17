@@ -422,22 +422,43 @@ async def configure_spreadsheet(request: dict):
 
 @app.post("/api/sheets/sync-to")
 async def sync_leads_to_sheets(background_tasks: BackgroundTasks):
-    """Synchroniser tous les leads vers Google Sheets"""
+    """Synchroniser tous les leads vers Google Sheets avec logique create/update intelligente"""
     try:
         # Récupérer tous les leads
         all_leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
         
-        # Synchroniser en arrière-plan
+        # Obtenir les IDs existants dans Google Sheets
+        existing_sheets_leads = await sheets_service.sync_from_sheets()
+        existing_sheet_ids = {lead.get('id') for lead in existing_sheets_leads if lead.get('id')}
+        
+        create_count = 0
+        update_count = 0
+        
+        # Synchroniser en arrière-plan avec logique create/update
         for lead in all_leads:
-            background_tasks.add_task(
-                sheets_service.sync_lead_to_sheets,
-                lead,
-                "create"
-            )
+            lead_id = lead.get('id')
+            if lead_id in existing_sheet_ids:
+                # Lead existe dans Sheets -> UPDATE
+                background_tasks.add_task(
+                    sheets_service.sync_lead_to_sheets,
+                    lead,
+                    "update"
+                )
+                update_count += 1
+            else:
+                # Nouveau lead -> CREATE
+                background_tasks.add_task(
+                    sheets_service.sync_lead_to_sheets,
+                    lead,
+                    "create"
+                )
+                create_count += 1
         
         return {
-            "message": f"Synchronisation de {len(all_leads)} leads vers Google Sheets démarrée",
-            "leads_count": len(all_leads)
+            "message": f"Synchronisation intelligente démarrée: {create_count} créations, {update_count} mises à jour",
+            "leads_count": len(all_leads),
+            "new_leads": create_count,
+            "updated_leads": update_count
         }
     except Exception as e:
         logger.error(f"Erreur sync vers Sheets: {str(e)}")
