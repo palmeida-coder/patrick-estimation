@@ -294,7 +294,7 @@ class GoogleSheetsService:
             # Récupérer toutes les données
             request = self.service.spreadsheets().values().get(
                 spreadsheetId=self.spreadsheet_id,
-                range='Leads!A:T'  # Utiliser le nom correct de la feuille
+                range='Leads!A:U'  # Utiliser A:U pour 21 colonnes
             )
             response = request.execute()
             
