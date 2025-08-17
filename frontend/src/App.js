@@ -420,6 +420,32 @@ function LeadsManager() {
     }
   };
 
+  const advancedAnalyzeLead = async (leadId) => {
+    try {
+      console.log('🚀 Démarrage analyse RÉVOLUTIONNAIRE pour le lead:', leadId);
+      const response = await axios.post(`${API_BASE_URL}/api/advanced/analyze/${leadId}`);
+      console.log('✅ Analyse révolutionnaire terminée:', response.data);
+      
+      // Recharger les leads pour voir les nouveaux scores avancés
+      fetchLeads();
+      
+      // Affichage enrichi des résultats
+      const analysis = response.data;
+      alert(`🚀 ANALYSE RÉVOLUTIONNAIRE TERMINÉE !
+
+🎯 Intention: ${analysis.intention_vente}
+📊 Probabilité: ${Math.round(analysis.probabilite_vente * 100)}%
+💰 Commission estimée: ${analysis.potentiel_commission}€
+🏆 Profil: ${analysis.profil_type}
+⚡ Action: ${analysis.timing_optimal}
+
+Recommandations: ${analysis.recommandations_immediates?.join(', ') || 'Voir détails'}`);
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'analyse révolutionnaire:', error);
+      alert('❌ Erreur analyse révolutionnaire. Vérifiez la console.');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const colors = {
       'nouveau': 'bg-blue-100 text-blue-800',
