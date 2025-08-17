@@ -167,33 +167,34 @@ class GoogleSheetsService:
     
     async def _append_lead(self, lead_data: Dict[str, Any]):
         """Ajouter un nouveau lead au spreadsheet"""
-        # ORDRE CORRIGÉ pour correspondre exactement aux en-têtes définis dans _setup_headers
-        # Headers: ['ID', 'Nom', 'Prénom', 'Email', 'Téléphone', 
+        # ORDRE CORRIGÉ pour correspondre à la structure RÉELLE du Google Sheet
+        # Structure réelle observée: ['ID', 'Nom', 'Prénom', 'Email', 'Téléphone', 
         #          'Adresse', 'Ville', 'Code Postal', 'Source', 'Statut',
-        #          'Agent Assigné', 'Score Qualité', 'Budget Min', 'Budget Max', 
-        #          'Surface Min', 'Notes Commerciales', 'Type Propriété',
+        #          'Type', 'Propriété', 'Budget Min', 'Budget Max', 'Surface Min', 
+        #          'Notes Commerciales', 'Agent Assigné', 'Score Qualité', 
         #          'Date Création', 'Dernière Modification', 'Dernière Activité']
         row_data = [
-            lead_data.get('id', ''),
-            lead_data.get('nom', ''),
-            lead_data.get('prénom', ''),
-            lead_data.get('email', ''),
-            lead_data.get('téléphone', ''),
-            lead_data.get('adresse', ''),
-            lead_data.get('ville', ''),
-            lead_data.get('code_postal', ''),
-            lead_data.get('source', ''),
-            lead_data.get('statut', ''),
-            lead_data.get('agent_assigne', 'Patrick Almeida'),  # Position 11: Agent Assigné
-            str(lead_data.get('score_qualification', '')),      # Position 12: Score Qualité
-            str(lead_data.get('budget_min', '')),               # Position 13: Budget Min
-            str(lead_data.get('budget_max', '')),               # Position 14: Budget Max
-            str(lead_data.get('surface_min', '')),              # Position 15: Surface Min
-            lead_data.get('notes_commerciales', ''),            # Position 16: Notes Commerciales
-            lead_data.get('type_propriete', ''),                # Position 17: Type Propriété
-            self._format_datetime(lead_data.get('date_creation')),              # Position 18: Date Création
-            self._format_datetime(lead_data.get('date_derniere_modification')), # Position 19: Dernière Modification
-            self._format_datetime(lead_data.get('dernière_activité'))           # Position 20: Dernière Activité
+            lead_data.get('id', ''),                                # Position 1: ID
+            lead_data.get('nom', ''),                               # Position 2: Nom  
+            lead_data.get('prénom', ''),                            # Position 3: Prénom
+            lead_data.get('email', ''),                             # Position 4: Email
+            lead_data.get('téléphone', ''),                         # Position 5: Téléphone
+            lead_data.get('adresse', ''),                           # Position 6: Adresse
+            lead_data.get('ville', ''),                             # Position 7: Ville
+            lead_data.get('code_postal', ''),                       # Position 8: Code Postal
+            lead_data.get('source', ''),                            # Position 9: Source
+            lead_data.get('statut', ''),                            # Position 10: Statut
+            lead_data.get('type_propriete', ''),                    # Position 11: Type
+            '',                                                     # Position 12: Propriété (vide)
+            str(lead_data.get('budget_min', '')),                   # Position 13: Budget Min
+            str(lead_data.get('budget_max', '')),                   # Position 14: Budget Max
+            str(lead_data.get('surface_min', '')),                  # Position 15: Surface Min
+            lead_data.get('notes_commerciales', ''),                # Position 16: Notes Commerciales
+            lead_data.get('agent_assigne', 'Patrick Almeida'),      # Position 17: Agent Assigné ← CORRECT!
+            str(lead_data.get('score_qualification', '')),          # Position 18: Score Qualité ← CORRECT!
+            self._format_datetime(lead_data.get('date_creation')),              # Position 19: Date Création
+            self._format_datetime(lead_data.get('date_derniere_modification')), # Position 20: Dernière Modification  
+            self._format_datetime(lead_data.get('dernière_activité'))           # Position 21: Dernière Activité
         ]
         
         body = {
