@@ -452,10 +452,12 @@ class EfficiencyAPITester:
         # Legacy analysis test
         self.test_lead_analysis()
         
-        # Google Sheets Integration Tests
-        print("\n📊 GOOGLE SHEETS INTEGRATION TESTS")
-        print("-" * 40)
+        # Google Sheets Integration Tests - CRITICAL COLUMN MAPPING FIX
+        print("\n📊 GOOGLE SHEETS INTEGRATION TESTS - COLUMN MAPPING FIX")
+        print("-" * 55)
         self.test_sheets_url()
+        self.test_sheets_column_mapping_fix()  # NEW: Test the specific fix
+        self.test_sheets_data_integrity()      # NEW: Test data integrity
         self.test_sheets_create()
         self.test_sheets_sync_to()
         self.test_sheets_sync_from()
