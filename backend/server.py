@@ -524,6 +524,163 @@ async def analyze_lead_behavior(lead_id: str):
     
     return analysis
 
+# Advanced Behavioral Engine - RÉVOLUTIONNAIRE
+@app.post("/api/advanced/analyze/{lead_id}")
+async def advanced_behavioral_analysis(lead_id: str):
+    """ANALYSE COMPORTEMENTALE RÉVOLUTIONNAIRE - Précision maximale"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Moteur d'analyse avancée
+        engine = get_advanced_engine(db)
+        analysis = await engine.deep_behavioral_analysis(lead)
+        
+        # Sauvegarder l'analyse avancée
+        await db.advanced_analyses.insert_one({
+            "id": str(uuid.uuid4()),
+            "lead_id": lead_id,
+            "analysis": analysis,
+            "engine": "Advanced_v2.0",
+            "created_at": datetime.now()
+        })
+        
+        # Mettre à jour le lead avec scores avancés
+        await db.leads.update_one(
+            {"id": lead_id},
+            {"$set": {
+                "score_qualification": int(analysis.get('score_potentiel', 0.5) * 100),
+                "probabilité_vente": analysis.get('probabilite_vente', 0.5),
+                "intention_vente": analysis.get('intention_vente'),
+                "profil_type": analysis.get('profil_type', 'Standard'),
+                "commission_estimee": analysis.get('potentiel_commission', 0),
+                "dernière_activité": datetime.now(),
+                "advanced_analyzed": True
+            }}
+        )
+        
+        logger.info(f"✅ Analyse révolutionnaire terminée pour lead {lead_id}")
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur analyse révolutionnaire: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/advanced/priority-leads")
+async def get_priority_leads(limit: int = 10):
+    """LEADS PRIORITAIRES - Scoring avancé temps réel"""
+    try:
+        engine = get_advanced_engine(db)
+        priority_leads = await engine.get_priority_leads(limit)
+        
+        return {
+            "priority_leads": priority_leads,
+            "count": len(priority_leads),
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur leads prioritaires: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/advanced/action-plan")
+async def get_daily_action_plan():
+    """PLAN D'ACTION QUOTIDIEN - Personnalisé Patrick"""
+    try:
+        engine = get_advanced_engine(db)
+        action_plan = await engine.generate_daily_action_plan()
+        
+        return action_plan
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur plan d'action: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/advanced/behavioral-changes/{lead_id}")
+async def detect_behavioral_changes(lead_id: str):
+    """DÉTECTION CHANGEMENTS COMPORTEMENTAUX - Innovation unique"""
+    try:
+        engine = get_advanced_engine(db)
+        changes = await engine.detect_behavioral_changes(lead_id)
+        
+        return changes
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur détection changements: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/advanced/analyze-all")
+async def advanced_analyze_all_leads(background_tasks: BackgroundTasks):
+    """ANALYSE RÉVOLUTIONNAIRE DE TOUS LES LEADS"""
+    try:
+        # Récupérer leads non analysés par le moteur avancé
+        leads = await db.leads.find({
+            "$or": [
+                {"advanced_analyzed": {"$exists": False}},
+                {"advanced_analyzed": False}
+            ]
+        }, {"_id": 0}).limit(10).to_list(length=None)
+        
+        if not leads:
+            return {"message": "Tous les leads sont déjà analysés par le moteur avancé", "count": 0}
+        
+        # Lancer analyses en arrière-plan
+        background_tasks.add_task(process_advanced_batch_analysis, leads)
+        
+        return {
+            "message": f"Analyse révolutionnaire démarrée pour {len(leads)} leads",
+            "count": len(leads),
+            "engine": "Advanced_v2.0"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur analyse révolutionnaire batch: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Background task pour analyses avancées
+async def process_advanced_batch_analysis(leads: List[Dict[str, Any]]):
+    """Traiter les analyses avancées en lot"""
+    try:
+        engine = get_advanced_engine(db)
+        
+        for lead in leads:
+            try:
+                analysis = await engine.deep_behavioral_analysis(lead)
+                
+                # Sauvegarder analyse
+                await db.advanced_analyses.insert_one({
+                    "id": str(uuid.uuid4()),
+                    "lead_id": lead.get('id'),
+                    "analysis": analysis,
+                    "engine": "Advanced_v2.0",
+                    "created_at": datetime.now()
+                })
+                
+                # Mettre à jour lead
+                await db.leads.update_one(
+                    {"id": lead.get('id')},
+                    {"$set": {
+                        "score_qualification": int(analysis.get('score_potentiel', 0.5) * 100),
+                        "probabilité_vente": analysis.get('probabilite_vente', 0.5),
+                        "profil_type": analysis.get('profil_type', 'Standard'),
+                        "commission_estimee": analysis.get('potentiel_commission', 0),
+                        "advanced_analyzed": True
+                    }}
+                )
+                
+                # Délai entre analyses pour éviter rate limiting
+                await asyncio.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"❌ Erreur analyse avancée lead {lead.get('id')}: {str(e)}")
+        
+        logger.info(f"✅ Analyse révolutionnaire batch terminée: {len(leads)} leads")
+        
+    except Exception as e:
+        logger.error(f"❌ Erreur traitement batch avancé: {str(e)}")
+
 # Patrick IA Assistant Endpoints - RÉVOLUTIONNAIRE
 @app.post("/api/patrick-ia/ask")
 async def ask_patrick_ia(request: dict):
