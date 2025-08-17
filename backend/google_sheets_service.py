@@ -167,6 +167,12 @@ class GoogleSheetsService:
     
     async def _append_lead(self, lead_data: Dict[str, Any]):
         """Ajouter un nouveau lead au spreadsheet"""
+        # ORDRE CORRIGÉ pour correspondre exactement aux en-têtes définis dans _setup_headers
+        # Headers: ['ID', 'Nom', 'Prénom', 'Email', 'Téléphone', 
+        #          'Adresse', 'Ville', 'Code Postal', 'Source', 'Statut',
+        #          'Agent Assigné', 'Score Qualité', 'Budget Min', 'Budget Max', 
+        #          'Surface Min', 'Notes Commerciales', 'Type Propriété',
+        #          'Date Création', 'Dernière Modification', 'Dernière Activité']
         row_data = [
             lead_data.get('id', ''),
             lead_data.get('nom', ''),
@@ -178,16 +184,16 @@ class GoogleSheetsService:
             lead_data.get('code_postal', ''),
             lead_data.get('source', ''),
             lead_data.get('statut', ''),
-            lead_data.get('type_propriete', ''),
-            str(lead_data.get('budget_min', '')),
-            str(lead_data.get('budget_max', '')),
-            str(lead_data.get('surface_min', '')),
-            lead_data.get('notes_commerciales', ''),
-            lead_data.get('agent_assigne', 'Patrick Almeida'),
-            str(lead_data.get('score_qualification', '')),
-            self._format_datetime(lead_data.get('date_creation')),
-            self._format_datetime(lead_data.get('date_derniere_modification')),
-            self._format_datetime(lead_data.get('dernière_activité'))
+            lead_data.get('agent_assigne', 'Patrick Almeida'),  # Position 11: Agent Assigné
+            str(lead_data.get('score_qualification', '')),      # Position 12: Score Qualité
+            str(lead_data.get('budget_min', '')),               # Position 13: Budget Min
+            str(lead_data.get('budget_max', '')),               # Position 14: Budget Max
+            str(lead_data.get('surface_min', '')),              # Position 15: Surface Min
+            lead_data.get('notes_commerciales', ''),            # Position 16: Notes Commerciales
+            lead_data.get('type_propriete', ''),                # Position 17: Type Propriété
+            self._format_datetime(lead_data.get('date_creation')),              # Position 18: Date Création
+            self._format_datetime(lead_data.get('date_derniere_modification')), # Position 19: Dernière Modification
+            self._format_datetime(lead_data.get('dernière_activité'))           # Position 20: Dernière Activité
         ]
         
         body = {
