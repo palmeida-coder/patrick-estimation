@@ -118,7 +118,13 @@ backend:
         comment: "Bug identifié - décalage entre ordre des en-têtes et données dans _append_lead function. Headers: [ID, Nom, Prénom, Email, Téléphone, Adresse, Ville, Code_Postal, Source, Statut, Agent_Assigné, Score_Qualité, Budget_Min, Budget_Max, Surface_Min, Notes_Commerciales, Type_Propriété] mais row_data: [id, nom, prénom, email, téléphone, adresse, ville, code_postal, source, statut, type_propriete, budget_min, budget_max, surface_min, notes_commerciales, agent_assigne, score_qualification]. Ordre incorrect cause misalignment des colonnes."
       - working: true
         agent: "testing"
-        comment: "✅ COLUMN MAPPING FIX VERIFIED - Tested all Google Sheets endpoints successfully. POST /api/leads creates leads with auto-sync, POST /api/sheets/sync-to syncs 5 leads correctly, POST /api/sheets/sync-from updated 33 leads, GET /api/sheets/url returns correct spreadsheet ID 1jpnjzjI4cqfKHuDMc1H5SqnR98HrZEarLRE7ik_qOxY. Column order in _append_lead and _update_lead functions now matches headers exactly: [id, nom, prénom, email, téléphone, adresse, ville, code_postal, source, statut, agent_assigne, score_qualification, budget_min, budget_max, surface_min, notes_commerciales, type_propriete, date_creation, date_derniere_modification, dernière_activité]. Patrick Almeida appears in correct 'Agent Assigné' column (position 11), Score Qualité appears in correct column (position 12). All sync operations working without errors."
+        comment: "✅ CORRECTION RÉUSSIE - Column mapping fix testé et vérifié. Patrick Almeida apparaît maintenant correctement dans la colonne 'Agent Assigné' (position 11), Score Qualité dans la colonne 'Score Qualité' (position 12). Tous les tests Google Sheets passent avec 96.2% de succès. Synchronisation bidirectionnelle fonctionnelle."
+      - working: false
+        agent: "main"
+        comment: "❌ PROBLÈME PERSISTANT - User screenshot montre que les données ne sont toujours pas dans les bonnes colonnes. Troubleshoot_agent identifie 3 problèmes: 1) Update leads ne sync pas avec Sheets, 2) Sync manual utilise toujours 'create' au lieu d'update, 3) Conflicts bidirectionnels. Appliqué corrections: sync automatique sur update/create, logique create/update intelligente, endpoint clean-sync."
+      - working: false
+        agent: "main" 
+        comment: "🔧 CORRECTIONS APPLIQUÉES - 1) Ajouté sync Google Sheets automatique à update_lead endpoint, 2) Modifié sync-to pour utiliser create/update intelligent basé sur existence dans Sheets, 3) Ajouté sync automatique lors création leads, 4) Créé endpoint clean-sync pour nettoyer. Need testing pour vérifier résolution complète."
 
 frontend:
   - task: "Google Sheets UI"
