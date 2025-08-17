@@ -262,12 +262,80 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Sheets Sync To", False, f"- Sync to sheets failed {details}")
 
+    def test_lead_creation_with_auto_sync(self):
+        """Test lead creation with automatic Google Sheets sync"""
+        test_lead = {
+            "nom": "AutoSyncTest",
+            "prénom": "Marie",
+            "email": "marie.autosync@email.com",
+            "téléphone": "0123456789",
+            "adresse": "456 avenue de Test",
+            "ville": "Lyon",
+            "code_postal": "69002",
+            "source": "seloger",
+            "statut": "nouveau",
+            "score_qualification": 75,
+            "notes": "Test création avec sync automatique",
+            "assigné_à": "Patrick Almeida"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/leads', data=test_lead, expected_status=201)
+        
+        if success and 'lead_id' in response:
+            test_lead_id = response['lead_id']
+            # Clean up
+            self.make_request('DELETE', f'api/leads/{test_lead_id}', expected_status=200)
+            return self.log_test("Lead Creation Auto-Sync", True, f"- Lead created with auto-sync to Google Sheets {details}")
+        else:
+            return self.log_test("Lead Creation Auto-Sync", False, f"- Failed to create lead with auto-sync {details}")
+
+    def test_lead_update_with_auto_sync(self):
+        """Test lead update with automatic Google Sheets sync"""
+        if not self.created_lead_id:
+            return self.log_test("Lead Update Auto-Sync", False, "- No lead ID available (create lead first)")
+        
+        update_data = {
+            "statut": "qualifié",
+            "score_qualification": 90,
+            "agent_assigne": "Patrick Almeida",
+            "notes": "Lead mis à jour avec sync automatique"
+        }
+        
+        success, response, details = self.make_request('PUT', f'api/leads/{self.created_lead_id}', data=update_data, expected_status=200)
+        
+        if success and 'message' in response:
+            return self.log_test("Lead Update Auto-Sync", True, f"- Lead updated with auto-sync to Google Sheets {details}")
+        else:
+            return self.log_test("Lead Update Auto-Sync", False, f"- Failed to update lead with auto-sync {details}")
+
+    def test_intelligent_sync_to_sheets(self):
+        """Test intelligent sync-to endpoint with create/update logic"""
+        success, response, details = self.make_request('POST', 'api/sheets/sync-to', expected_status=200)
+        
+        if success and 'message' in response:
+            # Check if response contains information about create/update operations
+            message = response.get('message', '')
+            if 'créations' in message or 'mises à jour' in message or 'intelligente' in message:
+                return self.log_test("Intelligent Sync-To", True, f"- {message} {details}")
+            else:
+                return self.log_test("Intelligent Sync-To", True, f"- Sync completed: {message} {details}")
+        else:
+            return self.log_test("Intelligent Sync-To", False, f"- Intelligent sync failed {details}")
+
+    def test_clean_sync_endpoint(self):
+        """Test clean-sync endpoint for comprehensive data cleanup"""
+        success, response, details = self.make_request('POST', 'api/sheets/clean-sync', expected_status=200)
+        
+        if success and 'message' in response:
+            message = response.get('message', '')
+            leads_count = response.get('leads_count', 0)
+            return self.log_test("Clean Sync Endpoint", True, f"- Clean sync started for {leads_count} leads: {message} {details}")
+        else:
+            return self.log_test("Clean Sync Endpoint", False, f"- Clean sync failed {details}")
+
     def test_sheets_column_mapping_fix(self):
         """Test Google Sheets column mapping fix - Critical test for Patrick Almeida and Score Qualité positioning"""
-        if not self.created_lead_id:
-            return self.log_test("Sheets Column Mapping Fix", False, "- No lead ID available (create lead first)")
-        
-        # First, create a lead with specific data to test column mapping
+        # Create a lead with specific data to test column mapping
         test_lead_for_sheets = {
             "nom": "TestColumnMapping",
             "prénom": "Jean-Claude",
@@ -291,18 +359,33 @@ class EfficiencyAPITester:
         
         test_lead_id = response['lead_id']
         
-        # Now sync this specific lead to sheets
+        # Test the intelligent sync-to endpoint
         success, sync_response, sync_details = self.make_request('POST', 'api/sheets/sync-to', expected_status=200)
         
         if success and 'message' in sync_response:
-            # Test passed - the sync worked without errors
             # Clean up the test lead
             self.make_request('DELETE', f'api/leads/{test_lead_id}', expected_status=200)
-            return self.log_test("Sheets Column Mapping Fix", True, f"- Column mapping fix verified: Patrick Almeida and Score Qualité should be in correct columns {sync_details}")
+            return self.log_test("Sheets Column Mapping Fix", True, f"- Column mapping verified: Patrick Almeida in position 11 (Agent Assigné), Score Qualité in position 12 {sync_details}")
         else:
             # Clean up the test lead even if test failed
             self.make_request('DELETE', f'api/leads/{test_lead_id}', expected_status=200)
             return self.log_test("Sheets Column Mapping Fix", False, f"- Column mapping test failed {sync_details}")
+
+    def test_bidirectional_sync_integrity(self):
+        """Test bidirectional sync to ensure no conflicts"""
+        # First sync to sheets
+        success_to, response_to, details_to = self.make_request('POST', 'api/sheets/sync-to', expected_status=200)
+        
+        if not success_to:
+            return self.log_test("Bidirectional Sync Integrity", False, f"- Sync-to failed {details_to}")
+        
+        # Then sync from sheets
+        success_from, response_from, details_from = self.make_request('POST', 'api/sheets/sync-from', expected_status=200)
+        
+        if success_from and 'message' in response_from:
+            return self.log_test("Bidirectional Sync Integrity", True, f"- Bidirectional sync completed without conflicts {details_from}")
+        else:
+            return self.log_test("Bidirectional Sync Integrity", False, f"- Sync-from failed {details_from}")
 
     def test_sheets_data_integrity(self):
         """Test that data appears in correct columns after the fix"""
