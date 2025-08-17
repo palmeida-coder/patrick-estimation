@@ -185,7 +185,7 @@ async def get_lead(lead_id: str):
     return lead
 
 @app.put("/api/leads/{lead_id}")
-async def update_lead(lead_id: str, lead_update: dict):
+async def update_lead(lead_id: str, lead_update: dict, background_tasks: BackgroundTasks):
     lead_update["modifié_le"] = datetime.now()
     
     result = await db.leads.update_one(
@@ -195,6 +195,16 @@ async def update_lead(lead_id: str, lead_update: dict):
     
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Lead non trouvé")
+    
+    # Récupérer le lead mis à jour pour la synchronisation Google Sheets
+    updated_lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if updated_lead:
+        # Synchroniser avec Google Sheets en arrière-plan
+        background_tasks.add_task(
+            sheets_service.sync_lead_to_sheets,
+            updated_lead,
+            "update"
+        )
     
     return {"message": "Lead mis à jour avec succès"}
 
