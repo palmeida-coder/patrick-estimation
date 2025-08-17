@@ -646,6 +646,14 @@ function LeadsManager() {
                       >
                         <Zap className="w-3 h-3" />
                       </Button>
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+                        title="🚀 ANALYSE RÉVOLUTIONNAIRE - Moteur Avancé"
+                        onClick={() => advancedAnalyzeLead(lead.id)}
+                      >
+                        <Brain className="w-3 h-3" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
