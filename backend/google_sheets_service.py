@@ -90,8 +90,8 @@ class GoogleSheetsService:
         headers = [
             'ID', 'Nom', 'Prénom', 'Email', 'Téléphone', 
             'Adresse', 'Ville', 'Code Postal', 'Source', 'Statut',
-            'Type Propriété', 'Budget Min', 'Budget Max', 'Surface Min',
-            'Notes Commerciales', 'Agent Assigné', 'Score Qualité',
+            'Agent Assigné', 'Score Qualité', 'Budget Min', 'Budget Max', 
+            'Surface Min', 'Notes Commerciales', 'Type Propriété',
             'Date Création', 'Dernière Modification', 'Dernière Activité'
         ]
         
