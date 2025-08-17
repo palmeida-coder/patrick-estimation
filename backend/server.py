@@ -175,6 +175,13 @@ async def create_lead(lead: Lead, background_tasks: BackgroundTasks):
             lead_dict
         )
     
+    # Synchroniser automatiquement avec Google Sheets
+    background_tasks.add_task(
+        sheets_service.sync_lead_to_sheets,
+        lead_dict,
+        "create"
+    )
+    
     return {"message": "Lead créé avec succès", "lead_id": lead.id}
 
 @app.get("/api/leads/{lead_id}")
