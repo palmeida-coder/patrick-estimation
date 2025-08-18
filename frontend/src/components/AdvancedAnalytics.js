@@ -29,6 +29,14 @@ import {
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
+// Utilitaires de formatage
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount);
+};
+
 function AdvancedAnalytics() {
   const [analytics, setAnalytics] = useState(null);
   const [funnel, setFunnel] = useState(null);
