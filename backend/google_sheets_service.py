@@ -167,28 +167,28 @@ class GoogleSheetsService:
     
     async def _append_lead(self, lead_data: Dict[str, Any]):
         """Ajouter un nouveau lead au spreadsheet"""
-        # ORDRE CORRIGÉ avec les champs qui existent vraiment dans MongoDB
+        # TABLEAU STRICTEMENT LIMITÉ À 20 COLONNES (A à T)
         row_data = [
-            lead_data.get('id', ''),                                # Position 1: ID
-            lead_data.get('nom', ''),                               # Position 2: Nom  
-            lead_data.get('prénom', ''),                            # Position 3: Prénom
-            lead_data.get('email', ''),                             # Position 4: Email
-            lead_data.get('téléphone', ''),                         # Position 5: Téléphone
-            lead_data.get('adresse', ''),                           # Position 6: Adresse
-            lead_data.get('ville', ''),                             # Position 7: Ville
-            lead_data.get('code_postal', ''),                       # Position 8: Code Postal
-            lead_data.get('source', ''),                            # Position 9: Source
-            lead_data.get('statut', ''),                            # Position 10: Statut
-            lead_data.get('assigné_à', 'Patrick Almeida'),          # Position 11: Agent Assigné ← K
-            str(lead_data.get('score_qualification', '')),          # Position 12: Score Qualité ← L
-            str(lead_data.get('valeur_estimée', '')),               # Position 13: Budget Min (utilise valeur_estimée)
-            '',                                                     # Position 14: Budget Max (vide)
-            '',                                                     # Position 15: Surface Min (vide)
-            lead_data.get('notes', ''),                             # Position 16: Notes Commerciales (utilise notes)
-            '',                                                     # Position 17: Type Propriété (vide)
-            self._format_datetime(lead_data.get('créé_le')),        # Position 18: Date Création
-            self._format_datetime(lead_data.get('modifié_le')),     # Position 19: Dernière Modification
-            self._format_datetime(lead_data.get('dernière_activité')) # Position 20: Dernière Activité
+            lead_data.get('id', ''),                                # 1-A: ID
+            lead_data.get('nom', ''),                               # 2-B: Nom  
+            lead_data.get('prénom', ''),                            # 3-C: Prénom
+            lead_data.get('email', ''),                             # 4-D: Email
+            lead_data.get('téléphone', ''),                         # 5-E: Téléphone
+            lead_data.get('adresse', ''),                           # 6-F: Adresse
+            lead_data.get('ville', ''),                             # 7-G: Ville
+            lead_data.get('code_postal', ''),                       # 8-H: Code Postal
+            lead_data.get('source', ''),                            # 9-I: Source
+            lead_data.get('statut', ''),                            # 10-J: Statut
+            lead_data.get('assigné_à', 'Patrick Almeida'),          # 11-K: Agent Assigné ✅
+            str(lead_data.get('score_qualification', '')),          # 12-L: Score Qualité ✅
+            str(lead_data.get('valeur_estimée', 0) if lead_data.get('valeur_estimée') else ''),  # 13-M: Budget Min
+            '',                                                     # 14-N: Budget Max (vide)
+            '',                                                     # 15-O: Surface Min (vide)  
+            lead_data.get('notes', ''),                             # 16-P: Notes Commerciales
+            lead_data.get('intention_vente', ''),                   # 17-Q: Type Propriété
+            lead_data.get('créé_le', '')[:10] if lead_data.get('créé_le') else '',      # 18-R: Date Création (format court)
+            lead_data.get('modifié_le', '')[:10] if lead_data.get('modifié_le') else '', # 19-S: Dernière Modification (format court)
+            lead_data.get('dernière_activité', '')[:10] if lead_data.get('dernière_activité') else ''  # 20-T: Dernière Activité (format court)
         ]
         
         body = {
