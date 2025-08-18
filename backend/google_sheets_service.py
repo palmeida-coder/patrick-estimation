@@ -186,9 +186,9 @@ class GoogleSheetsService:
             '',                                                     # 15-O: Surface Min (vide)  
             lead_data.get('notes', ''),                             # 16-P: Notes Commerciales
             lead_data.get('intention_vente', ''),                   # 17-Q: Type Propriété
-            lead_data.get('créé_le', '')[:10] if lead_data.get('créé_le') else '',      # 18-R: Date Création (format court)
-            lead_data.get('modifié_le', '')[:10] if lead_data.get('modifié_le') else '', # 19-S: Dernière Modification (format court)
-            lead_data.get('dernière_activité', '')[:10] if lead_data.get('dernière_activité') else ''  # 20-T: Dernière Activité (format court)
+            self._format_datetime(lead_data.get('créé_le')),        # 18-R: Date Création (format correct)
+            self._format_datetime(lead_data.get('modifié_le')),     # 19-S: Dernière Modification (format correct)
+            self._format_datetime(lead_data.get('dernière_activité'))  # 20-T: Dernière Activité (format correct)
         ]
         
         body = {
