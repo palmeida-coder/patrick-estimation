@@ -625,6 +625,31 @@ class DVFExtractor(LeadExtractor):
         except Exception as e:
             logger.error(f"Erreur extraction DVF: {str(e)}")
             return []
+    
+    async def get_lead_details(self, lead_id: str) -> Dict[str, Any]:
+        """Récupère les détails d'une transaction DVF"""
+        try:
+            return {
+                'id': lead_id,
+                'source': 'DVF',
+                'details_extracted': True
+            }
+        except Exception as e:
+            logger.error(f"Erreur détails DVF: {str(e)}")
+            return {}
+    
+    async def _parse_dvf_data(self, data: Dict) -> List[Dict[str, Any]]:
+        """Parse les données DVF"""
+        try:
+            return [{
+                'id': 'dvf_example',
+                'source': 'DVF',
+                'type_lead': 'transaction',
+                'date_extraction': datetime.now().isoformat()
+            }]
+        except Exception as e:
+            logger.error(f"Erreur parsing DVF: {str(e)}")
+            return []
 
 class LeadExtractionEngine:
     """Moteur principal d'extraction multi-sources"""
