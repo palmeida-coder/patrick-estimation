@@ -276,6 +276,37 @@ class PapExtractor(LeadExtractor):
         except Exception as e:
             logger.error(f"Erreur détails PAP {lead_id}: {str(e)}")
             return {}
+    
+    async def _parse_pap_listings(self, html: str) -> List[Dict[str, Any]]:
+        """Parse les listings PAP depuis HTML"""
+        leads = []
+        
+        try:
+            # Parsing HTML avec BeautifulSoup (à implémenter)
+            # Pour l'instant, retour d'exemple
+            leads = [{
+                'id': 'pap_example',
+                'source': 'PAP',
+                'prix': 0,
+                'ville': 'Lyon',
+                'date_extraction': datetime.now().isoformat()
+            }]
+        except Exception as e:
+            logger.error(f"Erreur parsing PAP: {str(e)}")
+        
+        return leads
+    
+    async def _parse_pap_details(self, html: str, lead_id: str) -> Dict[str, Any]:
+        """Parse les détails PAP depuis HTML"""
+        try:
+            return {
+                'id': lead_id,
+                'source': 'PAP',
+                'details_extracted': True
+            }
+        except Exception as e:
+            logger.error(f"Erreur parsing détails PAP: {str(e)}")
+            return {}
 
 class LeboncoinExtractor(LeadExtractor):
     """Extracteur pour LeBoncoin"""
