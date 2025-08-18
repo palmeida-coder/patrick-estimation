@@ -618,6 +618,167 @@ async def get_agents_performance():
         logger.error(f"Erreur performance agents: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== PATRICK IA 2.0 - BEHAVIORAL AI AVANCÉ =====
+
+@app.post("/api/patrick-ia/analyze-lead/{lead_id}")
+async def analyze_lead_behavior(lead_id: str):
+    """Analyse comportementale avancée d'un lead spécifique - Patrick IA 2.0"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Analyse comportementale avancée
+        analysis = await enhanced_ai.analyze_lead_behavior(lead)
+        
+        return {
+            "lead_id": lead_id,
+            "analysis": analysis,
+            "patrick_ia_version": "2.0"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur analyse comportementale lead {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/portfolio-analysis")
+async def analyze_portfolio():
+    """Analyse comportementale complète du portfolio - Patrick IA 2.0"""
+    try:
+        # Récupérer tous les leads
+        leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        # Analyse de portfolio
+        portfolio_analysis = await enhanced_ai.batch_analyze_leads(leads)
+        
+        return {
+            "portfolio_analysis": portfolio_analysis,
+            "total_leads": len(leads),
+            "analysis_timestamp": datetime.now().isoformat(),
+            "patrick_ia_version": "2.0"
+        }
+    except Exception as e:
+        logger.error(f"Erreur analyse portfolio: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/patrick-ia/strategic-insights/{lead_id}")
+async def generate_strategic_insights(lead_id: str):
+    """Génération d'insights stratégiques avec IA - Patrick IA 2.0"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Génération d'insights stratégiques
+        insights = await enhanced_ai.generate_strategic_insights(lead)
+        
+        return {
+            "lead_id": lead_id,
+            "strategic_insights": insights,
+            "patrick_ia_version": "2.0"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur insights stratégiques lead {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/priority-leads")
+async def get_priority_leads():
+    """Récupère les leads prioritaires avec scoring avancé - Patrick IA 2.0"""
+    try:
+        # Récupérer tous les leads
+        leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        # Analyser et scorer
+        priority_leads = []
+        for lead in leads:
+            analysis = await enhanced_ai.analyze_lead_behavior(lead)
+            if "error" not in analysis and analysis.get("priority_level") == "high":
+                priority_leads.append({
+                    "lead": lead,
+                    "analysis": analysis
+                })
+        
+        # Trier par score décroissant
+        priority_leads.sort(key=lambda x: x["analysis"]["global_score"], reverse=True)
+        
+        return {
+            "priority_leads": priority_leads[:10],  # Top 10
+            "total_high_priority": len(priority_leads),
+            "analysis_timestamp": datetime.now().isoformat(),
+            "patrick_ia_version": "2.0"
+        }
+    except Exception as e:
+        logger.error(f"Erreur leads prioritaires: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/daily-actions")
+async def get_daily_actions():
+    """Actions quotidiennes recommandées par Patrick IA 2.0"""
+    try:
+        # Récupérer tous les leads
+        leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        daily_actions = {
+            "urgent_calls": [],
+            "follow_ups": [],
+            "qualifications": [],
+            "estimations": []
+        }
+        
+        for lead in leads[:20]:  # Limiter pour performance
+            analysis = await enhanced_ai.analyze_lead_behavior(lead)
+            if "error" not in analysis:
+                actions = analysis.get("actions_recommandees", [])
+                
+                for action in actions:
+                    if action.get("priorite") == "URGENT":
+                        daily_actions["urgent_calls"].append({
+                            "lead_name": f"{lead.get('prénom', '')} {lead.get('nom', '')}",
+                            "lead_id": lead.get("id"),
+                            "action": action,
+                            "score": analysis.get("global_score", 0)
+                        })
+                    elif "estimation" in action.get("action", "").lower():
+                        daily_actions["estimations"].append({
+                            "lead_name": f"{lead.get('prénom', '')} {lead.get('nom', '')}",
+                            "lead_id": lead.get("id"),
+                            "action": action,
+                            "score": analysis.get("global_score", 0)
+                        })
+                    elif action.get("priorite") in ["ÉLEVÉE", "IMPORTANTE"]:
+                        daily_actions["follow_ups"].append({
+                            "lead_name": f"{lead.get('prénom', '')} {lead.get('nom', '')}",
+                            "lead_id": lead.get("id"),
+                            "action": action,
+                            "score": analysis.get("global_score", 0)
+                        })
+                    else:
+                        daily_actions["qualifications"].append({
+                            "lead_name": f"{lead.get('prénom', '')} {lead.get('nom', '')}",
+                            "lead_id": lead.get("id"),
+                            "action": action,
+                            "score": analysis.get("global_score", 0)
+                        })
+        
+        # Trier chaque catégorie par score
+        for category in daily_actions.values():
+            category.sort(key=lambda x: x["score"], reverse=True)
+            category[:] = category[:5]  # Limiter à 5 par catégorie
+        
+        return {
+            "daily_actions": daily_actions,
+            "generated_at": datetime.now().isoformat(),
+            "patrick_ia_version": "2.0"
+        }
+    except Exception as e:
+        logger.error(f"Erreur actions quotidiennes: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
