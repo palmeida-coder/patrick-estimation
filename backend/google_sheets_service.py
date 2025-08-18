@@ -39,8 +39,8 @@ class GoogleSheetsService:
             # Créer le service Google Sheets
             self.service = build('sheets', 'v4', credentials=self.credentials)
             
-            # ID du spreadsheet Efficity 
-            self.spreadsheet_id = "1jpnjzjI4cqfKHuDMc1H5SqnR98HrZEarLRE7ik_qOxY"
+            # ID du spreadsheet Efficity (configurable)
+            self.spreadsheet_id = "1u-7P2bkiEIOPYfJLq-mL9iT32IWSqWlZaSyjXGiaOCg"
             
             logger.info("✅ Google Sheets service initialisé avec succès")
             
