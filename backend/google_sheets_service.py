@@ -231,7 +231,7 @@ class GoogleSheetsService:
                 logger.warning(f"Lead {lead_id} non trouvé pour mise à jour, ajout en tant que nouveau lead")
                 return await self._append_lead(lead_data)
             
-            # Données avec ordre corrigé pour K=Agent Assigné, L=Score Qualité
+            # Utiliser les champs qui existent vraiment dans MongoDB
             row_data = [
                 lead_data.get('id', ''),                                # Position 1: ID
                 lead_data.get('nom', ''),                               # Position 2: Nom  
@@ -243,16 +243,16 @@ class GoogleSheetsService:
                 lead_data.get('code_postal', ''),                       # Position 8: Code Postal
                 lead_data.get('source', ''),                            # Position 9: Source
                 lead_data.get('statut', ''),                            # Position 10: Statut
-                lead_data.get('assigné_à', 'Patrick Almeida'),      # Position 11: Agent Assigné ← K
+                lead_data.get('assigné_à', 'Patrick Almeida'),          # Position 11: Agent Assigné ← K
                 str(lead_data.get('score_qualification', '')),          # Position 12: Score Qualité ← L
-                str(lead_data.get('budget_min', '')),                   # Position 13: Budget Min ← M
-                str(lead_data.get('budget_max', '')),                   # Position 14: Budget Max ← N
-                str(lead_data.get('surface_min', '')),                  # Position 15: Surface Min ← O
-                lead_data.get('notes_commerciales', ''),                # Position 16: Notes Commerciales ← P
-                lead_data.get('type_propriete', ''),                    # Position 17: Type Propriété ← Q
-                self._format_datetime(lead_data.get('date_creation')),              # Position 18: Date Création ← R
-                self._format_datetime(lead_data.get('date_derniere_modification')), # Position 19: Dernière Modification ← S
-                self._format_datetime(lead_data.get('dernière_activité'))           # Position 20: Dernière Activité ← T
+                str(lead_data.get('valeur_estimée', '')),               # Position 13: Budget Min (utilise valeur_estimée)
+                '',                                                     # Position 14: Budget Max (vide)
+                '',                                                     # Position 15: Surface Min (vide)
+                lead_data.get('notes', ''),                             # Position 16: Notes Commerciales (utilise notes)
+                '',                                                     # Position 17: Type Propriété (vide)
+                self._format_datetime(lead_data.get('créé_le')),        # Position 18: Date Création
+                self._format_datetime(lead_data.get('modifié_le')),     # Position 19: Dernière Modification
+                self._format_datetime(lead_data.get('dernière_activité')) # Position 20: Dernière Activité
             ]
             
             # Mettre à jour la ligne
