@@ -92,6 +92,10 @@ function Navigation() {
               <TrendingUp className="w-4 h-4" />
               Analytics
             </Link>
+            <Link to="/extraction" className="nav-link">
+              <Search className="w-4 h-4" />
+              Extraction
+            </Link>
             <Link to="/ai-insights" className="nav-link">
               <Brain className="w-4 h-4" />
               IA Insights
