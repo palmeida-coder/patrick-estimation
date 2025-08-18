@@ -358,12 +358,10 @@ class LeboncoinExtractor(LeadExtractor):
             }
             
             api_url = f"{self.api_url}/finder/search"
-            response = await self._rate_limited_request(
-                api_url, 
-                method='POST',
-                json=api_params,
-                headers={'Content-Type': 'application/json'}
-            )
+            
+            # Pour LeBoncoin, nous utilisons une requête GET avec paramètres pour simulation
+            # En réalité, l'API nécessiterait une authentification spéciale
+            response = await self._rate_limited_request(api_url, params=api_params)
             
             if response.status != 200:
                 logger.error(f"LeBoncoin API réponse {response.status}")
