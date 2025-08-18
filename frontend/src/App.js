@@ -37,6 +37,7 @@ import {
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
 import PatrickIA2 from './components/PatrickIA2';
+import LeadExtraction from './components/LeadExtraction';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
