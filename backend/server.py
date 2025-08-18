@@ -50,6 +50,9 @@ email_service = EmailAutomationService(db)
 # Initialize Analytics Service
 analytics_service = AdvancedAnalyticsService(db)
 
+# Initialize Enhanced Behavioral AI - Patrick IA 2.0
+enhanced_ai = EnhancedBehavioralAI(db)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
