@@ -35,6 +35,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import './App.css';
+import AdvancedAnalytics from './components/AdvancedAnalytics';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
