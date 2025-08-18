@@ -46,6 +46,9 @@ db = client.efficity_leads
 # Initialize Email Automation Service
 email_service = EmailAutomationService(db)
 
+# Initialize Analytics Service
+analytics_service = AdvancedAnalyticsService(db)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
