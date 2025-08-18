@@ -19,8 +19,8 @@ from ai_behavioral_service import AIBehavioralService, ai_behavioral_service
 # Import AI Assistant service
 from ai_assistant_service import EfficityAIAssistant, get_assistant_instance
 # Import Advanced Behavioral Engine - RÉVOLUTIONNAIRE
-from advanced_behavioral_engine import AdvancedBehavioralEngine
-from analytics_service import AdvancedAnalyticsService, get_advanced_engine
+from advanced_behavioral_engine import AdvancedBehavioralEngine, get_advanced_engine
+from analytics_service import AdvancedAnalyticsService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
