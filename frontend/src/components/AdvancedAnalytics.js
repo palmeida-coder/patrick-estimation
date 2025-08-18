@@ -92,13 +92,6 @@ function AdvancedAnalytics() {
     loadAllAnalytics();
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
-
   const formatPercentage = (value) => {
     return `${(value || 0).toFixed(1)}%`;
   };
