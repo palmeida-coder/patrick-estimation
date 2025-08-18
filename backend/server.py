@@ -533,6 +533,87 @@ async def get_spreadsheet_url():
         logger.error(f"Erreur récupération URL: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== ANALYTICS AVANCÉS ENDPOINTS =====
+
+@app.get("/api/analytics/dashboard")
+async def get_analytics_dashboard():
+    """Dashboard analytics complet avec métriques avancées"""
+    try:
+        metrics = await analytics_service.get_dashboard_metrics()
+        return metrics
+    except Exception as e:
+        logger.error(f"Erreur analytics dashboard: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/funnel")
+async def get_conversion_funnel():
+    """Analyse du funnel de conversion"""
+    try:
+        funnel = await analytics_service.get_conversion_funnel()
+        return funnel
+    except Exception as e:
+        logger.error(f"Erreur funnel conversion: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/revenue")
+async def get_revenue_metrics():
+    """Métriques de revenus et commissions"""
+    try:
+        revenue = await analytics_service.get_revenue_metrics()
+        return revenue
+    except Exception as e:
+        logger.error(f"Erreur métriques revenus: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/time-series")
+async def get_time_series_data(period: str = "30d"):
+    """Données temporelles pour graphiques - période: 7d, 30d, 90d"""
+    try:
+        if period not in ["7d", "30d", "90d"]:
+            period = "30d"
+        
+        time_data = await analytics_service.get_time_series_data(period)
+        return time_data
+    except Exception as e:
+        logger.error(f"Erreur time series: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/sources")
+async def get_sources_analysis():
+    """Analyse détaillée par sources de leads"""
+    try:
+        dashboard = await analytics_service.get_dashboard_metrics()
+        return {
+            "sources": dashboard.get("sources", []),
+            "total_sources": len(dashboard.get("sources", []))
+        }
+    except Exception as e:
+        logger.error(f"Erreur analyse sources: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/geographic")
+async def get_geographic_analysis():
+    """Analyse géographique des leads"""
+    try:
+        dashboard = await analytics_service.get_dashboard_metrics()
+        return dashboard.get("geographic", {})
+    except Exception as e:
+        logger.error(f"Erreur analyse géographique: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/agents")
+async def get_agents_performance():
+    """Performance des agents commerciaux"""
+    try:
+        dashboard = await analytics_service.get_dashboard_metrics()
+        return {
+            "agents": dashboard.get("agents", []),
+            "total_agents": len(dashboard.get("agents", []))
+        }
+    except Exception as e:
+        logger.error(f"Erreur performance agents: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
