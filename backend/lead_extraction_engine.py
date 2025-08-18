@@ -321,6 +321,55 @@ class LeboncoinExtractor(LeadExtractor):
         except Exception as e:
             logger.error(f"Erreur extraction LeBoncoin: {str(e)}")
             return []
+    
+    async def get_lead_details(self, lead_id: str) -> Dict[str, Any]:
+        """Récupère les détails d'une annonce LeBoncoin"""
+        try:
+            detail_url = f"{self.base_url}/ad/{lead_id}"
+            response = await self._rate_limited_request(detail_url)
+            
+            if response.status != 200:
+                return {}
+            
+            html_content = await response.text()
+            details = await self._parse_leboncoin_details(html_content, lead_id)
+            
+            return details
+            
+        except Exception as e:
+            logger.error(f"Erreur détails LeBoncoin {lead_id}: {str(e)}")
+            return {}
+    
+    async def _parse_leboncoin_api(self, data: Dict) -> List[Dict[str, Any]]:
+        """Parse les données API LeBoncoin"""
+        leads = []
+        
+        try:
+            for ad in data.get('ads', []):
+                lead = {
+                    'id': f"leboncoin_{ad.get('list_id', '')}",
+                    'source': 'LeBoncoin',
+                    'url': ad.get('url', ''),
+                    'prix': ad.get('price', [0])[0] if ad.get('price') else 0,
+                    'ville': ad.get('location', {}).get('city_label', ''),
+                    'code_postal': ad.get('location', {}).get('zipcode', ''),
+                    'surface': ad.get('attributes', {}).get('square', 0),
+                    'pieces': ad.get('attributes', {}).get('rooms', 0),
+                    'type_bien': ad.get('category_name', ''),
+                    'description': ad.get('subject', ''),
+                    'photos': [img.get('thumb_url') for img in ad.get('images', [])],
+                    'agent_info': {
+                        'nom': ad.get('owner', {}).get('name', ''),
+                        'type': ad.get('owner', {}).get('type', 'particulier')
+                    },
+                    'date_extraction': datetime.now().isoformat()
+                }
+                leads.append(lead)
+                
+        except Exception as e:
+            logger.error(f"Erreur parsing LeBoncoin API: {str(e)}")
+        
+        return leads
 
 class CadastreExtractor(LeadExtractor):
     """Extracteur de données cadastrales publiques"""
