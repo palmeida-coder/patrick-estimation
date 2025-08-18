@@ -22,6 +22,7 @@ from ai_assistant_service import EfficityAIAssistant, get_assistant_instance
 from advanced_behavioral_engine import AdvancedBehavioralEngine, get_advanced_engine
 from analytics_service import AdvancedAnalyticsService
 from enhanced_behavioral_ai import EnhancedBehavioralAI
+from lead_extraction_engine import LeadExtractionEngine, DEFAULT_EXTRACTION_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
