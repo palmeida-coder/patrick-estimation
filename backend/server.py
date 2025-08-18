@@ -783,6 +783,189 @@ async def get_daily_actions():
         logger.error(f"Erreur actions quotidiennes: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== EXTRACTION AUTOMATISÉE MULTI-SOURCES =====
+
+@app.post("/api/extraction/start")
+async def start_lead_extraction(background_tasks: BackgroundTasks, filters: dict = None):
+    """Démarre l'extraction de leads depuis toutes les sources configurées"""
+    try:
+        # Lancer l'extraction en arrière-plan
+        background_tasks.add_task(
+            run_extraction_process,
+            filters or {}
+        )
+        
+        return {
+            "message": "Extraction multi-sources démarrée",
+            "sources_enabled": [name for name, config in DEFAULT_EXTRACTION_CONFIG.items() if config.get('enabled', True)],
+            "started_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur démarrage extraction: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/extraction/status")
+async def get_extraction_status():
+    """Récupère le statut et les statistiques d'extraction"""
+    try:
+        stats = await extraction_engine.get_extraction_stats()
+        
+        return {
+            "status": "active",
+            "statistics": stats,
+            "sources_available": list(DEFAULT_EXTRACTION_CONFIG.keys()),
+            "sources_enabled": [name for name, config in DEFAULT_EXTRACTION_CONFIG.items() if config.get('enabled', True)]
+        }
+    except Exception as e:
+        logger.error(f"Erreur statut extraction: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/extraction/leads")
+async def get_extracted_leads(limit: int = 50, source: str = None, status: str = None):
+    """Récupère les leads extraits avec filtres"""
+    try:
+        # Construction des filtres
+        filters = {}
+        if source:
+            filters['sources'] = source
+        if status:
+            filters['status'] = status
+        
+        # Récupération des leads
+        cursor = db.extracted_leads.find(filters, {"_id": 0}).sort("extraction_date", -1)
+        if limit > 0:
+            cursor = cursor.limit(limit)
+        
+        leads = await cursor.to_list(length=None)
+        
+        return {
+            "leads": leads,
+            "total": len(leads),
+            "filters_applied": filters
+        }
+    except Exception as e:
+        logger.error(f"Erreur récupération leads extraits: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/extraction/leads/{lead_id}/convert")
+async def convert_extracted_lead(lead_id: str):
+    """Convertit un lead extrait en lead qualifié"""
+    try:
+        # Récupérer le lead extrait
+        extracted_lead = await db.extracted_leads.find_one({"signature": lead_id}, {"_id": 0})
+        if not extracted_lead:
+            raise HTTPException(status_code=404, detail="Lead extrait non trouvé")
+        
+        # Convertir en lead qualifié
+        converted_lead = {
+            "id": str(uuid.uuid4()),
+            "nom": extracted_lead.get('agent_info', {}).get('nom', 'Prospect'),
+            "prénom": "",
+            "email": extracted_lead.get('agent_info', {}).get('email', ''),
+            "téléphone": extracted_lead.get('agent_info', {}).get('telephone', ''),
+            "adresse": extracted_lead.get('adresse', ''),
+            "ville": extracted_lead.get('ville', ''),
+            "code_postal": extracted_lead.get('code_postal', ''),
+            "source": f"extraction_{extracted_lead.get('source', '').lower()}",
+            "statut": "nouveau",
+            "assigné_à": "Patrick Almeida",
+            "valeur_estimée": extracted_lead.get('prix', 0),
+            "notes": f"Lead automatique - {extracted_lead.get('description', '')}",
+            "type_propriete": extracted_lead.get('type_bien', ''),
+            "surface_bien": extracted_lead.get('surface', 0),
+            "quality_score": extracted_lead.get('quality_score', 50),
+            "lead_type": extracted_lead.get('lead_type', 'standard'),
+            "sources_extraction": extracted_lead.get('sources', []),
+            "url_original": extracted_lead.get('url', ''),
+            "créé_le": datetime.now(),
+            "modifié_le": datetime.now(),
+            "dernière_activité": datetime.now(),
+            "extraction_data": {
+                "original_lead_id": extracted_lead.get('id'),
+                "extraction_date": extracted_lead.get('extraction_date'),
+                "quality_score": extracted_lead.get('quality_score', 50)
+            }
+        }
+        
+        # Sauvegarder le lead converti
+        await db.leads.insert_one(converted_lead)
+        
+        # Marquer le lead extrait comme traité
+        await db.extracted_leads.update_one(
+            {"signature": lead_id},
+            {"$set": {"processed": True, "converted_at": datetime.now().isoformat()}}
+        )
+        
+        return {
+            "message": "Lead converti avec succès",
+            "converted_lead_id": converted_lead["id"],
+            "original_source": extracted_lead.get('source')
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur conversion lead {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/extraction/sources/{source_name}/config")
+async def get_source_config(source_name: str):
+    """Récupère la configuration d'une source d'extraction"""
+    try:
+        if source_name not in DEFAULT_EXTRACTION_CONFIG:
+            raise HTTPException(status_code=404, detail="Source non trouvée")
+        
+        config = DEFAULT_EXTRACTION_CONFIG[source_name].copy()
+        
+        # Masquer les clés API sensibles
+        if 'api_key' in config:
+            config['api_key'] = '***' if config['api_key'] else None
+        
+        return {
+            "source": source_name,
+            "config": config,
+            "description": get_source_description(source_name)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur config source {source_name}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def run_extraction_process(filters: dict):
+    """Processus d'extraction en arrière-plan"""
+    try:
+        logger.info("Démarrage extraction multi-sources")
+        
+        # Extraction depuis toutes les sources
+        all_leads = await extraction_engine.extract_from_all_sources(filters)
+        
+        # Déduplication
+        unique_leads = await extraction_engine.deduplicate_leads(all_leads)
+        
+        # Enrichissement
+        enriched_leads = await extraction_engine.enrich_leads(unique_leads)
+        
+        # Sauvegarde
+        stats = await extraction_engine.save_leads_to_db(enriched_leads)
+        
+        logger.info(f"Extraction terminée: {stats['created']} créés, {stats['updated']} mis à jour, {stats['errors']} erreurs")
+        
+    except Exception as e:
+        logger.error(f"Erreur processus extraction: {str(e)}")
+
+def get_source_description(source_name: str) -> str:
+    """Retourne la description d'une source"""
+    descriptions = {
+        'seloger': 'Premier site immobilier français - Annonces professionnelles',
+        'pap': 'Particulier à Particulier - Annonces directes propriétaires',
+        'leboncoin': 'Plateforme généraliste - Section immobilier particuliers',
+        'cadastre': 'Données cadastrales publiques - Informations propriétaires',
+        'dvf': 'Demandes Valeurs Foncières - Transactions immobilières officielles',
+        'pappers': 'Données entreprises - Détection déménagements professionnels'
+    }
+    return descriptions.get(source_name, 'Source d\'extraction de leads')
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
