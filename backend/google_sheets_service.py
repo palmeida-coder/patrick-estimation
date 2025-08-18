@@ -262,7 +262,7 @@ class GoogleSheetsService:
                 'majorDimension': 'ROWS'
             }
             
-            range_name = f'Leads!A{row_index}:U{row_index}'  # Jusqu'à U pour 21 colonnes
+            range_name = f'Leads!A{row_index}:T{row_index}'  # 20 colonnes (A à T)
             request = self.service.spreadsheets().values().update(
                 spreadsheetId=self.spreadsheet_id,
                 range=range_name,
