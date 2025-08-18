@@ -959,63 +959,6 @@ function CampaignManager() {
 }
 
 function Analytics() {
-  const [sheetsUrl, setSheetsUrl] = useState('');
-  const [sheetsId, setSheetsId] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    loadSheetsInfo();
-  }, []);
-
-  const loadSheetsInfo = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/sheets/url`);
-      setSheetsUrl(response.data.spreadsheet_url);
-      setSheetsId(response.data.spreadsheet_id);
-    } catch (error) {
-      console.log('Pas de spreadsheet configuré encore');
-    }
-  };
-
-  const createSpreadsheet = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/sheets/create`);
-      setSheetsUrl(response.data.spreadsheet_url);
-      setSheetsId(response.data.spreadsheet_id);
-      setMessage('✅ Feuille Google Sheets créée avec succès !');
-    } catch (error) {
-      setMessage(`❌ Erreur: ${error.response?.data?.detail || error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const syncToSheets = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/sheets/sync-to`);
-      setMessage(`✅ ${response.data.message}`);
-    } catch (error) {
-      setMessage(`❌ Erreur sync: ${error.response?.data?.detail || error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const syncFromSheets = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/sheets/sync-from`);
-      setMessage(`✅ ${response.data.message} - ${response.data.leads_updated} mis à jour, ${response.data.leads_created} créés`);
-    } catch (error) {
-      setMessage(`❌ Erreur sync: ${error.response?.data?.detail || error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return <AdvancedAnalytics />;
 }
 
