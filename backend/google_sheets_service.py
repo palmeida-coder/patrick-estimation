@@ -167,8 +167,7 @@ class GoogleSheetsService:
     
     async def _append_lead(self, lead_data: Dict[str, Any]):
         """Ajouter un nouveau lead au spreadsheet"""
-        # ORDRE CORRIGÉ pour correspondre EXACTEMENT aux en-têtes visibles
-        # K=Agent Assigné (position 11), L=Score Qualité (position 12)
+        # ORDRE CORRIGÉ avec les champs qui existent vraiment dans MongoDB
         row_data = [
             lead_data.get('id', ''),                                # Position 1: ID
             lead_data.get('nom', ''),                               # Position 2: Nom  
@@ -180,16 +179,16 @@ class GoogleSheetsService:
             lead_data.get('code_postal', ''),                       # Position 8: Code Postal
             lead_data.get('source', ''),                            # Position 9: Source
             lead_data.get('statut', ''),                            # Position 10: Statut
-            lead_data.get('assigné_à', 'Patrick Almeida'),      # Position 11: Agent Assigné ← ICI K
-            str(lead_data.get('score_qualification', '')),          # Position 12: Score Qualité ← ICI L
-            str(lead_data.get('budget_min', '')),                   # Position 13: Budget Min ← ICI M
-            str(lead_data.get('budget_max', '')),                   # Position 14: Budget Max ← ICI N
-            str(lead_data.get('surface_min', '')),                  # Position 15: Surface Min ← ICI O
-            lead_data.get('notes_commerciales', ''),                # Position 16: Notes Commerciales ← ICI P
-            lead_data.get('type_propriete', ''),                    # Position 17: Type Propriété ← ICI Q
-            self._format_datetime(lead_data.get('date_creation')),              # Position 18: Date Création ← ICI R
-            self._format_datetime(lead_data.get('date_derniere_modification')), # Position 19: Dernière Modification ← ICI S
-            self._format_datetime(lead_data.get('dernière_activité'))           # Position 20: Dernière Activité ← ICI T
+            lead_data.get('assigné_à', 'Patrick Almeida'),          # Position 11: Agent Assigné ← K
+            str(lead_data.get('score_qualification', '')),          # Position 12: Score Qualité ← L
+            str(lead_data.get('valeur_estimée', '')),               # Position 13: Budget Min (utilise valeur_estimée)
+            '',                                                     # Position 14: Budget Max (vide)
+            '',                                                     # Position 15: Surface Min (vide)
+            lead_data.get('notes', ''),                             # Position 16: Notes Commerciales (utilise notes)
+            '',                                                     # Position 17: Type Propriété (vide)
+            self._format_datetime(lead_data.get('créé_le')),        # Position 18: Date Création
+            self._format_datetime(lead_data.get('modifié_le')),     # Position 19: Dernière Modification
+            self._format_datetime(lead_data.get('dernière_activité')) # Position 20: Dernière Activité
         ]
         
         body = {
