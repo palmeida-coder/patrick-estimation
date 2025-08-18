@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
+import PatrickIA2 from './components/PatrickIA2';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
