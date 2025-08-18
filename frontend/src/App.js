@@ -52,7 +52,7 @@ function App() {
             <Route path="/campaigns" element={<CampaignManager />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/ai-insights" element={<AIInsights />} />
-            <Route path="/patrick-ia" element={<PatrickIA />} />
+            <Route path="/patrick-ia" element={<PatrickIA2 />} />
           </Routes>
         </main>
       </div>
