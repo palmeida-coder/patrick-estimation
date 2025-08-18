@@ -54,6 +54,9 @@ analytics_service = AdvancedAnalyticsService(db)
 # Initialize Enhanced Behavioral AI - Patrick IA 2.0
 enhanced_ai = EnhancedBehavioralAI(db)
 
+# Initialize Lead Extraction Engine
+extraction_engine = LeadExtractionEngine(db, DEFAULT_EXTRACTION_CONFIG)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
