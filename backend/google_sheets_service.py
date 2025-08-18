@@ -244,7 +244,7 @@ class GoogleSheetsService:
                 lead_data.get('code_postal', ''),                       # Position 8: Code Postal
                 lead_data.get('source', ''),                            # Position 9: Source
                 lead_data.get('statut', ''),                            # Position 10: Statut
-                lead_data.get('agent_assigne', 'Patrick Almeida'),      # Position 11: Agent Assigné ← K
+                lead_data.get('assigné_à', 'Patrick Almeida'),      # Position 11: Agent Assigné ← K
                 str(lead_data.get('score_qualification', '')),          # Position 12: Score Qualité ← L
                 str(lead_data.get('budget_min', '')),                   # Position 13: Budget Min ← M
                 str(lead_data.get('budget_max', '')),                   # Position 14: Budget Max ← N
