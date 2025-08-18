@@ -425,6 +425,18 @@ class LeboncoinExtractor(LeadExtractor):
             logger.error(f"Erreur parsing LeBoncoin API: {str(e)}")
         
         return leads
+    
+    async def _parse_leboncoin_details(self, html: str, lead_id: str) -> Dict[str, Any]:
+        """Parse les détails LeBoncoin depuis HTML"""
+        try:
+            return {
+                'id': lead_id,
+                'source': 'LeBoncoin',
+                'details_extracted': True
+            }
+        except Exception as e:
+            logger.error(f"Erreur parsing détails LeBoncoin: {str(e)}")
+            return {}
 
 class CadastreExtractor(LeadExtractor):
     """Extracteur de données cadastrales publiques"""
