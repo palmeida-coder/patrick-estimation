@@ -61,6 +61,7 @@ function App() {
             <Route path="/extraction" element={<LeadExtraction />} />
             <Route path="/notifications" element={<NotificationCenter />} />
             <Route path="/sequences" element={<IntelligentSequences />} />
+            <Route path="/market" element={<MarketIntelligence />} />
             <Route path="/ai-insights" element={<AIInsights />} />
             <Route path="/patrick-ia" element={<PatrickIA2 />} />
           </Routes>
