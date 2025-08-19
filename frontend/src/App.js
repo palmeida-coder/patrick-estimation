@@ -106,6 +106,10 @@ function Navigation() {
               <Bell className="w-4 h-4" />
               Notifications
             </Link>
+            <Link to="/sequences" className="nav-link">
+              <Sparkles className="w-4 h-4" />
+              Séquences IA
+            </Link>
             <Link to="/ai-insights" className="nav-link">
               <Brain className="w-4 h-4" />
               IA Insights
