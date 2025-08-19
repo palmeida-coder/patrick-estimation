@@ -1923,8 +1923,19 @@ async def startup_event():
                 print(f"Erreur lors du traitement des emails programmés: {e}")
                 await asyncio.sleep(60)  # Attendre 1 minute en cas d'erreur
     
-    # Lancer la tâche en arrière-plan
+    async def process_sequences_periodically():
+        """Traite les séquences d'emails intelligentes périodiquement"""
+        while True:
+            try:
+                await sequence_service.process_scheduled_sequences()
+                await asyncio.sleep(900)  # Vérifier toutes les 15 minutes
+            except Exception as e:
+                print(f"Erreur lors du traitement des séquences: {e}")
+                await asyncio.sleep(300)  # Attendre 5 minutes en cas d'erreur
+    
+    # Lancer les tâches en arrière-plan
     asyncio.create_task(process_emails_periodically())
+    asyncio.create_task(process_sequences_periodically())
 
 if __name__ == "__main__":
     import uvicorn
