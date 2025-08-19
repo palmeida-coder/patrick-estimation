@@ -198,7 +198,43 @@ async def create_lead(lead: Lead, background_tasks: BackgroundTasks):
         "create"
     )
     
+    # Analyser avec Patrick IA et notifier si urgent
+    background_tasks.add_task(
+        analyze_and_notify_lead,
+        lead_dict
+    )
+    
     return {"message": "Lead créé avec succès", "lead_id": lead.id}
+
+async def analyze_and_notify_lead(lead_data: Dict[str, Any]):
+    """Analyse un nouveau lead et envoie des notifications si nécessaire"""
+    try:
+        # Analyse comportementale Patrick IA
+        analysis = await enhanced_ai.analyze_lead_behavior(lead_data)
+        
+        if "error" not in analysis:
+            # Si lead urgent (score > 80), notifier immédiatement
+            if analysis.get("global_score", 0) > 80:
+                await notification_service.notify_urgent_lead(lead_data, analysis)
+                logger.info(f"Notification urgente envoyée pour lead {lead_data.get('id')}")
+            
+            # Si lead haute qualité (score > 60), notification normale
+            elif analysis.get("global_score", 0) > 60:
+                await notification_service.send_notification(
+                    NotificationType.LEAD_NEW,
+                    NotificationPriority.MEDIUM,
+                    {
+                        'lead_name': f"{lead_data.get('prénom', '')} {lead_data.get('nom', '')}".strip(),
+                        'source': lead_data.get('source', 'Manuel'),
+                        'ville': lead_data.get('ville', ''),
+                        'score': analysis.get("global_score", 0),
+                        'app_url': 'https://realestate-scout-2.preview.emergentagent.com/leads',
+                        'recipients': ['palmeida@efficity.com']
+                    }
+                )
+                
+    except Exception as e:
+        logger.error(f"Erreur analyse et notification lead: {str(e)}")
 
 @app.get("/api/leads/{lead_id}")
 async def get_lead(lead_id: str):
