@@ -238,7 +238,9 @@ class NotificationService:
         """Envoie une notification par email"""
         
         try:
-            template_config = self.templates.get(notification['type'])
+            # Convert string type back to enum for template lookup
+            notification_type = NotificationType(notification['type'])
+            template_config = self.templates.get(notification_type)
             if not template_config:
                 return {'status': 'error', 'error': 'Template non trouvé'}
             
