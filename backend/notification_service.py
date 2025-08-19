@@ -359,7 +359,9 @@ class NotificationService:
             if not self.slack_webhook:
                 return {'status': 'error', 'error': 'Slack webhook non configuré'}
             
-            template_config = self.templates.get(notification['type'])
+            # Convert string type back to enum for template lookup
+            notification_type = NotificationType(notification['type'])
+            template_config = self.templates.get(notification_type)
             if not template_config or 'slack_template' not in template_config:
                 return {'status': 'error', 'error': 'Template Slack non trouvé'}
             
@@ -368,10 +370,10 @@ class NotificationService:
             
             # Déterminer la couleur selon la priorité
             colors = {
-                NotificationPriority.CRITICAL: 'danger',
-                NotificationPriority.HIGH: 'warning',
-                NotificationPriority.MEDIUM: 'good',
-                NotificationPriority.LOW: '#439FE0'
+                'critical': 'danger',
+                'high': 'warning',
+                'medium': 'good',
+                'low': '#439FE0'
             }
             
             payload = {
