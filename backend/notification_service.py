@@ -480,9 +480,9 @@ class NotificationService:
         """Génère le contenu spécifique selon le type de notification"""
         
         data = notification['data']
-        notification_type = notification['type']
+        notification_type_str = notification['type']
         
-        if notification_type == NotificationType.LEAD_URGENT:
+        if notification_type_str == 'lead_urgent':
             return f"""
             <div class="priority-badge">🚨 LEAD URGENT</div>
             <h2>Action Immédiate Requise</h2>
@@ -517,7 +517,7 @@ class NotificationService:
             <a href="{data.get('app_url', '#')}" class="action-button">📱 Voir dans l'Application</a>
             """
         
-        elif notification_type == NotificationType.EXTRACTION_COMPLETE:
+        elif notification_type_str == 'extraction_complete':
             return f"""
             <h2>✅ Extraction Terminée avec Succès</h2>
             <p>L'extraction automatique de leads vient de se terminer.</p>
@@ -545,7 +545,7 @@ class NotificationService:
             <a href="{data.get('app_url', '#')}" class="action-button">🔍 Voir les Nouveaux Leads</a>
             """
         
-        elif notification_type == NotificationType.DAILY_REPORT:
+        elif notification_type_str == 'daily_report':
             return f"""
             <h2>📊 Rapport Quotidien Efficity</h2>
             <p><strong>Date:</strong> {data.get('date', datetime.now().strftime('%d/%m/%Y'))}</p>
@@ -576,7 +576,7 @@ class NotificationService:
         else:
             return f"""
             <h2>Notification Efficity</h2>
-            <p>Type: {notification_type.value}</p>
+            <p>Type: {notification_type_str}</p>
             <div class="lead-info">
                 <pre>{json.dumps(data, indent=2, ensure_ascii=False)}</pre>
             </div>
