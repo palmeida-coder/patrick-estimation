@@ -199,7 +199,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Intelligent Email Sequences Backend APIs"
+    - "IntelligentSequences Frontend Component"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
