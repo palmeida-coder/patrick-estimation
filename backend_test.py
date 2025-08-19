@@ -1062,6 +1062,21 @@ class EfficiencyAPITester:
         self.test_sequences_service_integration()
         self.test_sequences_database_collections()
         
+        # MARKET INTELLIGENCE TESTS - NEW FEATURE
+        print("\n🏢 MARKET INTELLIGENCE TESTS - NEW FEATURE")
+        print("-" * 55)
+        self.test_market_collect()
+        self.test_market_dashboard()
+        self.test_market_trends()
+        self.test_market_opportunities()
+        self.test_market_competition()
+        self.test_market_alerts()
+        self.test_market_stats()
+        self.test_market_service_integration()
+        self.test_market_database_collections()
+        self.test_market_lyon_arrondissements()
+        self.test_market_ai_analysis_integration()
+        
         # Cleanup
         self.test_delete_lead()
         
