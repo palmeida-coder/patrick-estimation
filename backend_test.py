@@ -631,6 +631,15 @@ class EfficiencyAPITester:
         self.test_email_sequence_creation()
         self.test_email_campaign_send()
         
+        # NOTIFICATION SYSTEM TESTS - CRITICAL FOR FRONTEND
+        print("\n🔔 ADVANCED NOTIFICATION SYSTEM TESTS - CRITICAL")
+        print("-" * 55)
+        self.test_notification_history()
+        self.test_notification_stats()
+        self.test_notification_test_system()
+        self.test_notification_daily_report()
+        self.test_notification_send_custom()
+        
         # Cleanup
         self.test_delete_lead()
         
