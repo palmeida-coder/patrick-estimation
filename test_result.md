@@ -152,6 +152,17 @@ frontend:
       - working: true
         agent: "main"
         comment: "Interface Google Sheets fonctionne correctement, problème uniquement côté backend mapping"
+  - task: "NotificationCenter Frontend Component"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/NotificationCenter.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Composant NotificationCenter créé et intégré dans App.js avec routing, mais page affiche vide - problème de connexion avec APIs backend notification. Besoin de debug communication frontend-backend."
 
 metadata:
   created_by: "main_agent"
