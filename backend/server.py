@@ -1150,6 +1150,265 @@ async def send_daily_report_now():
         logger.error(f"Erreur rapport quotidien: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== SÉQUENCES D'EMAILS INTELLIGENTES =====
+
+@app.post("/api/sequences/start")
+async def start_intelligent_sequence(request: dict):
+    """Démarre une séquence d'emails intelligente pour un lead"""
+    try:
+        lead_id = request.get('lead_id')
+        sequence_type = request.get('sequence_type', 'onboarding')
+        trigger_data = request.get('trigger_data', {})
+        
+        if not lead_id:
+            raise HTTPException(status_code=400, detail="lead_id requis")
+        
+        # Convertir le type de séquence
+        try:
+            seq_type = SequenceType(sequence_type)
+        except ValueError:
+            raise HTTPException(status_code=400, detail=f"Type de séquence invalide: {sequence_type}")
+        
+        result = await sequence_service.start_sequence(lead_id, seq_type, trigger_data)
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur démarrage séquence: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sequences/auto-trigger")
+async def auto_trigger_sequences(background_tasks: BackgroundTasks):
+    """Déclenche automatiquement les séquences selon les conditions"""
+    try:
+        # Déclencher séquences pour nouveaux leads
+        new_leads = await db.leads.find({
+            "créé_le": {"$gte": (datetime.now() - timedelta(hours=24)).isoformat()},
+            "sequence_started": {"$ne": True}
+        }, {"_id": 0}).to_list(length=None)
+        
+        sequences_started = 0
+        
+        for lead in new_leads:
+            # Démarrer séquence d'onboarding
+            result = await sequence_service.start_sequence(
+                lead["id"], 
+                SequenceType.ONBOARDING, 
+                {"trigger": "auto_new_lead"}
+            )
+            
+            if result.get("status") == "started":
+                sequences_started += 1
+                
+                # Marquer le lead comme ayant une séquence
+                await db.leads.update_one(
+                    {"id": lead["id"]},
+                    {"$set": {"sequence_started": True}}
+                )
+        
+        # Déclencher séquences pour leads haute qualité
+        high_quality_leads = await db.leads.find({
+            "score_qualification": {"$gte": 75},
+            "statut": {"$nin": ["converti", "rdv_planifié"]},
+            "warm_sequence_started": {"$ne": True}
+        }, {"_id": 0}).to_list(length=None)
+        
+        for lead in high_quality_leads:
+            # Démarrer séquence nurturing warm
+            result = await sequence_service.start_sequence(
+                lead["id"],
+                SequenceType.NURTURING_WARM,
+                {"trigger": "auto_high_score"}
+            )
+            
+            if result.get("status") == "started":
+                sequences_started += 1
+                
+                await db.leads.update_one(
+                    {"id": lead["id"]},
+                    {"$set": {"warm_sequence_started": True}}
+                )
+        
+        # Déclencher réactivation pour leads inactifs
+        inactive_leads = await db.leads.find({
+            "dernière_activité": {"$lte": (datetime.now() - timedelta(days=30)).isoformat()},
+            "statut": {"$nin": ["converti", "perdu"]},
+            "reactivation_sequence_started": {"$ne": True}
+        }, {"_id": 0}).to_list(length=None)
+        
+        for lead in inactive_leads:
+            result = await sequence_service.start_sequence(
+                lead["id"],
+                SequenceType.REACTIVATION,
+                {"trigger": "auto_inactive"}
+            )
+            
+            if result.get("status") == "started":
+                sequences_started += 1
+                
+                await db.leads.update_one(
+                    {"id": lead["id"]},
+                    {"$set": {"reactivation_sequence_started": True}}
+                )
+        
+        return {
+            "message": f"{sequences_started} séquences automatiques démarrées",
+            "new_leads_processed": len(new_leads),
+            "high_quality_processed": len(high_quality_leads),
+            "inactive_processed": len(inactive_leads),
+            "total_started": sequences_started
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur déclenchement auto séquences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sequences/stats")
+async def get_sequence_statistics():
+    """Récupère les statistiques des séquences d'emails"""
+    try:
+        stats = await sequence_service.get_sequence_stats()
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Erreur stats séquences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sequences/lead/{lead_id}")
+async def get_lead_sequences(lead_id: str):
+    """Récupère toutes les séquences d'un lead"""
+    try:
+        sequences = await sequence_service.get_lead_sequences(lead_id)
+        return {
+            "lead_id": lead_id,
+            "sequences": sequences,
+            "total": len(sequences)
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur récupération séquences lead {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sequences/{sequence_id}/pause")
+async def pause_sequence(sequence_id: str):
+    """Met en pause une séquence"""
+    try:
+        result = await sequence_service.pause_sequence(sequence_id)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Erreur pause séquence {sequence_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sequences/{sequence_id}/resume")
+async def resume_sequence(sequence_id: str):
+    """Reprend une séquence en pause"""
+    try:
+        result = await sequence_service.resume_sequence(sequence_id)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Erreur reprise séquence {sequence_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sequences/active")
+async def get_active_sequences(limit: int = 50):
+    """Récupère les séquences actives"""
+    try:
+        sequences = await db.email_sequences.find(
+            {"status": "active"}, 
+            {"_id": 0}
+        ).sort("started_at", -1).limit(limit).to_list(length=None)
+        
+        return {
+            "sequences": sequences,
+            "total": len(sequences)
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur récupération séquences actives: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sequences/process")
+async def process_scheduled_sequences():
+    """Traite manuellement les séquences programmées"""
+    try:
+        # Lancer le traitement en arrière-plan
+        asyncio.create_task(sequence_service.process_scheduled_sequences())
+        
+        return {
+            "message": "Traitement des séquences programmées démarré",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur traitement séquences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sequences/ai-trigger/{lead_id}")
+async def trigger_behavioral_sequence(lead_id: str):
+    """Déclenche une séquence basée sur l'analyse comportementale IA"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Analyser avec Patrick IA
+        ai_analysis = await enhanced_ai.analyze_lead_behavior(lead)
+        
+        # Vérifier si déclencher séquence comportementale
+        urgence_score = ai_analysis.get("urgence_score", 0)
+        intention_score = ai_analysis.get("intention_score", 0)
+        
+        if urgence_score > 0.7 or intention_score > 0.8:
+            # Déclencher séquence comportementale
+            result = await sequence_service.start_sequence(
+                lead_id,
+                SequenceType.BEHAVIORAL_TRIGGER,
+                {
+                    "trigger": "ai_behavioral_signal",
+                    "urgence_score": urgence_score,
+                    "intention_score": intention_score,
+                    "ai_signals": ai_analysis.get("signaux_comportementaux", [])
+                }
+            )
+            
+            # Notifier
+            if result.get("status") == "started":
+                await notification_service.send_notification(
+                    NotificationType.AI_ALERT,
+                    NotificationPriority.HIGH,
+                    {
+                        "message": f"Séquence comportementale déclenchée par IA pour {lead.get('prénom', '')} {lead.get('nom', '')}",
+                        "lead_name": f"{lead.get('prénom', '')} {lead.get('nom', '')}",
+                        "urgence_score": urgence_score,
+                        "ai_analysis": ai_analysis.get("recommandations", [])
+                    }
+                )
+            
+            return {
+                "triggered": True,
+                "sequence_result": result,
+                "ai_analysis": ai_analysis,
+                "urgence_score": urgence_score
+            }
+        else:
+            return {
+                "triggered": False,
+                "reason": "Scores IA insuffisants pour déclencher séquence",
+                "urgence_score": urgence_score,
+                "intention_score": intention_score
+            }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur déclenchement IA séquence {lead_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
