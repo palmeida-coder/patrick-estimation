@@ -32,7 +32,8 @@ import {
   Zap,
   Brain,
   Eye,
-  Lightbulb
+  Lightbulb,
+  Bell
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
