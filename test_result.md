@@ -212,7 +212,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "MarketIntelligence Frontend Component"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
