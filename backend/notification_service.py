@@ -11,10 +11,17 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from enum import Enum
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
-from email.mime.base import MimeBase
-from email import encoders
+try:
+    from email.mime.text import MimeText
+    from email.mime.multipart import MimeMultipart
+    from email.mime.base import MimeBase
+    from email import encoders
+except ImportError:
+    # Fallback for import issues
+    MimeText = None
+    MimeMultipart = None
+    MimeBase = None
+    encoders = None
 import aiofiles
 import aiohttp
 
