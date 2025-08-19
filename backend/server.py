@@ -970,6 +970,113 @@ def get_source_description(source_name: str) -> str:
     }
     return descriptions.get(source_name, 'Source d\'extraction de leads')
 
+# ===== SYSTÈME DE NOTIFICATIONS AVANCÉES =====
+
+@app.post("/api/notifications/send")
+async def send_notification(notification_data: dict):
+    """Envoie une notification personnalisée"""
+    try:
+        notification_type = NotificationType(notification_data.get('type', 'system_alert'))
+        priority = NotificationPriority(notification_data.get('priority', 'medium'))
+        data = notification_data.get('data', {})
+        
+        result = await notification_service.send_notification(
+            notification_type, 
+            priority, 
+            data
+        )
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Erreur envoi notification: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/notifications/history")
+async def get_notification_history(limit: int = 50):
+    """Récupère l'historique des notifications"""
+    try:
+        history = await notification_service.get_notification_history(limit)
+        return {
+            "notifications": history,
+            "total": len(history)
+        }
+    except Exception as e:
+        logger.error(f"Erreur historique notifications: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/notifications/stats")
+async def get_notification_stats():
+    """Récupère les statistiques de notifications"""
+    try:
+        stats = await notification_service.get_notification_stats()
+        return stats
+    except Exception as e:
+        logger.error(f"Erreur stats notifications: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/notifications/test")
+async def test_notification_system():
+    """Teste le système de notifications"""
+    try:
+        test_data = {
+            'lead_name': 'Test Lead',
+            'ville': 'Lyon',
+            'score': 95,
+            'telephone': '+33123456789',
+            'email': 'test@efficity.com',
+            'ai_recommendation': 'Contact immédiat pour test',
+            'app_url': 'https://realestate-scout-2.preview.emergentagent.com',
+            'recipients': ['palmeida@efficity.com']
+        }
+        
+        result = await notification_service.send_notification(
+            NotificationType.LEAD_URGENT,
+            NotificationPriority.HIGH,
+            test_data
+        )
+        
+        return {
+            "message": "Test de notification envoyé",
+            "result": result
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur test notification: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/notifications/daily-report")
+async def send_daily_report_now():
+    """Envoie le rapport quotidien maintenant"""
+    try:
+        # Calculer les stats du jour
+        today_start = datetime.now().replace(hour=0, minute=0, second=0)
+        
+        new_leads_today = await db.leads.count_documents({
+            'créé_le': {'$gte': today_start}
+        })
+        
+        total_leads = await db.leads.count_documents({})
+        
+        report_data = {
+            'new_leads': new_leads_today,
+            'contacted_leads': 0,  # À calculer selon vos critères
+            'appointments': 0,     # À calculer selon vos critères
+            'portfolio_score': 75, # Moyenne ou calcul depuis analytics
+            'ai_recommendation': 'Excellente progression aujourd\'hui !'
+        }
+        
+        await notification_service.send_daily_report(report_data)
+        
+        return {
+            "message": "Rapport quotidien envoyé",
+            "data": report_data
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur rapport quotidien: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
