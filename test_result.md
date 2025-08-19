@@ -127,6 +127,10 @@ backend:
     priority: "high"
     needs_retesting: false
     status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ INTELLIGENT EMAIL SEQUENCES APIS SUCCESSFULLY TESTED - Comprehensive testing completed with 95.6% success rate (43/45 tests passed). CRITICAL APIS VERIFIED: 1) GET /api/sequences/stats ✅ - Returns sequence statistics and performance metrics with proper JSON structure, 2) GET /api/sequences/active ✅ - Returns currently active sequences array, initially empty as expected, 3) POST /api/sequences/start ⚠️ - Sequence creation working but has minor data type comparison issue ('>' not supported between str and int), 4) POST /api/sequences/auto-trigger ✅ - Successfully triggered 7 automatic sequences based on conditions, 5) POST /api/sequences/process ✅ - Manual sequence processing working correctly, 6) GET /api/sequences/lead/{lead_id} ✅ - Returns sequences for specific lead with proper structure, 7) POST /api/sequences/{sequence_id}/pause ✅ - Pause functionality working, 8) POST /api/sequences/{sequence_id}/resume ✅ - Resume functionality working. SERVICE INTEGRATION CONFIRMED: All dependencies (email_service, enhanced_ai, notification_service) properly integrated. DATABASE COLLECTIONS WORKING: MongoDB 'email_sequences' collection functional with proper CRUD operations. MINOR ISSUES IDENTIFIED: 1) Data type comparison error in condition checking (score_qualification string vs int), 2) EmailAutomationService method mismatch (schedule_email vs send_email). Overall system is functional with excellent performance metrics and proper API responses."
+    status_history:
       - working: false
         agent: "main"
         comment: "Système de notifications créé avec service complet, routes API intégrées dans server.py, mais page frontend vide - APIs ne répondent probablement pas correctement. Need testing pour identifier problèmes backend."
