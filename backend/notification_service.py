@@ -150,6 +150,9 @@ class NotificationService:
             # Sauvegarder en base
             await self.db.notifications.insert_one({
                 **notification,
+                'type': notification_type.value,  # Convert enum to string
+                'priority': priority.value,       # Convert enum to string
+                'channels': [ch.value for ch in channels],  # Convert enums to strings
                 'sent_at': None,
                 'channels_status': {}
             })
