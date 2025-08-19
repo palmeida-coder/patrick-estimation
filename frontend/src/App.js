@@ -113,6 +113,10 @@ function Navigation() {
               <Sparkles className="w-4 h-4" />
               Séquences IA
             </Link>
+            <Link to="/market" className="nav-link">
+              <Radar className="w-4 h-4" />
+              Intelligence Marché
+            </Link>
             <Link to="/ai-insights" className="nav-link">
               <Brain className="w-4 h-4" />
               IA Insights
