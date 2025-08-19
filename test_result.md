@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Bug critique dans la synchronisation Google Sheets - les colonnes ne sont pas alignées correctement, 'Patrick Almeida' et 'Score Qualité' apparaissent dans les mauvaises colonnes."
+user_problem_statement: "Finalisation du système de notifications avancé - le backend existe mais les APIs ne fonctionnent pas correctement avec le frontend, la page NotificationCenter est vide."
 
 backend:
   - task: "Google Sheets Column Mapping Fix"
@@ -112,6 +112,17 @@ backend:
     stuck_count: 0
     priority: "high"
     needs_retesting: false
+  - task: "Advanced Notification System Backend"
+    implemented: true
+    working: false
+    file: "/app/backend/notification_service.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Système de notifications créé avec service complet, routes API intégrées dans server.py, mais page frontend vide - APIs ne répondent probablement pas correctement. Need testing pour identifier problèmes backend."
     status_history:
       - working: false
         agent: "main"
