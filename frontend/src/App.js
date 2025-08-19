@@ -33,7 +33,8 @@ import {
   Brain,
   Eye,
   Lightbulb,
-  Bell
+  Bell,
+  Sparkles
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
