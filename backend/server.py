@@ -23,6 +23,7 @@ from advanced_behavioral_engine import AdvancedBehavioralEngine, get_advanced_en
 from analytics_service import AdvancedAnalyticsService
 from enhanced_behavioral_ai import EnhancedBehavioralAI
 from lead_extraction_engine import LeadExtractionEngine, DEFAULT_EXTRACTION_CONFIG
+from notification_service import NotificationService, NotificationType, NotificationPriority, DEFAULT_NOTIFICATION_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
