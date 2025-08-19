@@ -119,6 +119,13 @@ backend:
     stuck_count: 0
     priority: "high"
     needs_retesting: false
+  - task: "Intelligent Email Sequences Backend APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/intelligent_email_sequences.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
