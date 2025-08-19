@@ -2277,6 +2277,18 @@ async def startup_event():
                 print(f"Erreur lors du traitement des séquences: {e}")
                 await asyncio.sleep(300)  # Attendre 5 minutes en cas d'erreur
     
+    async def collect_market_data_periodically():
+        """Collecte intelligence marché périodiquement"""
+        while True:
+            try:
+                print("🔍 Démarrage collecte intelligence marché automatique")
+                result = await market_service.collect_market_data()
+                print(f"✅ Collecte marché terminée: {result.get('data_points_collected', 0)} points")
+                await asyncio.sleep(21600)  # Collecte toutes les 6 heures
+            except Exception as e:
+                print(f"Erreur lors de la collecte marché: {e}")
+                await asyncio.sleep(3600)  # Attendre 1 heure en cas d'erreur
+    
     # Lancer les tâches en arrière-plan
     asyncio.create_task(process_emails_periodically())
     asyncio.create_task(process_sequences_periodically())
