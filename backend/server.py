@@ -1739,10 +1739,26 @@ async def get_market_stats():
             "created_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
         })
         
+        # Convert ObjectId to string for JSON serialization
+        sources_data_clean = []
+        for item in sources_data:
+            sources_data_clean.append({
+                "source": str(item["_id"]) if item["_id"] else "unknown",
+                "count": item["count"]
+            })
+        
+        arrond_data_clean = []
+        for item in arrond_data:
+            arrond_data_clean.append({
+                "arrondissement": str(item["_id"]) if item["_id"] else "unknown",
+                "count": item["count"],
+                "prix_moyen": item.get("prix_moyen", 0)
+            })
+        
         return {
             "collection_summary": collection_stats or {},
-            "data_by_source": sources_data,
-            "data_by_arrondissement": arrond_data,
+            "data_by_source": sources_data_clean,
+            "data_by_arrondissement": arrond_data_clean,
             "total_trends_analyzed": total_trends,
             "recent_alerts_7d": recent_alerts,
             "system_status": "operational",
