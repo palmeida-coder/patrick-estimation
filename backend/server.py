@@ -2292,6 +2292,7 @@ async def startup_event():
     # Lancer les tâches en arrière-plan
     asyncio.create_task(process_emails_periodically())
     asyncio.create_task(process_sequences_periodically())
+    asyncio.create_task(collect_market_data_periodically())
 
 if __name__ == "__main__":
     import uvicorn
