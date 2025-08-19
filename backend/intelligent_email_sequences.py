@@ -486,12 +486,12 @@ class IntelligentEmailSequenceService:
                 subject = email_config["subject_template"].format(**sequence["personalization_data"])
             
             # Programmer l'email via le service existant
-            result = await self.email_service.schedule_email(
+            result = await self.email_service.send_email(
                 lead_id=lead["id"],
                 template=EmailTemplate(email_config["template"]),
                 subject_override=subject,
-                send_at=datetime.now(),  # Envoyer immédiatement
-                personalization_data=sequence["personalization_data"]
+                personalization_data=sequence["personalization_data"],
+                priority="high" if email_config.get("ai_optimization") else "normal"
             )
             
             # Mettre à jour le statut de l'email
