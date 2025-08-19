@@ -34,7 +34,8 @@ import {
   Eye,
   Lightbulb,
   Bell,
-  Sparkles
+  Sparkles,
+  Radar
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
