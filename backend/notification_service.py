@@ -132,10 +132,10 @@ class NotificationService:
             
             notification = {
                 'id': f"notif_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{notification_type.value}",
-                'type': notification_type,
-                'priority': priority,
+                'type': notification_type.value,  # Store as string
+                'priority': priority.value,       # Store as string
                 'data': data,
-                'channels': channels,
+                'channels': [ch.value for ch in channels],  # Store as strings
                 'created_at': datetime.now().isoformat(),
                 'status': 'pending'
             }
