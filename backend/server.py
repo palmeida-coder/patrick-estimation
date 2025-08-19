@@ -26,6 +26,7 @@ from lead_extraction_engine import LeadExtractionEngine, DEFAULT_EXTRACTION_CONF
 from notification_service import NotificationService, NotificationType, NotificationPriority, DEFAULT_NOTIFICATION_CONFIG
 from intelligent_email_sequences import IntelligentEmailSequenceService, SequenceType, TriggerCondition, get_sequence_service
 from market_intelligence_service import MarketIntelligenceService, get_market_intelligence_service, DEFAULT_MARKET_CONFIG
+from crm_integrations_service import CRMIntegrationsService, CRMCredentials, get_crm_integrations_service, DEFAULT_CRM_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
