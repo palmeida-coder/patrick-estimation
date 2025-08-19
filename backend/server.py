@@ -66,6 +66,9 @@ notification_service = NotificationService(db, DEFAULT_NOTIFICATION_CONFIG)
 # Initialize Intelligent Email Sequences Service
 sequence_service = get_sequence_service(db, email_service, enhanced_ai, notification_service)
 
+# Initialize Market Intelligence Service
+market_service = get_market_intelligence_service(db, notification_service, enhanced_ai)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
