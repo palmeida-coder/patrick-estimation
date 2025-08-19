@@ -98,6 +98,10 @@ function Navigation() {
               <Search className="w-4 h-4" />
               Extraction
             </Link>
+            <Link to="/notifications" className="nav-link">
+              <Bell className="w-4 h-4" />
+              Notifications
+            </Link>
             <Link to="/ai-insights" className="nav-link">
               <Brain className="w-4 h-4" />
               IA Insights
