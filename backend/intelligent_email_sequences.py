@@ -367,10 +367,12 @@ class IntelligentEmailSequenceService:
             )
         
         elif condition == "score_above_50":
-            return lead.get("score_qualification", 0) > 50
+            score = lead.get("score_qualification", 0)
+            return int(score) > 50 if score else False
         
         elif condition == "score_above_60":
-            return lead.get("score_qualification", 0) > 60
+            score = lead.get("score_qualification", 0)
+            return int(score) > 60 if score else False
         
         elif condition == "no_conversion":
             return lead.get("statut") not in ["converti", "rdv_planifié"]
