@@ -191,8 +191,20 @@ class NotificationService:
         
         channels_status = {}
         
-        for channel in notification['channels']:
+        for channel_str in notification['channels']:
             try:
+                # Convert string back to enum for processing
+                if channel_str == 'email':
+                    channel = NotificationChannel.EMAIL
+                elif channel_str == 'sms':
+                    channel = NotificationChannel.SMS
+                elif channel_str == 'slack':
+                    channel = NotificationChannel.SLACK
+                elif channel_str == 'push':
+                    channel = NotificationChannel.PUSH
+                else:
+                    continue
+                
                 if channel == NotificationChannel.EMAIL:
                     result = await self._send_email_notification(notification)
                 elif channel == NotificationChannel.SMS:
@@ -204,11 +216,11 @@ class NotificationService:
                 else:
                     result = {'status': 'not_implemented'}
                 
-                channels_status[channel.value] = result
+                channels_status[channel_str] = result
                 
             except Exception as e:
-                self.logger.error(f"Erreur canal {channel.value}: {str(e)}")
-                channels_status[channel.value] = {'status': 'error', 'error': str(e)}
+                self.logger.error(f"Erreur canal {channel_str}: {str(e)}")
+                channels_status[channel_str] = {'status': 'error', 'error': str(e)}
         
         # Mettre à jour le statut en base
         await self.db.notifications.update_one(
