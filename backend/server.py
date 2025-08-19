@@ -1413,6 +1413,346 @@ async def trigger_behavioral_sequence(lead_id: str):
         logger.error(f"Erreur déclenchement IA séquence {lead_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== INTELLIGENCE MARCHÉ TEMPS RÉEL =====
+
+@app.post("/api/market/collect")
+async def collect_market_data(request: dict = None):
+    """Lance la collecte d'intelligence marché depuis toutes les sources"""
+    try:
+        filters = request or {}
+        
+        # Lancer collecte en arrière-plan pour éviter timeout
+        collection_task = asyncio.create_task(market_service.collect_market_data(filters))
+        
+        return {
+            "status": "collection_started",
+            "message": "Collecte intelligence marché démarrée en arrière-plan",
+            "filters": filters,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur collecte marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/dashboard")
+async def get_market_dashboard(arrondissement: str = None):
+    """Récupère le dashboard d'intelligence marché"""
+    try:
+        dashboard = await market_service.get_market_dashboard(arrondissement)
+        return dashboard
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/trends")
+async def get_market_trends(arrondissement: str = None, days: int = 30):
+    """Analyse des tendances marché par arrondissement"""
+    try:
+        # Récupérer tendances depuis la base
+        filters = {}
+        if arrondissement:
+            filters["arrondissement"] = arrondissement
+        
+        # Récupérer tendances récentes
+        trends = await db.market_trends.find(
+            filters, {"_id": 0}
+        ).sort("analyzed_at", -1).limit(20).to_list(length=None)
+        
+        # Récupérer données pour graphiques
+        start_date = datetime.now() - timedelta(days=days)
+        
+        market_data = await db.market_data.find({
+            **filters,
+            "collected_at": {"$gte": start_date.isoformat()}
+        }, {"_id": 0}).to_list(length=None)
+        
+        # Calculer évolution prix par semaine
+        weekly_evolution = {}
+        for point in market_data:
+            date = datetime.fromisoformat(point["collected_at"])
+            week_key = date.strftime("%Y-W%U")
+            
+            if week_key not in weekly_evolution:
+                weekly_evolution[week_key] = {
+                    "prix_m2_total": 0,
+                    "count": 0,
+                    "semaine": week_key
+                }
+            
+            weekly_evolution[week_key]["prix_m2_total"] += point["prix_m2"]
+            weekly_evolution[week_key]["count"] += 1
+        
+        # Calculer moyennes
+        evolution_timeline = []
+        for week_data in weekly_evolution.values():
+            if week_data["count"] > 0:
+                evolution_timeline.append({
+                    "semaine": week_data["semaine"],
+                    "prix_moyen_m2": week_data["prix_m2_total"] / week_data["count"],
+                    "nombre_biens": week_data["count"]
+                })
+        
+        evolution_timeline.sort(key=lambda x: x["semaine"])
+        
+        return {
+            "tendances": trends,
+            "evolution_timeline": evolution_timeline,
+            "periode_jours": days,
+            "arrondissement": arrondissement or "Tous",
+            "total_donnees": len(market_data),
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur tendances marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/opportunities")
+async def get_market_opportunities(
+    arrondissement: str = None,
+    prix_max: float = None,
+    surface_min: float = None
+):
+    """Identification des opportunités d'achat"""
+    try:
+        filters = {}
+        query = {
+            "ai_analysis.market_score": {"$gte": 0.7},
+            "collected_at": {"$gte": (datetime.now() - timedelta(days=14)).isoformat()}
+        }
+        
+        if arrondissement:
+            query["arrondissement"] = arrondissement
+            filters["arrondissement"] = arrondissement
+        if prix_max:
+            query["prix"] = {"$lte": prix_max}
+            filters["prix_max"] = prix_max
+        if surface_min:
+            query["surface"] = {"$gte": surface_min}
+            filters["surface_min"] = surface_min
+        
+        opportunities = await db.market_data.find(
+            query, {"_id": 0}
+        ).sort("ai_analysis.market_score", -1).limit(20).to_list(length=None)
+        
+        # Enrichir avec recommandations
+        enriched_opportunities = []
+        for opp in opportunities:
+            ai_analysis = opp.get("ai_analysis", {})
+            market_score = ai_analysis.get("market_score", 0)
+            
+            enriched_opp = {
+                **opp,
+                "opportunity_type": "Sous-évaluée" if ai_analysis.get("price_analysis") == "sous_valorise" else "Haute qualité",
+                "potential_gain_percent": (market_score - 0.5) * 100,
+                "recommendation": f"Opportunité {ai_analysis.get('opportunity_level', 'moyenne')} - {opp['quartier']}",
+                "investment_score": market_score * 100,
+                "risk_level": "Faible" if market_score > 0.8 else ("Moyen" if market_score > 0.6 else "Élevé")
+            }
+            enriched_opportunities.append(enriched_opp)
+        
+        return {
+            "opportunities": enriched_opportunities,
+            "total_found": len(enriched_opportunities),
+            "filters_applied": filters,
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur opportunités marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/competition")
+async def get_competition_analysis(arrondissement: str = None):
+    """Analyse de la concurrence sur le marché"""
+    try:
+        filters = {}
+        if arrondissement:
+            filters["arrondissement"] = arrondissement
+        
+        # Récupérer données des 30 derniers jours
+        data = await db.market_data.find({
+            **filters,
+            "collected_at": {"$gte": (datetime.now() - timedelta(days=30)).isoformat()}
+        }, {"_id": 0}).to_list(length=None)
+        
+        # Analyser concurrence par source
+        competition_by_source = {}
+        agent_activity = {}
+        prix_by_source = {}
+        
+        for point in data:
+            source = point["source"]
+            
+            # Stats par source
+            if source not in competition_by_source:
+                competition_by_source[source] = {
+                    "nombre_annonces": 0,
+                    "prix_moyen": 0,
+                    "prix_total": 0,
+                    "surface_moyenne": 0,
+                    "surface_total": 0
+                }
+            
+            competition_by_source[source]["nombre_annonces"] += 1
+            competition_by_source[source]["prix_total"] += point["prix"]
+            competition_by_source[source]["surface_total"] += point["surface"]
+            
+            # Analyser activité agents
+            agent_info = point.get("agent_info", {})
+            agent_name = agent_info.get("nom", "Inconnu")
+            agent_type = agent_info.get("type", "agence")
+            
+            if agent_name not in agent_activity:
+                agent_activity[agent_name] = {
+                    "annonces": 0,
+                    "prix_moyen": 0,
+                    "prix_total": 0,
+                    "type": agent_type,
+                    "quartiers": set()
+                }
+            
+            agent_activity[agent_name]["annonces"] += 1
+            agent_activity[agent_name]["prix_total"] += point["prix"]
+            agent_activity[agent_name]["quartiers"].add(point["quartier"])
+        
+        # Calculer moyennes et convertir sets
+        for source, source_data in competition_by_source.items():
+            if source_data["nombre_annonces"] > 0:
+                source_data["prix_moyen"] = source_data["prix_total"] / source_data["nombre_annonces"]
+                source_data["surface_moyenne"] = source_data["surface_total"] / source_data["nombre_annonces"]
+            del source_data["prix_total"]
+            del source_data["surface_total"]
+        
+        for agent, agent_data in agent_activity.items():
+            if agent_data["annonces"] > 0:
+                agent_data["prix_moyen"] = agent_data["prix_total"] / agent_data["annonces"]
+                agent_data["nb_quartiers"] = len(agent_data["quartiers"])
+            del agent_data["prix_total"]
+            del agent_data["quartiers"]
+        
+        # Top 10 agents les plus actifs
+        top_agents = dict(sorted(
+            agent_activity.items(),
+            key=lambda x: x[1]["annonces"],
+            reverse=True
+        )[:10])
+        
+        # Répartition par type d'agent
+        agent_types = {}
+        for agent_data in agent_activity.values():
+            agent_type = agent_data["type"]
+            if agent_type not in agent_types:
+                agent_types[agent_type] = {"count": 0, "annonces_total": 0}
+            agent_types[agent_type]["count"] += 1
+            agent_types[agent_type]["annonces_total"] += agent_data["annonces"]
+        
+        return {
+            "competition_by_source": competition_by_source,
+            "top_agents": top_agents,
+            "agent_types_distribution": agent_types,
+            "total_agents_actifs": len(agent_activity),
+            "total_annonces_analysees": len(data),
+            "arrondissement": arrondissement or "Tous arrondissements Lyon",
+            "periode": "30 derniers jours",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur analyse concurrence: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/alerts")
+async def get_market_alerts(arrondissement: str = None, days: int = 7):
+    """Récupère les alertes marché actives"""
+    try:
+        filters = {
+            "created_at": {"$gte": (datetime.now() - timedelta(days=days)).isoformat()}
+        }
+        if arrondissement:
+            filters["arrondissement"] = arrondissement
+        
+        alerts = await db.market_alerts.find(
+            filters, {"_id": 0}
+        ).sort("created_at", -1).limit(50).to_list(length=None)
+        
+        # Grouper par type
+        alerts_by_type = {}
+        for alert in alerts:
+            alert_type = alert["type"]
+            if alert_type not in alerts_by_type:
+                alerts_by_type[alert_type] = []
+            alerts_by_type[alert_type].append(alert)
+        
+        # Statistiques
+        stats = {
+            "total_alerts": len(alerts),
+            "high_priority": len([a for a in alerts if a.get("priority") == "high"]),
+            "medium_priority": len([a for a in alerts if a.get("priority") == "medium"]),
+            "low_priority": len([a for a in alerts if a.get("priority") == "low"]),
+            "types_count": len(alerts_by_type)
+        }
+        
+        return {
+            "alerts": alerts,
+            "alerts_by_type": alerts_by_type,
+            "stats": stats,
+            "periode_jours": days,
+            "arrondissement": arrondissement or "Tous",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur alertes marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/market/stats")
+async def get_market_stats():
+    """Statistiques globales du système d'intelligence marché"""
+    try:
+        # Stats collection générale
+        collection_stats = await db.market_stats.find_one(
+            {"type": "collection_summary"}, {"_id": 0}
+        )
+        
+        # Compter données par source
+        source_pipeline = [
+            {"$group": {"_id": "$source", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        sources_data = await db.market_data.aggregate(source_pipeline).to_list(length=None)
+        
+        # Compter par arrondissement
+        arrond_pipeline = [
+            {"$group": {"_id": "$arrondissement", "count": {"$sum": 1}, "prix_moyen": {"$avg": "$prix_m2"}}},
+            {"$sort": {"count": -1}}
+        ]
+        arrond_data = await db.market_data.aggregate(arrond_pipeline).to_list(length=None)
+        
+        # Stats tendances
+        total_trends = await db.market_trends.count_documents({})
+        
+        # Stats alertes (7 derniers jours)
+        recent_alerts = await db.market_alerts.count_documents({
+            "created_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
+        })
+        
+        return {
+            "collection_summary": collection_stats or {},
+            "data_by_source": sources_data,
+            "data_by_arrondissement": arrond_data,
+            "total_trends_analyzed": total_trends,
+            "recent_alerts_7d": recent_alerts,
+            "system_status": "operational",
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur stats marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/sheets/clean-sync")
 async def clean_and_sync_sheets(background_tasks: BackgroundTasks):
     """Nettoyer et re-synchroniser proprement toutes les données vers Google Sheets"""
