@@ -823,6 +823,19 @@ class EfficiencyAPITester:
         self.test_notification_daily_report()
         self.test_notification_send_custom()
         
+        # INTELLIGENT EMAIL SEQUENCES TESTS - NEW FEATURE
+        print("\n📧 INTELLIGENT EMAIL SEQUENCES TESTS - NEW FEATURE")
+        print("-" * 60)
+        self.test_sequences_stats()
+        self.test_sequences_active()
+        self.test_sequences_start()
+        self.test_sequences_auto_trigger()
+        self.test_sequences_process()
+        self.test_sequences_lead_specific()
+        self.test_sequences_pause_resume()
+        self.test_sequences_service_integration()
+        self.test_sequences_database_collections()
+        
         # Cleanup
         self.test_delete_lead()
         
