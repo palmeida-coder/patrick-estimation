@@ -58,6 +58,9 @@ enhanced_ai = EnhancedBehavioralAI(db)
 # Initialize Lead Extraction Engine
 extraction_engine = LeadExtractionEngine(db, DEFAULT_EXTRACTION_CONFIG)
 
+# Initialize Notification Service
+notification_service = NotificationService(db, DEFAULT_NOTIFICATION_CONFIG)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
