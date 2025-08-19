@@ -976,6 +976,7 @@ async def run_extraction_process(filters: dict):
     """Processus d'extraction en arrière-plan"""
     try:
         logger.info("Démarrage extraction multi-sources")
+        start_time = datetime.now()
         
         # Extraction depuis toutes les sources
         all_leads = await extraction_engine.extract_from_all_sources(filters)
@@ -989,10 +990,42 @@ async def run_extraction_process(filters: dict):
         # Sauvegarde
         stats = await extraction_engine.save_leads_to_db(enriched_leads)
         
+        # Calculer durée et statistiques
+        duration = datetime.now() - start_time
+        duration_str = f"{duration.total_seconds():.1f} secondes"
+        
+        # Compter les leads haute qualité
+        high_quality_count = len([l for l in enriched_leads if l.get('quality_score', 0) > 80])
+        
+        extraction_stats = {
+            'total_leads': len(unique_leads),
+            'high_quality_leads': high_quality_count,
+            'sources_used': list(all_leads.keys()),
+            'duration': duration_str,
+            'created': stats['created'],
+            'updated': stats['updated'],
+            'errors': stats['errors']
+        }
+        
+        # Notifier la fin d'extraction
+        await notification_service.notify_extraction_complete(extraction_stats)
+        
         logger.info(f"Extraction terminée: {stats['created']} créés, {stats['updated']} mis à jour, {stats['errors']} erreurs")
         
     except Exception as e:
         logger.error(f"Erreur processus extraction: {str(e)}")
+        
+        # Notifier l'erreur
+        await notification_service.send_notification(
+            NotificationType.SYSTEM_ALERT,
+            NotificationPriority.HIGH,
+            {
+                'error': str(e),
+                'process': 'lead_extraction',
+                'timestamp': datetime.now().isoformat(),
+                'recipients': ['palmeida@efficity.com']
+            }
+        )
 
 def get_source_description(source_name: str) -> str:
     """Retourne la description d'une source"""
