@@ -460,14 +460,17 @@ class NotificationService:
             
             # Couleur de priorité
             priority_colors = {
-                NotificationPriority.CRITICAL: '#dc2626',
-                NotificationPriority.HIGH: '#ea580c',
-                NotificationPriority.MEDIUM: '#0891b2',
-                NotificationPriority.LOW: '#059669'
+                'critical': '#dc2626',
+                'high': '#ea580c',
+                'medium': '#0891b2',
+                'low': '#059669'
             }
             
+            # Convert string type back to enum for template lookup
+            notification_type = NotificationType(notification['type'])
+            
             return html_template.format(
-                subject=self.templates[notification['type']]['email_subject'].format(**notification['data']),
+                subject=self.templates[notification_type]['email_subject'].format(**notification['data']),
                 content=content,
                 priority_color=priority_colors.get(notification['priority'], '#0891b2')
             )
