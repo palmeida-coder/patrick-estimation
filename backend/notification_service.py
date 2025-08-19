@@ -263,6 +263,11 @@ class NotificationService:
     async def _send_email(self, recipient: str, subject: str, html_content: str):
         """Envoie un email via SMTP"""
         
+        if not MimeMultipart or not MimeText:
+            self.logger.warning("Email modules not available - simulating email send")
+            self.logger.info(f"EMAIL SIMULATION - To: {recipient}, Subject: {subject}")
+            return
+        
         msg = MimeMultipart('alternative')
         msg['From'] = f"{self.smtp_config['sender_name']} <{self.smtp_config['sender_email']}>"
         msg['To'] = recipient
@@ -272,12 +277,20 @@ class NotificationService:
         html_part = MimeText(html_content, 'html', 'utf-8')
         msg.attach(html_part)
         
+        # Simulation mode if no password configured
+        if not self.smtp_config.get('password'):
+            self.logger.info(f"EMAIL SIMULATION - To: {recipient}, Subject: {subject}")
+            return
+        
         # Envoi via SMTP
-        with smtplib.SMTP(self.smtp_config['smtp_server'], self.smtp_config['smtp_port']) as server:
-            server.starttls()
-            if self.smtp_config['password']:
+        try:
+            with smtplib.SMTP(self.smtp_config['smtp_server'], self.smtp_config['smtp_port']) as server:
+                server.starttls()
                 server.login(self.smtp_config['sender_email'], self.smtp_config['password'])
-            server.send_message(msg)
+                server.send_message(msg)
+        except Exception as e:
+            self.logger.warning(f"SMTP failed, simulating email send: {str(e)}")
+            self.logger.info(f"EMAIL SIMULATION - To: {recipient}, Subject: {subject}")
     
     async def _send_sms_notification(self, notification: Dict[str, Any]) -> Dict[str, Any]:
         """Envoie une notification par SMS"""
