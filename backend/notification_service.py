@@ -313,7 +313,9 @@ class NotificationService:
         """Envoie une notification par SMS"""
         
         try:
-            template_config = self.templates.get(notification['type'])
+            # Convert string type back to enum for template lookup
+            notification_type = NotificationType(notification['type'])
+            template_config = self.templates.get(notification_type)
             if not template_config or 'sms_template' not in template_config:
                 return {'status': 'error', 'error': 'Template SMS non trouvé'}
             
