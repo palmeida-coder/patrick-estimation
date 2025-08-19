@@ -499,6 +499,79 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Delete Lead", False, f"- Failed to delete lead {details}")
 
+    # ===== NOTIFICATION SYSTEM TESTS - CRITICAL FOR FRONTEND =====
+    
+    def test_notification_history(self):
+        """Test GET /api/notifications/history - Should return notification history"""
+        success, response, details = self.make_request('GET', 'api/notifications/history', expected_status=200)
+        
+        required_fields = ['notifications', 'total']
+        
+        if success and all(field in response for field in required_fields):
+            notifications = response.get('notifications', [])
+            total = response.get('total', 0)
+            return self.log_test("Notification History", True, f"- Retrieved {len(notifications)} notifications, total: {total} {details}")
+        else:
+            missing_fields = [field for field in required_fields if field not in response]
+            return self.log_test("Notification History", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_notification_stats(self):
+        """Test GET /api/notifications/stats - Should return notification statistics"""
+        success, response, details = self.make_request('GET', 'api/notifications/stats', expected_status=200)
+        
+        required_fields = ['total_notifications']
+        
+        if success and any(field in response for field in required_fields):
+            total = response.get('total_notifications', 0)
+            today = response.get('notifications_today', 0)
+            return self.log_test("Notification Stats", True, f"- Total: {total}, Today: {today} {details}")
+        else:
+            return self.log_test("Notification Stats", False, f"- Stats retrieval failed {details}")
+    
+    def test_notification_test_system(self):
+        """Test POST /api/notifications/test - Should send a test notification"""
+        success, response, details = self.make_request('POST', 'api/notifications/test', expected_status=200)
+        
+        if success and 'message' in response:
+            message = response.get('message', '')
+            result = response.get('result', {})
+            return self.log_test("Notification Test System", True, f"- {message}, Result: {result.get('status', 'N/A')} {details}")
+        else:
+            return self.log_test("Notification Test System", False, f"- Test notification failed {details}")
+    
+    def test_notification_daily_report(self):
+        """Test POST /api/notifications/daily-report - Should send daily report"""
+        success, response, details = self.make_request('POST', 'api/notifications/daily-report', expected_status=200)
+        
+        if success and 'message' in response:
+            message = response.get('message', '')
+            data = response.get('data', {})
+            return self.log_test("Notification Daily Report", True, f"- {message}, New leads: {data.get('new_leads', 0)} {details}")
+        else:
+            return self.log_test("Notification Daily Report", False, f"- Daily report failed {details}")
+    
+    def test_notification_send_custom(self):
+        """Test POST /api/notifications/send - Should send custom notification"""
+        test_notification = {
+            "type": "system_alert",
+            "priority": "medium",
+            "data": {
+                "message": "Test notification from API testing",
+                "source": "backend_test.py",
+                "timestamp": datetime.now().isoformat(),
+                "recipients": ["test@efficity.com"]
+            }
+        }
+        
+        success, response, details = self.make_request('POST', 'api/notifications/send', data=test_notification, expected_status=200)
+        
+        if success and ('notification_id' in response or 'status' in response):
+            notification_id = response.get('notification_id', 'N/A')
+            status = response.get('status', 'N/A')
+            return self.log_test("Notification Send Custom", True, f"- Custom notification sent, ID: {notification_id}, Status: {status} {details}")
+        else:
+            return self.log_test("Notification Send Custom", False, f"- Custom notification failed {details}")
+
     def run_all_tests(self):
         """Run all API tests in sequence"""
         print("🚀 Starting Efficity API Backend Tests")
