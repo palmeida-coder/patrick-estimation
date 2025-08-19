@@ -392,6 +392,10 @@ class MarketIntelligenceService:
                 "prix": point.prix,
                 "surface": point.surface,
                 "prix_m2": point.prix_m2,
+                "date_publication": point.date_publication.isoformat(),  # Convert datetime to string
+                "url": point.url,
+                "description": point.description,
+                "agent_info": point.agent_info,
                 "caracteristiques": point.caracteristiques
             }
             
