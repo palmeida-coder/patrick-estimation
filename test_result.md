@@ -174,10 +174,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Advanced Notification System Backend"
     - "NotificationCenter Frontend Component"
   stuck_tasks: 
-    - "Advanced Notification System Backend"
     - "NotificationCenter Frontend Component"
   test_all: false
   test_priority: "high_first"
