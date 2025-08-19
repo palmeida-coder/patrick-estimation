@@ -24,6 +24,7 @@ from analytics_service import AdvancedAnalyticsService
 from enhanced_behavioral_ai import EnhancedBehavioralAI
 from lead_extraction_engine import LeadExtractionEngine, DEFAULT_EXTRACTION_CONFIG
 from notification_service import NotificationService, NotificationType, NotificationPriority, DEFAULT_NOTIFICATION_CONFIG
+from intelligent_email_sequences import IntelligentEmailSequenceService, SequenceType, TriggerCondition, get_sequence_service
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
