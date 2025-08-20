@@ -440,7 +440,7 @@ const LyonPricePredictor = () => {
                           onCheckedChange={(checked) => setPropertyData({...propertyData, avec_ascenseur: checked})}
                         />
                         <Label htmlFor="ascenseur" className="flex items-center">
-                          <Elevator className="w-4 h-4 mr-1" />
+                          <ArrowUpDown className="w-4 h-4 mr-1" />
                           Ascenseur
                         </Label>
                       </div>
