@@ -15,6 +15,8 @@ from enum import Enum
 from email_automation import EmailAutomationService, EmailTemplate
 # Import Google Sheets service
 from google_sheets_service import GoogleSheetsService, sheets_service
+# Import Google Sheets REAL service - INTÉGRATION PRODUCTION
+from google_sheets_real_service import GoogleSheetsRealService, google_sheets_real_service
 # Import AI Behavioral service  
 from ai_behavioral_service import AIBehavioralService, ai_behavioral_service
 # Import AI Assistant service
