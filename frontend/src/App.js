@@ -121,6 +121,10 @@ function Navigation() {
               <Radar className="w-4 h-4" />
               Intelligence Marché
             </Link>
+            <Link to="/crm" className="nav-link">
+              <Settings2 className="w-4 h-4" />
+              CRM Intégrations
+            </Link>
             <Link to="/ai-insights" className="nav-link">
               <Brain className="w-4 h-4" />
               IA Insights
