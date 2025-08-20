@@ -1054,8 +1054,8 @@ class EfficiencyAPITester:
             return self.log_test("Lyon IA Arrondissement Stats", False, f"- Arrondissement stats failed {details}")
     
     def test_lyon_ia_model_performance(self):
-        """Test GET /api/lyon-ia/model/performance - Should return model performance metrics"""
-        success, response, details = self.make_request('GET', 'api/lyon-ia/model/performance', expected_status=200)
+        """Test GET /api/lyon-predictor/performance - Should return model performance metrics"""
+        success, response, details = self.make_request('GET', 'api/lyon-predictor/performance', expected_status=200)
         
         expected_fields = ['model_metrics', 'model_status', 'coverage']
         
