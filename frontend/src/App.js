@@ -75,6 +75,7 @@ function App() {
             <Route path="/rgpd" element={<RGPDCompliance />} />
             <Route path="/patrick-ia3" element={<PatrickIA3Advanced />} />
             <Route path="/lyon-predictor" element={<LyonPricePredictor />} />
+            <Route path="/multi-agency" element={<MultiAgencyManagement />} />
             <Route path="/ai-insights" element={<AIInsights />} />
             <Route path="/patrick-ia" element={<PatrickIA2 />} />
           </Routes>
