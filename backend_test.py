@@ -1017,8 +1017,8 @@ class EfficiencyAPITester:
             return self.log_test("Lyon IA Predict Price", False, f"- Price prediction failed {details}")
     
     def test_lyon_ia_dashboard(self):
-        """Test GET /api/lyon-ia/dashboard - Should return Lyon Price Predictor dashboard"""
-        success, response, details = self.make_request('GET', 'api/lyon-ia/dashboard', expected_status=200)
+        """Test GET /api/lyon-predictor/dashboard - Should return Lyon Price Predictor dashboard"""
+        success, response, details = self.make_request('GET', 'api/lyon-predictor/dashboard', expected_status=200)
         
         expected_fields = ['model_performance', 'recent_predictions', 'arrondissement_stats', 'system_status']
         
