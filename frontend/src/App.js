@@ -37,7 +37,8 @@ import {
   Sparkles,
   Radar,
   Settings2,
-  Shield
+  Shield,
+  Zap
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
