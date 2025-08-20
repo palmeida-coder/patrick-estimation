@@ -1210,8 +1210,11 @@ class EfficiencyAPITester:
             return self.log_test("Patrick IA 3.0 Dashboard", False, f"- Dashboard retrieval failed {details}")
     
     def test_patrick_ia_3_insights(self):
-        """Test GET /api/patrick-ia-3/insights - Should return advanced insights and recommendations"""
-        success, response, details = self.make_request('GET', 'api/patrick-ia-3/insights', expected_status=200)
+        """Test GET /api/patrick-ia/insights/{lead_id} - Should return advanced insights and recommendations"""
+        if not self.created_lead_id:
+            return self.log_test("Patrick IA 3.0 Insights", False, "- No lead ID available (create lead first)")
+        
+        success, response, details = self.make_request('GET', f'api/patrick-ia/insights/{self.created_lead_id}', expected_status=200)
         
         expected_fields = ['portfolio_insights', 'conversion_predictions', 'recommended_actions', 'market_intelligence']
         
