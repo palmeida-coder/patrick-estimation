@@ -36,7 +36,7 @@ const LyonPricePredictor = () => {
           bedrooms: parseInt(propertyData.bedrooms) || 2,
           property_type: propertyData.property_type,
           floor: 3,
-          elevator: true,
+          has_elevator: true,
           parking: true,
           balcony: true,
           year_built: 2010
