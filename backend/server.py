@@ -3375,6 +3375,13 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"⚠️ Erreur initialisation Patrick IA 3.0: {str(e)}")
     
+    # Initialize Lyon Price Predictor IA models
+    try:
+        await lyon_predictor.initialize_price_models()
+        logger.info("✅ Lyon Price Predictor IA initialisé")
+    except Exception as e:
+        logger.warning(f"⚠️ Erreur initialisation Lyon Predictor: {str(e)}")
+    
     """Démarre les tâches de background pour l'automation"""
     
     async def process_emails_periodically():
