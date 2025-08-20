@@ -3097,6 +3097,15 @@ def _estimate_closing_timeline(score: float) -> str:
 # Background task to process scheduled emails
 @app.on_event("startup")
 async def startup_event():
+    logger.info("🚀 Démarrage des services Efficity...")
+    
+    # Initialize Patrick IA 3.0 models
+    try:
+        await patrick_scoring.initialize_models()
+        logger.info("✅ Patrick IA 3.0 modèles initialisés")
+    except Exception as e:
+        logger.warning(f"⚠️ Erreur initialisation Patrick IA 3.0: {str(e)}")
+    
     """Démarre les tâches de background pour l'automation"""
     
     async def process_emails_periodically():
