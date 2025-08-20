@@ -984,7 +984,7 @@ class EfficiencyAPITester:
     # ===== LYON PRICE PREDICTOR AI TESTS - NEW REVOLUTIONARY FEATURE =====
     
     def test_lyon_ia_predict_price(self):
-        """Test GET /api/lyon-ia/predict-price - Should predict property price with Lyon AI"""
+        """Test POST /api/lyon-predictor/predict-price - Should predict property price with Lyon AI"""
         test_property = {
             "property_type": "appartement",
             "surface_habitable": 75.0,
@@ -1002,7 +1002,7 @@ class EfficiencyAPITester:
             "vue_degagee": True
         }
         
-        success, response, details = self.make_request('POST', 'api/lyon-ia/predict-price', data=test_property, expected_status=200)
+        success, response, details = self.make_request('POST', 'api/lyon-predictor/predict-price', data=test_property, expected_status=200)
         
         expected_fields = ['prediction_id', 'predicted_price', 'predicted_price_per_m2', 'confidence_level', 'market_position']
         
