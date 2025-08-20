@@ -36,6 +36,7 @@ class UserRole(Enum):
 @dataclass
 class Agency:
     """Modèle de données pour les agences"""
+    # Required fields first
     id: str
     name: str
     type: AgencyType
@@ -47,18 +48,18 @@ class Agency:
     city: str
     postal_code: str
     region: str
-    country: str = "France"
     # Informations business
     registration_number: str
     license_number: str
     director_name: str
-    # Configuration
-    max_users: int = 50
-    max_properties: int = 1000
-    subscription_plan: str = "standard"
     # Métadonnées
     created_at: str
     updated_at: str
+    # Optional/default fields last
+    country: str = "France"
+    max_users: int = 50
+    max_properties: int = 1000
+    subscription_plan: str = "standard"
     last_activity: Optional[str] = None
     # Statistiques rapides
     total_users: int = 0
