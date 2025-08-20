@@ -33,6 +33,8 @@ from crm_integrations_service import CRMIntegrationsService, CRMCredentials, get
 from rgpd_compliance_service import RGPDComplianceService, get_rgpd_compliance_service, ConsentRecord, DEFAULT_RGPD_CONFIG
 from advanced_lead_scoring_ai import AdvancedLeadScoringAI, get_advanced_lead_scoring_service, LeadScoringResult, DEFAULT_SCORING_CONFIG
 from lyon_price_predictor_ai import LyonPricePredictorAI, get_lyon_price_predictor_service, PropertyPredictionRequest, PricePredictionResult, DEFAULT_LYON_PREDICTOR_CONFIG
+# Import Multi-Agency Management service - NOUVELLE FONCTIONNALITÉ
+from multi_agency_service import MultiAgencyService, multi_agency_service, Agency, AgencyUser, AgencyStats, AgencyStatus, AgencyType, UserRole
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
