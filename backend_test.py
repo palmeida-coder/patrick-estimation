@@ -1335,7 +1335,7 @@ class EfficiencyAPITester:
         if not self.created_lead_id:
             return self.log_test("Patrick IA 3.0 Database Collections", False, "- No lead ID available for testing")
         
-        score_success, score_response, score_details = self.make_request('GET', f'api/patrick-ia-3/score-lead/{self.created_lead_id}', expected_status=200)
+        score_success, score_response, score_details = self.make_request('GET', f'api/patrick-ia/score/{self.created_lead_id}', expected_status=200)
         
         if not score_success:
             return self.log_test("Patrick IA 3.0 Database Collections", False, f"- Could not create test scoring {score_details}")
