@@ -1260,8 +1260,8 @@ class EfficiencyAPITester:
             return self.log_test("Patrick IA 3.0 Batch Scoring", False, f"- Batch scoring failed {details}")
     
     def test_patrick_ia_3_model_performance(self):
-        """Test GET /api/patrick-ia-3/model/performance - Should return model performance metrics"""
-        success, response, details = self.make_request('GET', 'api/patrick-ia-3/model/performance', expected_status=200)
+        """Test GET /api/patrick-ia/performance - Should return model performance metrics"""
+        success, response, details = self.make_request('GET', 'api/patrick-ia/performance', expected_status=200)
         
         expected_fields = ['model_metrics', 'scoring_config', 'tier_thresholds', 'models_status']
         
