@@ -393,19 +393,32 @@ class RGPDComplianceService:
                 }}
             ]).to_list(length=None)
             
-            # Activités de traitement
-            processing_activities = await self.db.rgpd_processing_log.count_documents({
-                "processed_at": {"$gte": start_date}
-            })
+            # Activités de traitement (collection peut ne pas exister)
+            try:
+                processing_activities = await self.db.rgpd_processing_log.count_documents({
+                    "processed_at": {"$gte": start_date}
+                })
+            except Exception:
+                processing_activities = 0
             
-            # Demandes d'utilisateurs
-            user_requests = {
-                "data_exports": await self.db.rgpd_data_exports.count_documents({
+            # Demandes d'utilisateurs (collections peuvent ne pas exister)
+            try:
+                data_exports_count = await self.db.rgpd_data_exports.count_documents({
                     "requested_at": {"$gte": start_date}
-                }),
-                "data_deletions": await self.db.rgpd_data_deletions.count_documents({
+                })
+            except Exception:
+                data_exports_count = 0
+            
+            try:
+                data_deletions_count = await self.db.rgpd_data_deletions.count_documents({
                     "deleted_at": {"$gte": start_date}
                 })
+            except Exception:
+                data_deletions_count = 0
+            
+            user_requests = {
+                "data_exports": data_exports_count,
+                "data_deletions": data_deletions_count
             }
             
             # Score de conformité (algorithme propriétaire)
