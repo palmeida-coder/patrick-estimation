@@ -3365,6 +3365,268 @@ async def get_predictor_performance():
 
 # ===== FIN LYON PRICE PREDICTOR ENDPOINTS =====
 
+# ===== GOOGLE SHEETS INTÉGRATION RÉELLE - PRODUCTION =====
+
+@app.post("/api/sheets-real/initialize")
+async def initialize_real_sheets_connection():
+    """Initialise la connexion avec votre Google Sheet réel"""
+    try:
+        await google_sheets_real_service.initialize()
+        return {
+            "status": "success",
+            "message": "Connexion Google Sheets réelle initialisée",
+            "sheet_id": google_sheets_real_service.sheet_id,
+            "worksheet": google_sheets_real_service.worksheet_name,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur initialisation sheets réel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sheets-real/prospects")
+async def get_real_prospects():
+    """Récupère tous les prospects depuis votre Google Sheet réel"""
+    try:
+        prospects = await google_sheets_real_service.read_all_prospects()
+        
+        return {
+            "status": "success",
+            "prospects": [prospect.dict() for prospect in prospects],
+            "total": len(prospects),
+            "sheet_info": {
+                "sheet_id": google_sheets_real_service.sheet_id,
+                "worksheet": google_sheets_real_service.worksheet_name
+            },
+            "retrieved_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur lecture prospects réels: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets-real/prospect")
+async def add_real_prospect(prospect_data: dict):
+    """Ajoute un nouveau prospect à votre Google Sheet réel"""
+    try:
+        # Créer un ProspectData depuis le dict
+        from google_sheets_real_service import ProspectData
+        
+        prospect = ProspectData(**prospect_data)
+        
+        # Ajouter au sheet
+        success = await google_sheets_real_service.add_prospect(prospect)
+        
+        if success:
+            return {
+                "status": "success",
+                "message": "Prospect ajouté au Google Sheet réel",
+                "prospect": prospect.dict(),
+                "added_at": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Échec ajout prospect")
+            
+    except Exception as e:
+        logger.error(f"Erreur ajout prospect réel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sheets-real/prospect/{email}")
+async def find_real_prospect_by_email(email: str):
+    """Trouve un prospect par son email dans votre Google Sheet réel"""
+    try:
+        prospect = await google_sheets_real_service.find_prospect_by_email(email)
+        
+        if prospect:
+            return {
+                "status": "found",
+                "prospect": prospect.dict(),
+                "found_at": datetime.now().isoformat()
+            }
+        else:
+            return {
+                "status": "not_found",
+                "email": email,
+                "searched_at": datetime.now().isoformat()
+            }
+            
+    except Exception as e:
+        logger.error(f"Erreur recherche prospect réel {email}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sheets-real/stats")
+async def get_real_sheets_stats():
+    """Statistiques de votre Google Sheet réel"""
+    try:
+        stats = await google_sheets_real_service.get_stats()
+        
+        return {
+            "status": "success",
+            "stats": stats,
+            "sheet_info": {
+                "sheet_id": google_sheets_real_service.sheet_id,
+                "worksheet_name": google_sheets_real_service.worksheet_name,
+                "direct_url": f"https://docs.google.com/spreadsheets/d/{google_sheets_real_service.sheet_id}/edit"
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur stats sheets réel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets-real/sync-to-crm")
+async def sync_real_sheets_to_crm():
+    """Synchronise les données de votre Google Sheet vers le CRM Efficity"""
+    try:
+        # Récupérer prospects du sheet
+        prospects = await google_sheets_real_service.read_all_prospects()
+        
+        synced_count = 0
+        updated_count = 0
+        created_count = 0
+        errors = []
+        
+        for prospect in prospects:
+            try:
+                if prospect.email:
+                    # Vérifier si existe déjà dans MongoDB
+                    existing_lead = await db.leads.find_one(
+                        {"email": prospect.email}, {"_id": 0}
+                    )
+                    
+                    # Convertir prospect en format Lead CRM
+                    lead_data = {
+                        "id": str(uuid.uuid4()) if not existing_lead else existing_lead.get("id"),
+                        "nom": prospect.nom or "",
+                        "prénom": prospect.prenom or "",
+                        "email": prospect.email,
+                        "téléphone": prospect.telephone or "",
+                        "adresse": prospect.adresse or "",
+                        "ville": prospect.ville or "",
+                        "code_postal": prospect.code_postal or "",
+                        "source": prospect.source or "google_sheets",
+                        "statut": prospect.statut or "nouveau",
+                        "assigné_à": prospect.agent_assigne or "Patrick Almeida",
+                        "notes": prospect.notes_commerciales or "",
+                        "valeur_estimée": 0,
+                        "score_qualification": int(prospect.score_qualite or 0) if prospect.score_qualite else 0,
+                        "créé_le": datetime.now(),
+                        "modifié_le": datetime.now(),
+                        "dernière_activité": datetime.now(),
+                        "google_sheets_sync": True,
+                        "google_sheets_data": prospect.dict()
+                    }
+                    
+                    if existing_lead:
+                        # Mettre à jour
+                        await db.leads.update_one(
+                            {"email": prospect.email},
+                            {"$set": lead_data}
+                        )
+                        updated_count += 1
+                    else:
+                        # Créer nouveau
+                        await db.leads.insert_one(lead_data)
+                        created_count += 1
+                    
+                    synced_count += 1
+                    
+            except Exception as e:
+                errors.append(f"Erreur prospect {prospect.email or 'sans email'}: {str(e)}")
+        
+        return {
+            "status": "success",
+            "message": "Synchronisation Google Sheets → CRM terminée",
+            "stats": {
+                "total_prospects": len(prospects),
+                "synced_count": synced_count,
+                "created_count": created_count,
+                "updated_count": updated_count,
+                "errors_count": len(errors)
+            },
+            "errors": errors,
+            "sync_completed_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur sync sheets → CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets-real/sync-from-crm")
+async def sync_crm_to_real_sheets():
+    """Synchronise les données du CRM Efficity vers votre Google Sheet"""
+    try:
+        # Récupérer tous les leads du CRM
+        crm_leads = await db.leads.find({}, {"_id": 0}).to_list(length=None)
+        
+        synced_count = 0
+        errors = []
+        
+        for lead in crm_leads:
+            try:
+                # Convertir lead CRM en ProspectData
+                from google_sheets_real_service import ProspectData
+                
+                prospect = ProspectData(
+                    nom=lead.get("nom", ""),
+                    prenom=lead.get("prénom", ""),
+                    email=lead.get("email", ""),
+                    telephone=lead.get("téléphone", ""),
+                    adresse=lead.get("adresse", ""),
+                    ville=lead.get("ville", ""),
+                    code_postal=lead.get("code_postal", ""),
+                    source=lead.get("source", "crm"),
+                    statut=lead.get("statut", "nouveau"),
+                    agent_assigne=lead.get("assigné_à", "Patrick Almeida"),
+                    score_qualite=str(lead.get("score_qualification", 0)),
+                    notes_commerciales=lead.get("notes", ""),
+                    date_creation=lead.get("créé_le", datetime.now()).strftime("%Y-%m-%d %H:%M:%S") if isinstance(lead.get("créé_le"), datetime) else str(lead.get("créé_le", "")),
+                    derniere_modif=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    derniere_activite=lead.get("dernière_activité", datetime.now()).strftime("%Y-%m-%d %H:%M:%S") if isinstance(lead.get("dernière_activité"), datetime) else str(lead.get("dernière_activité", ""))
+                )
+                
+                # Ajouter au sheet (pour l'instant simulation)
+                success = await google_sheets_real_service.add_prospect(prospect)
+                
+                if success:
+                    synced_count += 1
+                    
+            except Exception as e:
+                errors.append(f"Erreur lead {lead.get('email', 'sans email')}: {str(e)}")
+        
+        return {
+            "status": "success",
+            "message": "Synchronisation CRM → Google Sheets terminée",
+            "stats": {
+                "total_leads": len(crm_leads),
+                "synced_count": synced_count,
+                "errors_count": len(errors)
+            },
+            "errors": errors,
+            "sync_completed_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur sync CRM → sheets: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sheets-real/full-sync")
+async def full_bidirectional_sync():
+    """Synchronisation bidirectionnelle complète Google Sheets ↔ CRM"""
+    try:
+        sync_result = await google_sheets_real_service.sync_with_crm()
+        
+        return {
+            "status": "success",
+            "message": "Synchronisation bidirectionnelle complète",
+            "sync_result": sync_result,
+            "completed_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur sync bidirectionnel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== FIN GOOGLE SHEETS INTÉGRATION RÉELLE =====
+
 # Background task to process scheduled emails
 @app.on_event("startup")
 async def startup_event():
