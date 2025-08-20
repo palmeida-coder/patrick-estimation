@@ -78,6 +78,9 @@ crm_service = get_crm_integrations_service(db, notification_service, enhanced_ai
 # Initialize RGPD Compliance Service
 rgpd_service = get_rgpd_compliance_service(db, notification_service)
 
+# Initialize Patrick IA 3.0 - Advanced Lead Scoring
+patrick_scoring = get_advanced_lead_scoring_service(db)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
