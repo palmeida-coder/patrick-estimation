@@ -2551,6 +2551,231 @@ async def process_batch_ai_analysis(leads: List[Dict[str, Any]]):
     except Exception as e:
         logger.error(f"❌ Erreur traitement batch IA: {str(e)}")
 
+# ===== RGPD COMPLIANCE ENDPOINTS - RÉVOLUTIONNAIRE =====
+
+@app.post("/api/rgpd/consent")
+async def record_user_consent(request: dict):
+    """Enregistre un consentement utilisateur RGPD"""
+    try:
+        user_id = request.get('user_id')
+        consent_type = request.get('consent_type')
+        status = request.get('status')
+        legal_basis = request.get('legal_basis')
+        purpose = request.get('purpose')
+        
+        if not all([user_id, consent_type, status, legal_basis, purpose]):
+            raise HTTPException(status_code=400, detail="Tous les champs requis doivent être remplis")
+        
+        result = await rgpd_service.record_consent(
+            user_id=user_id,
+            consent_type=consent_type,
+            status=status,
+            legal_basis=legal_basis,
+            purpose=purpose,
+            ip_address=request.get('ip_address'),
+            user_agent=request.get('user_agent'),
+            method=request.get('method', 'web'),
+            evidence=request.get('evidence', {})
+        )
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur enregistrement consentement: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/consent/{user_id}")
+async def get_user_consents(user_id: str):
+    """Récupère tous les consentements d'un utilisateur"""
+    try:
+        consents = await rgpd_service.get_user_consents(user_id)
+        return consents
+        
+    except Exception as e:
+        logger.error(f"Erreur récupération consentements: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/rgpd/consent/withdraw")
+async def withdraw_user_consent(request: dict):
+    """Révoque un consentement utilisateur"""
+    try:
+        user_id = request.get('user_id')
+        consent_type = request.get('consent_type')
+        reason = request.get('reason')
+        
+        if not user_id or not consent_type:
+            raise HTTPException(status_code=400, detail="user_id et consent_type requis")
+        
+        result = await rgpd_service.withdraw_consent(user_id, consent_type, reason)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur révocation consentement: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/export/{user_id}")
+async def export_user_data(user_id: str, format: str = "json"):
+    """Exporte toutes les données utilisateur (portabilité RGPD)"""
+    try:
+        result = await rgpd_service.export_user_data(user_id, format)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Erreur export données: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/rgpd/delete/{user_id}")
+async def delete_user_data(
+    user_id: str, 
+    deletion_type: str = "complete",
+    legal_basis: str = "user_request"
+):
+    """Supprime les données utilisateur (droit à l'oubli)"""
+    try:
+        if deletion_type not in ["complete", "anonymize"]:
+            raise HTTPException(status_code=400, detail="deletion_type doit être 'complete' ou 'anonymize'")
+        
+        result = await rgpd_service.delete_user_data(user_id, deletion_type, legal_basis)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur suppression données: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/audit")
+async def get_rgpd_audit(days: int = 30):
+    """Génère un rapport d'audit RGPD"""
+    try:
+        audit_report = await rgpd_service.audit_data_processing(days)
+        return audit_report
+        
+    except Exception as e:
+        logger.error(f"Erreur audit RGPD: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/dashboard")
+async def get_rgpd_dashboard():
+    """Tableau de bord de conformité RGPD"""
+    try:
+        dashboard = await rgpd_service.get_compliance_dashboard()
+        return dashboard
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard RGPD: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/rgpd/batch-consent")
+async def batch_record_consents(request: dict):
+    """Enregistre plusieurs consentements en lot"""
+    try:
+        consents = request.get('consents', [])
+        if not consents:
+            raise HTTPException(status_code=400, detail="Liste de consentements requise")
+        
+        results = []
+        for consent_data in consents:
+            result = await rgpd_service.record_consent(
+                user_id=consent_data.get('user_id'),
+                consent_type=consent_data.get('consent_type'),
+                status=consent_data.get('status'),
+                legal_basis=consent_data.get('legal_basis'),
+                purpose=consent_data.get('purpose'),
+                ip_address=consent_data.get('ip_address'),
+                user_agent=consent_data.get('user_agent'),
+                method=consent_data.get('method', 'api'),
+                evidence=consent_data.get('evidence', {})
+            )
+            results.append(result)
+        
+        success_count = len([r for r in results if r.get('status') == 'success'])
+        
+        return {
+            "message": f"{success_count}/{len(consents)} consentements enregistrés avec succès",
+            "results": results,
+            "success_count": success_count,
+            "total_count": len(consents)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur enregistrement lot consentements: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/compliance-score")
+async def get_compliance_score():
+    """Récupère le score de conformité RGPD actuel"""
+    try:
+        # Générer audit récent
+        audit_data = await rgpd_service.audit_data_processing(days=7)
+        
+        score = audit_data.get("compliance_score", 0)
+        recommendations = audit_data.get("recommendations", [])
+        
+        return {
+            "compliance_score": score,
+            "score_level": "Excellent" if score >= 90 else ("Bon" if score >= 75 else ("À améliorer" if score >= 50 else "Critique")),
+            "recommendations": recommendations,
+            "last_audit": audit_data.get("generated_at"),
+            "audit_period_days": 7
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur score conformité: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rgpd/users/{user_id}/privacy-dashboard")
+async def get_user_privacy_dashboard(user_id: str):
+    """Dashboard de confidentialité pour un utilisateur spécifique"""
+    try:
+        # Récupérer consentements
+        consents = await rgpd_service.get_user_consents(user_id)
+        
+        # Compter données stockées
+        data_points = 0
+        collections = ["leads", "email_campaigns", "ai_predictions", "notifications"]
+        for collection_name in collections:
+            collection = getattr(db, collection_name)
+            count = await collection.count_documents({
+                "$or": [{"user_id": user_id}, {"id": user_id}, {"email": user_id}]
+            })
+            data_points += count
+        
+        # Récupérer historique exports/suppressions
+        exports_count = await db.rgpd_data_exports.count_documents({"user_id": user_id})
+        deletions_count = await db.rgpd_data_deletions.count_documents({"user_id": user_id})
+        
+        return {
+            "user_id": user_id,
+            "privacy_summary": {
+                "total_consents": consents.get("total_consents", 0),
+                "active_consents": consents.get("active_consents", 0),
+                "data_points_stored": data_points,
+                "data_exports": exports_count,
+                "data_deletions": deletions_count
+            },
+            "consent_details": consents.get("consent_summary", {}),
+            "rights_usage": {
+                "portability_exercised": exports_count > 0,
+                "erasure_exercised": deletions_count > 0,
+                "last_export": None,  # À implémenter si besoin
+                "last_deletion": None  # À implémenter si besoin
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard confidentialité utilisateur: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== FIN RGPD ENDPOINTS =====
+
 # Background task to process scheduled emails
 @app.on_event("startup")
 async def startup_event():
