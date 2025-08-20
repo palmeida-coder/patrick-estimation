@@ -597,7 +597,7 @@ class NotificationService:
             'telephone': lead_data.get('téléphone', ''),
             'email': lead_data.get('email', ''),
             'ai_recommendation': ai_analysis.get('optimal_approach', ''),
-            'app_url': 'https://efficity-realestate.preview.emergentagent.com/leads',
+            'app_url': 'https://lead-manager-8.preview.emergentagent.com/leads',
             'phone_numbers': ['+33123456789'],  # Numéro Patrick
             'recipients': ['palmeida@efficity.com']
         }
@@ -616,7 +616,7 @@ class NotificationService:
             'high_quality': extraction_stats.get('high_quality_leads', 0),
             'sources': extraction_stats.get('sources_used', []),
             'duration': extraction_stats.get('duration', ''),
-            'app_url': 'https://efficity-realestate.preview.emergentagent.com/extraction',
+            'app_url': 'https://lead-manager-8.preview.emergentagent.com/extraction',
             'recipients': ['palmeida@efficity.com']
         }
         
