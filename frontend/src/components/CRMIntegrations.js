@@ -530,7 +530,7 @@ function CRMIntegrations() {
                             disabled={loading}
                             size="sm"
                           >
-                            <Sync className="w-4 h-4 mr-2" />
+                            <RotateCcw className="w-4 h-4 mr-2" />
                             Synchroniser
                           </Button>
                         </div>
