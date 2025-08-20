@@ -166,7 +166,28 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ ADVANCED NOTIFICATION SYSTEM FULLY FUNCTIONAL - Comprehensive testing completed with 100% success rate (5/5 tests passed). CRITICAL BACKEND APIS VERIFIED: 1) GET /api/notifications/history ✅ - Returns proper JSON with notifications array and total count, initially empty as expected, 2) GET /api/notifications/stats ✅ - Returns statistics object with total_notifications and breakdown by type, 3) POST /api/notifications/test ✅ - Successfully sends test notification and returns success response with queued status, 4) POST /api/notifications/daily-report ✅ - Sends daily report notification with proper data structure, 5) POST /api/notifications/send ✅ - Accepts custom notifications with type/priority/data and returns notification_id. DATABASE INTEGRATION CONFIRMED: MongoDB 'notifications' collection working properly, notifications are created, stored, and retrievable. EMAIL/SMS SIMULATION MODE: Email modules configured with fallback simulation for development environment. ENUM SERIALIZATION FIXED: Resolved JSON serialization issues with NotificationType and NotificationPriority enums. The frontend NotificationCenter empty issue was caused by missing dependencies (aiofiles) and enum serialization problems - now resolved. All notification APIs return proper JSON responses as expected."
-  - task: "RGPD Compliance Backend Service"
+  - task: "Lyon Price Predictor AI Backend Service"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/lyon_price_predictor_ai.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Lyon Price Predictor AI service créé avec APIs complètes : GET /api/lyon-ia/predict-price, GET /api/lyon-ia/dashboard. Service utilise modèle scikit-learn pour prédictions immobilières spécifique Lyon, intégré dans server.py. Ready for comprehensive backend testing."
+  - task: "Advanced Lead Scoring AI Backend Service (Patrick IA 3.0)"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/advanced_lead_scoring_ai.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Patrick IA 3.0 Advanced Lead Scoring service créé avec APIs complètes : GET /api/patrick-ia-3/score-lead, GET /api/patrick-ia-3/dashboard, GET /api/patrick-ia-3/insights. Service utilise modèle ML sophistiqué pour scoring précis des leads, intégré dans server.py. Ready for comprehensive backend testing."
     implemented: true
     working: true
     file: "/app/backend/rgpd_compliance_service.py"
