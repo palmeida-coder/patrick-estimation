@@ -1288,7 +1288,7 @@ class EfficiencyAPITester:
             "include_conversions": True
         }
         
-        success, response, details = self.make_request('POST', 'api/patrick-ia-3/retrain', data=retrain_request, expected_status=200)
+        success, response, details = self.make_request('POST', 'api/patrick-ia/retrain', data=retrain_request, expected_status=200)
         
         if success and 'status' in response:
             status = response.get('status')
