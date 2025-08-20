@@ -1035,9 +1035,9 @@ class EfficiencyAPITester:
             return self.log_test("Lyon IA Dashboard", False, f"- Dashboard retrieval failed {details}")
     
     def test_lyon_ia_arrondissement_stats(self):
-        """Test GET /api/lyon-ia/arrondissement/{code}/stats - Should return arrondissement statistics"""
+        """Test GET /api/lyon-predictor/arrondissement/{code}/stats - Should return arrondissement statistics"""
         arrondissement = "69006"  # Lyon 6e - premium area
-        success, response, details = self.make_request('GET', f'api/lyon-ia/arrondissement/{arrondissement}/stats', expected_status=200)
+        success, response, details = self.make_request('GET', f'api/lyon-predictor/arrondissement/{arrondissement}/stats', expected_status=200)
         
         expected_fields = ['arrondissement', 'statistics', 'generated_at']
         
