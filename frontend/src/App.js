@@ -88,48 +88,48 @@ function Navigation() {
             </span>
           </div>
           
-          <div className="flex items-center space-x-6">
-            <Link to="/" className="nav-link">
+          <div className="flex items-center space-x-4 overflow-x-auto">
+            <Link to="/" className="nav-link flex-shrink-0">
               <BarChart3 className="w-4 h-4" />
               Dashboard
             </Link>
-            <Link to="/leads" className="nav-link">
+            <Link to="/leads" className="nav-link flex-shrink-0">
               <Users className="w-4 h-4" />
               Leads
             </Link>
-            <Link to="/campaigns" className="nav-link">
+            <Link to="/campaigns" className="nav-link flex-shrink-0">
               <Mail className="w-4 h-4" />
               Campagnes
             </Link>
-            <Link to="/analytics" className="nav-link">
+            <Link to="/analytics" className="nav-link flex-shrink-0">
               <TrendingUp className="w-4 h-4" />
               Analytics
             </Link>
-            <Link to="/extraction" className="nav-link">
+            <Link to="/extraction" className="nav-link flex-shrink-0">
               <Search className="w-4 h-4" />
               Extraction
             </Link>
-            <Link to="/notifications" className="nav-link">
+            <Link to="/notifications" className="nav-link flex-shrink-0">
               <Bell className="w-4 h-4" />
               Notifications
             </Link>
-            <Link to="/sequences" className="nav-link">
+            <Link to="/sequences" className="nav-link flex-shrink-0">
               <Sparkles className="w-4 h-4" />
               Séquences IA
             </Link>
-            <Link to="/market" className="nav-link">
+            <Link to="/market" className="nav-link flex-shrink-0">
               <Radar className="w-4 h-4" />
-              Intelligence Marché
+              Intel. Marché
             </Link>
-            <Link to="/crm" className="nav-link">
+            <Link to="/crm" className="nav-link flex-shrink-0">
               <Settings2 className="w-4 h-4" />
-              CRM Intégrations
+              CRM
             </Link>
-            <Link to="/ai-insights" className="nav-link">
+            <Link to="/ai-insights" className="nav-link flex-shrink-0">
               <Brain className="w-4 h-4" />
               IA Insights
             </Link>
-            <Link to="/patrick-ia" className="nav-link">
+            <Link to="/patrick-ia" className="nav-link flex-shrink-0">
               <Lightbulb className="w-4 h-4" />
               Patrick IA
             </Link>
