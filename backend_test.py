@@ -1481,14 +1481,52 @@ class EfficiencyAPITester:
 
     # ===== PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - NEW REVOLUTIONARY FEATURE =====
     
-    def test_patrick_ia_3_score_lead(self):
-        """Test GET /api/patrick-ia/score/{lead_id} - Should score lead with Patrick IA 3.0 advanced algorithms"""
+    def test_patrick_ia_3_score_lead_advanced(self):
+        """Test POST /api/patrick-ia/score-lead - Should score lead with Patrick IA 3.0 advanced algorithms"""
         if not self.created_lead_id:
-            return self.log_test("Patrick IA 3.0 Score Lead", False, "- No lead ID available (create lead first)")
+            return self.log_test("Patrick IA 3.0 Score Lead Advanced", False, "- No lead ID available (create lead first)")
+        
+        # Get the lead data first
+        lead_success, lead_response, lead_details = self.make_request('GET', f'api/leads/{self.created_lead_id}', expected_status=200)
+        
+        if not lead_success:
+            return self.log_test("Patrick IA 3.0 Score Lead Advanced", False, f"- Could not retrieve lead data {lead_details}")
+        
+        # Test the scoring endpoint
+        scoring_request = {
+            "lead_data": lead_response
+        }
+        
+        success, response, details = self.make_request('POST', 'api/patrick-ia/score-lead', data=scoring_request, expected_status=200)
+        
+        expected_fields = ['status', 'scoring_result', 'patrick_version']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            scoring_result = response.get('scoring_result', {})
+            patrick_version = response.get('patrick_version', 'N/A')
+            
+            if status == 'success':
+                patrick_score = scoring_result.get('patrick_score', 0)
+                tier = scoring_result.get('tier', 'N/A')
+                closing_probability = scoring_result.get('closing_probability', 0)
+                predicted_value = scoring_result.get('predicted_value', 0)
+                
+                return self.log_test("Patrick IA 3.0 Score Lead Advanced", True, f"- Version: {patrick_version}, Score: {patrick_score}/100, Tier: {tier}, Probabilité: {closing_probability:.1%}, Valeur: {predicted_value:,.0f}€ {details}")
+            else:
+                return self.log_test("Patrick IA 3.0 Score Lead Advanced", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Patrick IA 3.0 Score Lead Advanced", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_patrick_ia_3_get_lead_score(self):
+        """Test GET /api/patrick-ia/score/{lead_id} - Should get existing lead score"""
+        if not self.created_lead_id:
+            return self.log_test("Patrick IA 3.0 Get Lead Score", False, "- No lead ID available (create lead first)")
         
         success, response, details = self.make_request('GET', f'api/patrick-ia/score/{self.created_lead_id}', expected_status=200)
         
-        expected_fields = ['patrick_score', 'tier', 'closing_probability', 'predicted_value', 'contact_timing', 'lead_intent']
+        expected_fields = ['patrick_score', 'tier', 'closing_probability', 'predicted_value']
         
         if success and any(field in response for field in expected_fields):
             patrick_score = response.get('patrick_score', 0)
@@ -1499,9 +1537,9 @@ class EfficiencyAPITester:
             lead_intent = response.get('lead_intent', 'N/A')
             key_signals = response.get('key_signals', [])
             
-            return self.log_test("Patrick IA 3.0 Score Lead", True, f"- Score: {patrick_score}/100, Tier: {tier}, Probabilité: {closing_probability:.1%}, Valeur: {predicted_value:,.0f}€, Timing: {contact_timing}, Intent: {lead_intent}, Signaux: {len(key_signals)} {details}")
+            return self.log_test("Patrick IA 3.0 Get Lead Score", True, f"- Score: {patrick_score}/100, Tier: {tier}, Probabilité: {closing_probability:.1%}, Valeur: {predicted_value:,.0f}€, Timing: {contact_timing}, Intent: {lead_intent}, Signaux: {len(key_signals)} {details}")
         else:
-            return self.log_test("Patrick IA 3.0 Score Lead", False, f"- Lead scoring failed {details}")
+            return self.log_test("Patrick IA 3.0 Get Lead Score", False, f"- Lead score retrieval failed {details}")
     
     def test_patrick_ia_3_dashboard(self):
         """Test GET /api/patrick-ia/dashboard - Should return Patrick IA 3.0 dashboard with insights"""
