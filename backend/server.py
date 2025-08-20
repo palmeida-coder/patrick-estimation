@@ -28,6 +28,7 @@ from intelligent_email_sequences import IntelligentEmailSequenceService, Sequenc
 from market_intelligence_service import MarketIntelligenceService, get_market_intelligence_service, DEFAULT_MARKET_CONFIG
 from crm_integrations_service import CRMIntegrationsService, CRMCredentials, get_crm_integrations_service, DEFAULT_CRM_CONFIG
 from rgpd_compliance_service import RGPDComplianceService, get_rgpd_compliance_service, ConsentRecord, DEFAULT_RGPD_CONFIG
+from advanced_lead_scoring_ai import AdvancedLeadScoringAI, get_advanced_lead_scoring_service, LeadScoringResult, DEFAULT_SCORING_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
