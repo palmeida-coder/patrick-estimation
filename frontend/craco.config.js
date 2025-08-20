@@ -40,6 +40,14 @@ module.exports = {
         };
       }
       
+      // SOLUTION DÉFINITIVE ELEVATOR BUG: Configuration cache préventive
+      // Utilise cache mémoire pour éviter corruption cache fichiers
+      if (webpackConfig.cache && webpackConfig.cache.type === 'filesystem') {
+        webpackConfig.cache = {
+          type: 'memory'
+        };
+      }
+      
       return webpackConfig;
     },
   },
