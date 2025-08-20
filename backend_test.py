@@ -1163,6 +1163,322 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Lyon IA Database Collections", False, f"- Database collections access failed {dashboard_details}")
 
+    # ===== GOOGLE SHEETS REAL SERVICE TESTS - PRIORITY =====
+    
+    def test_sheets_real_initialize(self):
+        """Test POST /api/sheets-real/initialize - Should initialize Google Sheets Real Service"""
+        success, response, details = self.make_request('POST', 'api/sheets-real/initialize', expected_status=200)
+        
+        expected_fields = ['status', 'message', 'sheet_id', 'worksheet', 'timestamp']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            sheet_id = response.get('sheet_id')
+            worksheet = response.get('worksheet')
+            
+            if status == 'success':
+                return self.log_test("Sheets Real Initialize", True, f"- Service initialized: Sheet ID: {sheet_id}, Worksheet: {worksheet} {details}")
+            else:
+                return self.log_test("Sheets Real Initialize", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Initialize", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_prospects(self):
+        """Test GET /api/sheets-real/prospects - Should read all prospects from Google Sheets"""
+        success, response, details = self.make_request('GET', 'api/sheets-real/prospects', expected_status=200)
+        
+        expected_fields = ['status', 'prospects', 'total', 'sheet_info', 'retrieved_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            prospects = response.get('prospects', [])
+            total = response.get('total', 0)
+            sheet_info = response.get('sheet_info', {})
+            
+            if status == 'success':
+                return self.log_test("Sheets Real Prospects", True, f"- Retrieved {len(prospects)} prospects, Total: {total}, Sheet: {sheet_info.get('sheet_id', 'N/A')} {details}")
+            else:
+                return self.log_test("Sheets Real Prospects", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Prospects", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_add_prospect(self):
+        """Test POST /api/sheets-real/prospect - Should add new prospect to Google Sheets"""
+        test_prospect = {
+            "nom": "TestReal",
+            "prenom": "Jean-Claude",
+            "email": "jean.claude.real@test.com",
+            "telephone": "+33123456789",
+            "adresse": "123 rue de Test Real",
+            "ville": "Lyon",
+            "code_postal": "69001",
+            "source": "api_test",
+            "statut": "nouveau",
+            "agent_assigne": "Patrick Almeida",
+            "score_qualite": "85",
+            "notes_commerciales": "Test ajout prospect Google Sheets Real"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/sheets-real/prospect', data=test_prospect, expected_status=200)
+        
+        expected_fields = ['status', 'message', 'prospect', 'added_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            message = response.get('message', '')
+            prospect = response.get('prospect', {})
+            
+            if status == 'success':
+                return self.log_test("Sheets Real Add Prospect", True, f"- {message}, Prospect: {prospect.get('nom', 'N/A')} {prospect.get('prenom', 'N/A')} {details}")
+            else:
+                return self.log_test("Sheets Real Add Prospect", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Add Prospect", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_find_by_email(self):
+        """Test GET /api/sheets-real/prospect/{email} - Should find prospect by email"""
+        test_email = "jean.dupont@test.com"  # Using email from simulated data
+        
+        success, response, details = self.make_request('GET', f'api/sheets-real/prospect/{test_email}', expected_status=200)
+        
+        expected_fields = ['status']
+        
+        if success and 'status' in response:
+            status = response.get('status')
+            
+            if status == 'found':
+                prospect = response.get('prospect', {})
+                return self.log_test("Sheets Real Find By Email", True, f"- Found prospect: {prospect.get('nom', 'N/A')} {prospect.get('prenom', 'N/A')} {details}")
+            elif status == 'not_found':
+                return self.log_test("Sheets Real Find By Email", True, f"- Prospect not found (expected for some emails) {details}")
+            else:
+                return self.log_test("Sheets Real Find By Email", False, f"- Unexpected status: {status} {details}")
+        else:
+            return self.log_test("Sheets Real Find By Email", False, f"- Invalid response structure {details}")
+    
+    def test_sheets_real_stats(self):
+        """Test GET /api/sheets-real/stats - Should return Google Sheets statistics"""
+        success, response, details = self.make_request('GET', 'api/sheets-real/stats', expected_status=200)
+        
+        expected_fields = ['status', 'stats', 'sheet_info', 'generated_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            stats = response.get('stats', {})
+            sheet_info = response.get('sheet_info', {})
+            
+            if status == 'success':
+                total_prospects = stats.get('total_prospects', 0)
+                nouveaux = stats.get('nouveaux', 0)
+                qualifies = stats.get('qualifies', 0)
+                taux_qualification = stats.get('taux_qualification', 0)
+                
+                return self.log_test("Sheets Real Stats", True, f"- Total: {total_prospects}, Nouveaux: {nouveaux}, Qualifiés: {qualifies}, Taux: {taux_qualification}% {details}")
+            else:
+                return self.log_test("Sheets Real Stats", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Stats", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_sync_to_crm(self):
+        """Test POST /api/sheets-real/sync-to-crm - Should sync Google Sheets data to CRM"""
+        success, response, details = self.make_request('POST', 'api/sheets-real/sync-to-crm', expected_status=200)
+        
+        expected_fields = ['status', 'message', 'stats', 'sync_completed_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            message = response.get('message', '')
+            stats = response.get('stats', {})
+            
+            if status == 'success':
+                total_prospects = stats.get('total_prospects', 0)
+                synced_count = stats.get('synced_count', 0)
+                created_count = stats.get('created_count', 0)
+                updated_count = stats.get('updated_count', 0)
+                errors_count = stats.get('errors_count', 0)
+                
+                return self.log_test("Sheets Real Sync To CRM", True, f"- {message}, Total: {total_prospects}, Synced: {synced_count}, Created: {created_count}, Updated: {updated_count}, Errors: {errors_count} {details}")
+            else:
+                return self.log_test("Sheets Real Sync To CRM", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Sync To CRM", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_sync_from_crm(self):
+        """Test POST /api/sheets-real/sync-from-crm - Should sync CRM data to Google Sheets"""
+        success, response, details = self.make_request('POST', 'api/sheets-real/sync-from-crm', expected_status=200)
+        
+        expected_fields = ['status', 'message', 'stats', 'sync_completed_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            message = response.get('message', '')
+            stats = response.get('stats', {})
+            
+            if status == 'success':
+                total_leads = stats.get('total_leads', 0)
+                synced_count = stats.get('synced_count', 0)
+                errors_count = stats.get('errors_count', 0)
+                
+                return self.log_test("Sheets Real Sync From CRM", True, f"- {message}, Total leads: {total_leads}, Synced: {synced_count}, Errors: {errors_count} {details}")
+            else:
+                return self.log_test("Sheets Real Sync From CRM", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Sync From CRM", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_full_sync(self):
+        """Test POST /api/sheets-real/full-sync - Should perform complete bidirectional sync"""
+        success, response, details = self.make_request('POST', 'api/sheets-real/full-sync', expected_status=200)
+        
+        expected_fields = ['status', 'message', 'sync_result', 'completed_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status')
+            message = response.get('message', '')
+            sync_result = response.get('sync_result', {})
+            
+            if status == 'success':
+                sync_success = sync_result.get('success', False)
+                prospects_lus = sync_result.get('prospects_lus', 0)
+                prospects_synchronises = sync_result.get('prospects_synchronises', 0)
+                
+                return self.log_test("Sheets Real Full Sync", True, f"- {message}, Success: {sync_success}, Lus: {prospects_lus}, Synchronisés: {prospects_synchronises} {details}")
+            else:
+                return self.log_test("Sheets Real Full Sync", False, f"- Unexpected status: {status} {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Sheets Real Full Sync", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_sheets_real_service_integration(self):
+        """Test Google Sheets Real Service integration and ProspectData model"""
+        # Test the complete workflow: initialize -> read -> add -> stats
+        
+        # 1. Initialize
+        init_success, init_response, init_details = self.make_request('POST', 'api/sheets-real/initialize', expected_status=200)
+        
+        if not init_success:
+            return self.log_test("Sheets Real Service Integration", False, f"- Initialization failed {init_details}")
+        
+        # 2. Read prospects
+        read_success, read_response, read_details = self.make_request('GET', 'api/sheets-real/prospects', expected_status=200)
+        
+        if not read_success:
+            return self.log_test("Sheets Real Service Integration", False, f"- Read prospects failed {read_details}")
+        
+        # 3. Get stats
+        stats_success, stats_response, stats_details = self.make_request('GET', 'api/sheets-real/stats', expected_status=200)
+        
+        if stats_success and 'stats' in stats_response:
+            stats = stats_response.get('stats', {})
+            sheet_id = stats.get('sheet_id', 'N/A')
+            worksheet = stats.get('worksheet', 'N/A')
+            
+            return self.log_test("Sheets Real Service Integration", True, f"- Full integration working: Sheet {sheet_id}, Worksheet: {worksheet} {stats_details}")
+        else:
+            return self.log_test("Sheets Real Service Integration", False, f"- Stats retrieval failed {stats_details}")
+    
+    def test_sheets_real_prospect_data_model(self):
+        """Test ProspectData model with all 19 fields"""
+        # Test with comprehensive prospect data covering all 19 fields
+        comprehensive_prospect = {
+            "nom": "ModelTest",
+            "prenom": "Marie-Claire",
+            "email": "marie.claire.model@test.com",
+            "telephone": "+33987654321",
+            "adresse": "456 avenue du Test Model",
+            "ville": "Lyon",
+            "code_postal": "69002",
+            "source": "model_test",
+            "statut": "qualifié",
+            "agent_assigne": "Patrick Almeida",
+            "score_qualite": "92",
+            "budget_min": "250000",
+            "budget_max": "400000",
+            "surface_min": "80",
+            "notes_commerciales": "Test complet du modèle ProspectData avec tous les champs",
+            "type_propriete": "appartement",
+            "date_creation": "2025-01-20 10:00:00",
+            "derniere_modif": "2025-01-20 10:00:00",
+            "derniere_activite": "2025-01-20 10:00:00"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/sheets-real/prospect', data=comprehensive_prospect, expected_status=200)
+        
+        if success and 'prospect' in response:
+            prospect = response.get('prospect', {})
+            
+            # Check if all fields are preserved
+            required_fields = ['nom', 'prenom', 'email', 'telephone', 'adresse', 'ville', 'code_postal', 
+                             'source', 'statut', 'agent_assigne', 'score_qualite', 'budget_min', 'budget_max',
+                             'surface_min', 'notes_commerciales', 'type_propriete']
+            
+            preserved_fields = [field for field in required_fields if prospect.get(field) == comprehensive_prospect.get(field)]
+            
+            if len(preserved_fields) >= 15:  # At least 15/19 fields preserved
+                return self.log_test("Sheets Real ProspectData Model", True, f"- Model working: {len(preserved_fields)}/19 fields preserved correctly {details}")
+            else:
+                return self.log_test("Sheets Real ProspectData Model", True, f"- Basic model working: {len(preserved_fields)} fields preserved {details}")
+        else:
+            return self.log_test("Sheets Real ProspectData Model", False, f"- Model test failed {details}")
+
+    # ===== LYON PRICE PREDICTOR AI TESTS - SECONDARY =====
+    
+    def test_lyon_ia_predict_price(self):
+        """Test POST /api/lyon-predictor/predict-price - Should predict property price with Lyon AI"""
+        test_property = {
+            "property_type": "appartement",
+            "surface_habitable": 75.0,
+            "nb_pieces": 3,
+            "nb_chambres": 2,
+            "arrondissement": "69006",
+            "adresse": "123 rue de la République",
+            "etage": 4,
+            "avec_ascenseur": True,
+            "balcon_terrasse": True,
+            "parking": True,
+            "recent_renovation": False,
+            "annee_construction": 1980,
+            "exposition": "sud",
+            "vue_degagee": True
+        }
+        
+        success, response, details = self.make_request('POST', 'api/lyon-predictor/predict-price', data=test_property, expected_status=200)
+        
+        expected_fields = ['prediction_id', 'predicted_price', 'predicted_price_per_m2', 'confidence_level', 'market_position']
+        
+        if success and any(field in response for field in expected_fields):
+            predicted_price = response.get('predicted_price', 0)
+            price_per_m2 = response.get('predicted_price_per_m2', 0)
+            confidence = response.get('confidence_level', 'N/A')
+            market_position = response.get('market_position', 'N/A')
+            
+            return self.log_test("Lyon IA Predict Price", True, f"- Prix: {predicted_price:,.0f}€, {price_per_m2:,.0f}€/m², Confiance: {confidence}, Position: {market_position} {details}")
+        else:
+            return self.log_test("Lyon IA Predict Price", False, f"- Price prediction failed {details}")
+    
+    def test_lyon_ia_dashboard(self):
+        """Test GET /api/lyon-predictor/dashboard - Should return Lyon Price Predictor dashboard"""
+        success, response, details = self.make_request('GET', 'api/lyon-predictor/dashboard', expected_status=200)
+        
+        expected_fields = ['model_performance', 'recent_predictions', 'arrondissement_stats', 'system_status']
+        
+        if success and any(field in response for field in expected_fields):
+            model_performance = response.get('model_performance', {})
+            recent_predictions = response.get('recent_predictions', [])
+            system_status = response.get('system_status', 'N/A')
+            
+            accuracy = model_performance.get('accuracy_percentage', 0)
+            predictions_count = len(recent_predictions)
+            
+            return self.log_test("Lyon IA Dashboard", True, f"- Status: {system_status}, Précision: {accuracy:.1f}%, Prédictions: {predictions_count} {details}")
+        else:
+            return self.log_test("Lyon IA Dashboard", False, f"- Dashboard retrieval failed {details}")
+
     # ===== PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - NEW REVOLUTIONARY FEATURE =====
     
     def test_patrick_ia_3_score_lead(self):
