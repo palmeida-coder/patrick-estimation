@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Développement du Module RGPD Compliance Enterprise RÉVOLUTIONNAIRE - Premier CRM immobilier RGPD-native France. Backend rgpd_compliance_service.py créé avec APIs complètes intégrées dans server.py, frontend RGPDCompliance.js créé et intégré dans App.js. Need testing backend APIs RGPD pour vérifier fonctionnement complet avant tests frontend."
+user_problem_statement: "TEST COMPLET DE TOUTES LES FONCTIONNALITÉS EFFICITY - Vérification systématique de tous les onglets et fonctionnalités de l'application après résolution du bug compilation. User demande test complet de chaque onglet : Tableau de bord, Conduit, Campagnes, Analytique, Extraction, Notifications, Séquences IA, Intel. Marché, CRM, RGPD, Lyon Prix IA, Patrick IA 3.0. Objectif : s'assurer que tout fonctionne parfaitement avant ajout nouvelles fonctionnalités (Multi-agences, expansion géographique à venir)."
 
 backend:
   - task: "Google Sheets Column Mapping Fix"
