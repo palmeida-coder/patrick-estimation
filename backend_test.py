@@ -1109,7 +1109,7 @@ class EfficiencyAPITester:
     def test_lyon_ia_service_integration(self):
         """Test Lyon Price Predictor service integration and dependencies"""
         # Test that the service is properly integrated by checking model performance
-        success, response, details = self.make_request('GET', 'api/lyon-ia/model/performance', expected_status=200)
+        success, response, details = self.make_request('GET', 'api/lyon-predictor/performance', expected_status=200)
         
         if success and 'model_metrics' in response:
             model_metrics = response.get('model_metrics', {})
