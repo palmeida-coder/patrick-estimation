@@ -70,6 +70,9 @@ sequence_service = get_sequence_service(db, email_service, enhanced_ai, notifica
 # Initialize Market Intelligence Service
 market_service = get_market_intelligence_service(db, notification_service, enhanced_ai)
 
+# Initialize CRM Integrations Service  
+crm_service = get_crm_integrations_service(db, notification_service, enhanced_ai)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
