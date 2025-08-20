@@ -105,12 +105,12 @@ class DataBreachRecord:
     """Enregistrement de violation de données"""
     breach_id: str
     detected_at: str
-    reported_at: Optional[str] = None
     severity: str  # low, medium, high, critical
     affected_users: int
     data_categories: List[str]
     description: str
     measures_taken: str
+    reported_at: Optional[str] = None
     notification_required: bool = True
     cnil_notified: bool = False
 
