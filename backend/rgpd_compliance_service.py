@@ -391,15 +391,18 @@ class RGPDComplianceService:
         try:
             start_date = (datetime.now() - timedelta(days=days)).isoformat()
             
-            # Statistiques des consentements
-            consent_stats = await self.db.rgpd_consents.aggregate([
-                {"$match": {"granted_at": {"$gte": start_date}}},
-                {"$group": {
-                    "_id": "$consent_type",
-                    "granted": {"$sum": {"$cond": [{"$eq": ["$status", "granted"]}, 1, 0]}},
-                    "withdrawn": {"$sum": {"$cond": [{"$eq": ["$status", "withdrawn"]}, 1, 0]}}
-                }}
-            ]).to_list(length=None)
+            # Statistiques des consentements (avec gestion collection vide)
+            try:
+                consent_stats = await self.db.rgpd_consents.aggregate([
+                    {"$match": {"granted_at": {"$gte": start_date, "$ne": None}}},
+                    {"$group": {
+                        "_id": "$consent_type",
+                        "granted": {"$sum": {"$cond": [{"$eq": ["$status", "granted"]}, 1, 0]}},
+                        "withdrawn": {"$sum": {"$cond": [{"$eq": ["$status", "withdrawn"]}, 1, 0]}}
+                    }}
+                ]).to_list(length=None)
+            except Exception:
+                consent_stats = []
             
             # Activités de traitement (collection peut ne pas exister)
             try:
