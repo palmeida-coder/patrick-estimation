@@ -52,6 +52,7 @@ import MarketIntelligence from './components/MarketIntelligence';
 import CRMIntegrations from './components/CRMIntegrations';
 import RGPDCompliance from './components/RGPDCompliance';
 import LyonPricePredictor from './components/LyonPricePredictor';
+import MultiAgencyManagement from './components/MultiAgencyManagement';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
