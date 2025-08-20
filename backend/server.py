@@ -3096,7 +3096,272 @@ def _estimate_closing_timeline(score: float) -> str:
     elif score >= 40: return "2-4 mois"
     else: return "6+ mois"
 
-# ===== FIN PATRICK IA 3.0 ENDPOINTS =====
+# ===== LYON PRICE PREDICTOR IA - ESTIMATION PRIX RÉVOLUTIONNAIRE =====
+
+@app.post("/api/lyon-predictor/predict-price")
+async def predict_property_price(request: dict):
+    """Prédiction prix immobilier Lyon IA ultra-précise"""
+    try:
+        # Valider données requête
+        required_fields = ['property_type', 'surface_habitable', 'nb_pieces', 'nb_chambres', 'arrondissement']
+        for field in required_fields:
+            if field not in request:
+                raise HTTPException(status_code=400, detail=f"Champ {field} requis")
+        
+        # Créer objet requête
+        prediction_request = PropertyPredictionRequest(
+            property_type=request.get('property_type'),
+            surface_habitable=float(request.get('surface_habitable')),
+            nb_pieces=int(request.get('nb_pieces')),
+            nb_chambres=int(request.get('nb_chambres')),
+            arrondissement=request.get('arrondissement'),
+            adresse=request.get('adresse', ''),
+            etage=request.get('etage'),
+            avec_ascenseur=request.get('avec_ascenseur', False),
+            balcon_terrasse=request.get('balcon_terrasse', False),
+            parking=request.get('parking', False),
+            cave=request.get('cave', False),
+            recent_renovation=request.get('recent_renovation', False),
+            annee_construction=request.get('annee_construction'),
+            exposition=request.get('exposition'),
+            vue_degagee=request.get('vue_degagee', False)
+        )
+        
+        # Prédiction IA
+        result = await lyon_predictor.predict_property_price(prediction_request)
+        
+        return {
+            "status": "success",
+            "prediction_result": asdict(result),
+            "predictor_version": "Lyon_AI_v1.0"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur prédiction prix Lyon: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/lyon-predictor/arrondissement/{arrondissement}/stats")
+async def get_arrondissement_statistics(arrondissement: str):
+    """Statistiques détaillées par arrondissement Lyon"""
+    try:
+        if not arrondissement.startswith("6900"):
+            raise HTTPException(status_code=400, detail="Code arrondissement Lyon requis (69001-69009)")
+        
+        stats = await lyon_predictor.get_arrondissement_statistics(arrondissement)
+        return stats
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur statistiques arrondissement: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/lyon-predictor/batch-predict")
+async def batch_predict_properties(request: dict):
+    """Prédictions batch prix immobilier Lyon"""
+    try:
+        properties = request.get('properties', [])
+        if not properties or len(properties) > 20:
+            raise HTTPException(status_code=400, detail="1-20 propriétés maximum par batch")
+        
+        # Convertir en objets PropertyPredictionRequest
+        prediction_requests = []
+        for prop in properties:
+            prediction_requests.append(PropertyPredictionRequest(
+                property_type=prop.get('property_type'),
+                surface_habitable=float(prop.get('surface_habitable')),
+                nb_pieces=int(prop.get('nb_pieces')),
+                nb_chambres=int(prop.get('nb_chambres')),
+                arrondissement=prop.get('arrondissement'),
+                adresse=prop.get('adresse', ''),
+                etage=prop.get('etage'),
+                avec_ascenseur=prop.get('avec_ascenseur', False),
+                balcon_terrasse=prop.get('balcon_terrasse', False),
+                parking=prop.get('parking', False),
+                recent_renovation=prop.get('recent_renovation', False),
+                annee_construction=prop.get('annee_construction'),
+                vue_degagee=prop.get('vue_degagee', False)
+            ))
+        
+        # Prédictions batch
+        results = await lyon_predictor.batch_predict_prices(prediction_requests)
+        
+        return {
+            "status": "success",
+            "total_properties": len(properties),
+            "predictions_made": len(results),
+            "batch_results": [asdict(r) for r in results],
+            "batch_completed_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur batch prédiction prix: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/lyon-predictor/dashboard")
+async def get_lyon_predictor_dashboard():
+    """Dashboard Lyon Price Predictor IA"""
+    try:
+        # Performance modèles
+        model_performance = await lyon_predictor.get_model_performance()
+        
+        # Statistiques récentes prédictions
+        recent_predictions = await db.lyon_price_predictions.find({
+            "generated_at": {"$gte": (datetime.now() - timedelta(days=30)).isoformat()}
+        }).sort("generated_at", -1).limit(100).to_list(length=100)
+        
+        # Analyse par arrondissement
+        arrondissement_stats = {}
+        price_distribution = []
+        confidence_distribution = {"tres_haute": 0, "haute": 0, "moyenne": 0, "faible": 0}
+        
+        for pred in recent_predictions:
+            arr = pred.get("request_data", {}).get("arrondissement")
+            if arr:
+                if arr not in arrondissement_stats:
+                    arrondissement_stats[arr] = {"count": 0, "avg_price": 0, "prices": []}
+                
+                arrondissement_stats[arr]["count"] += 1
+                arrondissement_stats[arr]["prices"].append(pred.get("predicted_price", 0))
+            
+            price_distribution.append(pred.get("predicted_price_per_m2", 0))
+            
+            confidence = pred.get("confidence_level", "moyenne")
+            if confidence in confidence_distribution:
+                confidence_distribution[confidence] += 1
+        
+        # Calculer moyennes par arrondissement
+        for arr, stats in arrondissement_stats.items():
+            if stats["prices"]:
+                stats["avg_price"] = sum(stats["prices"]) / len(stats["prices"])
+                del stats["prices"]  # Nettoyer
+        
+        # Prix moyen global
+        avg_price_m2 = sum(price_distribution) / len(price_distribution) if price_distribution else 0
+        
+        return {
+            "predictor_version": "Lyon_AI_v1.0",
+            "overview": {
+                "total_predictions_30d": len(recent_predictions),
+                "avg_price_per_m2": round(avg_price_m2, 0),
+                "model_accuracy": model_performance["model_metrics"]["accuracy_percentage"],
+                "coverage_arrondissements": len(arrondissement_stats)
+            },
+            "arrondissement_breakdown": arrondissement_stats,
+            "confidence_distribution": confidence_distribution,
+            "model_performance": model_performance,
+            "market_trends": {
+                "price_range_min": min(price_distribution) if price_distribution else 0,
+                "price_range_max": max(price_distribution) if price_distribution else 0,
+                "predictions_high_confidence": confidence_distribution.get("tres_haute", 0) + confidence_distribution.get("haute", 0)
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard Lyon Predictor: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/lyon-predictor/market-analysis")
+async def get_lyon_market_analysis():
+    """Analyse marché immobilier Lyon complète"""
+    try:
+        # Analyse par arrondissement
+        lyon_market = {}
+        
+        # Data pour chaque arrondissement Lyon
+        arrondissements = [
+            "69001", "69002", "69003", "69004", "69005",
+            "69006", "69007", "69008", "69009"
+        ]
+        
+        for arr in arrondissements:
+            stats = await lyon_predictor.get_arrondissement_statistics(arr)
+            lyon_market[arr] = {
+                "nom": stats["arrondissement"]["nom"],
+                "prix_m2_reference": stats["arrondissement"]["prix_m2_ref"],
+                "score_qualite": stats["arrondissement"]["score_qualite"],
+                "prix_m2_recent": stats["statistics"]["prix_m2_recent"],
+                "evolution": stats["statistics"]["evolution_vs_reference"],
+                "nb_predictions": stats["statistics"]["nb_predictions_30j"]
+            }
+        
+        # Top/Bottom arrondissements
+        sorted_by_price = sorted(lyon_market.items(), key=lambda x: x[1]["prix_m2_recent"], reverse=True)
+        top_3_expensive = sorted_by_price[:3]
+        bottom_3_affordable = sorted_by_price[-3:]
+        
+        # Analyse tendances globales
+        all_evolutions = [arr_data["evolution"] for arr_data in lyon_market.values() if arr_data["nb_predictions"] > 0]
+        avg_evolution = sum(all_evolutions) / len(all_evolutions) if all_evolutions else 0
+        
+        return {
+            "lyon_market_overview": {
+                "arrondissements_analyzed": len(lyon_market),
+                "avg_evolution_30d": round(avg_evolution, 1),
+                "market_trend": "hausse" if avg_evolution > 1 else "stable" if avg_evolution > -1 else "baisse",
+                "data_points": sum(arr_data["nb_predictions"] for arr_data in lyon_market.values())
+            },
+            "arrondissements_detail": lyon_market,
+            "rankings": {
+                "plus_chers": [{"code": code, **data} for code, data in top_3_expensive],
+                "plus_accessibles": [{"code": code, **data} for code, data in bottom_3_affordable]
+            },
+            "market_insights": [
+                f"📈 {len([e for e in all_evolutions if e > 2])} arrondissements en forte hausse",
+                f"📊 Prix moyen Lyon: {sum(arr_data['prix_m2_recent'] for arr_data in lyon_market.values()) / len(lyon_market):.0f}€/m²",
+                f"🏆 Arrondissement premium: {top_3_expensive[0][1]['nom']} ({top_3_expensive[0][1]['prix_m2_recent']}€/m²)",
+                f"💰 Opportunité: {bottom_3_affordable[0][1]['nom']} ({bottom_3_affordable[0][1]['prix_m2_recent']}€/m²)"
+            ],
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur analyse marché Lyon: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/lyon-predictor/performance")
+async def get_predictor_performance():
+    """Métriques performance Lyon Price Predictor"""
+    try:
+        performance = await lyon_predictor.get_model_performance()
+        
+        # Ajout statistiques usage
+        total_predictions = await db.lyon_price_predictions.count_documents({})
+        recent_predictions = await db.lyon_price_predictions.count_documents({
+            "generated_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
+        })
+        
+        high_confidence_predictions = await db.lyon_price_predictions.count_documents({
+            "confidence_level": {"$in": ["tres_haute", "haute"]}
+        })
+        
+        return {
+            "model_performance": performance,
+            "usage_statistics": {
+                "total_predictions": total_predictions,
+                "predictions_7d": recent_predictions,
+                "high_confidence_predictions": high_confidence_predictions,
+                "high_confidence_rate": (high_confidence_predictions / max(total_predictions, 1)) * 100
+            },
+            "system_status": {
+                "models_loaded": True,
+                "last_prediction": datetime.now().isoformat(),
+                "version": "Lyon_AI_v1.0",
+                "precision_target": "98%",
+                "coverage": "Lyon 69001-69009"
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur performance Price Predictor: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== FIN LYON PRICE PREDICTOR ENDPOINTS =====
 
 # Background task to process scheduled emails
 @app.on_event("startup")
