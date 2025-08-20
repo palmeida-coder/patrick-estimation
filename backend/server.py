@@ -3629,6 +3629,126 @@ async def full_bidirectional_sync():
 
 # ===== FIN GOOGLE SHEETS INTÉGRATION RÉELLE =====
 
+# ===== MULTI-AGENCY MANAGEMENT SYSTEM - NOUVELLE FONCTIONNALITÉ =====
+
+@app.get("/api/multi-agency/agencies")
+async def get_all_agencies():
+    """Récupère toutes les agences du réseau"""
+    try:
+        agencies = await multi_agency_service.get_all_agencies()
+        return {
+            "status": "success",
+            "agencies": [asdict(agency) for agency in agencies],
+            "total": len(agencies),
+            "retrieved_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur récupération agences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/multi-agency/agencies/{agency_id}")
+async def get_agency_by_id(agency_id: str):
+    """Récupère une agence spécifique par son ID"""
+    try:
+        agency = await multi_agency_service.get_agency_by_id(agency_id)
+        if not agency:
+            raise HTTPException(status_code=404, detail="Agence non trouvée")
+        
+        return {
+            "status": "success", 
+            "agency": asdict(agency),
+            "retrieved_at": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur récupération agence {agency_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/multi-agency/agencies")
+async def create_agency(agency_data: dict):
+    """Crée une nouvelle agence"""
+    try:
+        agency = await multi_agency_service.create_agency(agency_data)
+        if not agency:
+            raise HTTPException(status_code=400, detail="Erreur création agence")
+        
+        return {
+            "status": "success",
+            "message": "Agence créée avec succès",
+            "agency": asdict(agency),
+            "created_at": datetime.now().isoformat()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur création agence: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/multi-agency/global-stats")
+async def get_global_multi_agency_stats():
+    """Récupère les statistiques globales de toutes les agences"""
+    try:
+        stats = await multi_agency_service.get_global_stats()
+        
+        return {
+            "status": "success",
+            "global_stats": stats,
+            "generated_at": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Erreur statistiques globales: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/multi-agency/dashboard")
+async def get_multi_agency_dashboard():
+    """Dashboard principal multi-agences avec métriques consolidées"""
+    try:
+        # Récupérer toutes les agences
+        agencies = await multi_agency_service.get_all_agencies()
+        
+        # Récupérer les statistiques globales
+        global_stats = await multi_agency_service.get_global_stats()
+        
+        # Calculer métriques consolidées
+        dashboard_data = {
+            "network_overview": {
+                "total_agencies": len(agencies),
+                "active_agencies": len([a for a in agencies if a.status.value == "active"]),
+                "pending_agencies": len([a for a in agencies if a.status.value == "pending"]),
+                "total_users": global_stats.get("total_users", 0),
+                "total_leads": global_stats.get("total_leads", 0),
+                "total_monthly_revenue": global_stats.get("total_monthly_revenue", 0),
+            },
+            "performance_metrics": {
+                "avg_revenue_per_agency": global_stats.get("avg_revenue_per_agency", 0),
+                "avg_leads_per_agency": global_stats.get("avg_leads_per_agency", 0),
+                "top_performing_agencies": global_stats.get("top_performing_agencies", []),
+            },
+            "geographic_distribution": global_stats.get("regions_breakdown", {}),
+            "recent_agencies": [
+                {
+                    "id": agency.id,
+                    "name": agency.name,
+                    "city": agency.city,
+                    "status": agency.status.value,
+                    "created_at": agency.created_at
+                }
+                for agency in sorted(agencies, key=lambda x: x.created_at, reverse=True)[:5]
+            ],
+            "generated_at": datetime.now().isoformat()
+        }
+        
+        return {
+            "status": "success",
+            "dashboard": dashboard_data
+        }
+    except Exception as e:
+        logger.error(f"Erreur dashboard multi-agences: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== TÂCHES EN ARRIÈRE-PLAN =====
+
 # Background task to process scheduled emails
 @app.on_event("startup")
 async def startup_event():
