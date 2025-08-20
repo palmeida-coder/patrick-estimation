@@ -1740,26 +1740,10 @@ async def get_market_stats():
             "created_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
         })
         
-        # Convert ObjectId to string for JSON serialization
-        sources_data_clean = []
-        for item in sources_data:
-            sources_data_clean.append({
-                "source": str(item["_id"]) if item["_id"] else "unknown",
-                "count": item["count"]
-            })
-        
-        arrond_data_clean = []
-        for item in arrond_data:
-            arrond_data_clean.append({
-                "arrondissement": str(item["_id"]) if item["_id"] else "unknown",
-                "count": item["count"],
-                "prix_moyen": item.get("prix_moyen", 0)
-            })
-        
         return {
             "collection_summary": collection_stats or {},
-            "data_by_source": sources_data_clean,
-            "data_by_arrondissement": arrond_data_clean,
+            "data_by_source": sources_data,
+            "data_by_arrondissement": arrond_data,
             "total_trends_analyzed": total_trends,
             "recent_alerts_7d": recent_alerts,
             "system_status": "operational",
@@ -1768,6 +1752,299 @@ async def get_market_stats():
         
     except Exception as e:
         logger.error(f"Erreur stats marché: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== INTÉGRATIONS CRM ENTERPRISE =====
+
+@app.post("/api/crm/configure")
+async def configure_crm_integration(request: dict):
+    """Configure une intégration CRM"""
+    try:
+        platform = request.get('platform')
+        credentials_data = request.get('credentials', {})
+        
+        if not platform:
+            raise HTTPException(status_code=400, detail="Platform CRM requise")
+        
+        # Créer les credentials
+        credentials = CRMCredentials(
+            platform=platform,
+            client_id=credentials_data.get('client_id', ''),
+            client_secret=credentials_data.get('client_secret', ''),
+            access_token=credentials_data.get('access_token'),
+            refresh_token=credentials_data.get('refresh_token'),
+            api_key=credentials_data.get('api_key'),
+            instance_url=credentials_data.get('instance_url')
+        )
+        
+        result = await crm_service.configure_crm_integration(platform, credentials)
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur configuration CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/crm/{platform}/sync")
+async def synchronize_crm_data(platform: str, entity_type: str = "contact"):
+    """Synchronise les données avec un CRM spécifique"""
+    try:
+        result = await crm_service.synchronize_data(platform, entity_type)
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Erreur synchronisation CRM {platform}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/crm/status")
+async def get_crm_integrations_status():
+    """Récupère le statut de toutes les intégrations CRM"""
+    try:
+        status = await crm_service.get_integration_status()
+        return status
+        
+    except Exception as e:
+        logger.error(f"Erreur statut intégrations CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/crm/history")
+async def get_crm_sync_history(platform: str = None, days: int = 30):
+    """Récupère l'historique des synchronisations CRM"""
+    try:
+        history = await crm_service.get_sync_history(platform, days)
+        return history
+        
+    except Exception as e:
+        logger.error(f"Erreur historique sync CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/crm/sync-all")
+async def sync_all_crm_platforms():
+    """Synchronise toutes les plateformes CRM configurées"""
+    try:
+        # Récupérer toutes les intégrations actives
+        integrations = await db.crm_integrations.find(
+            {"status": "active"}, {"_id": 0}
+        ).to_list(length=None)
+        
+        sync_results = []
+        
+        for integration in integrations:
+            platform = integration["platform"]
+            
+            try:
+                # Synchroniser les contacts
+                result = await crm_service.synchronize_data(platform, "contact")
+                sync_results.append({
+                    "platform": platform,
+                    "status": result.get("status", "unknown"),
+                    "records_processed": result.get("records_processed", 0),
+                    "records_updated": result.get("records_updated", 0)
+                })
+                
+            except Exception as platform_error:
+                sync_results.append({
+                    "platform": platform,
+                    "status": "error",
+                    "error": str(platform_error)
+                })
+        
+        # Statistiques globales
+        total_processed = sum(r.get("records_processed", 0) for r in sync_results)
+        successful_syncs = len([r for r in sync_results if r.get("status") == "success"])
+        
+        return {
+            "sync_results": sync_results,
+            "summary": {
+                "total_platforms": len(sync_results),
+                "successful_platforms": successful_syncs,
+                "total_records_processed": total_processed,
+                "success_rate": (successful_syncs / len(sync_results) * 100) if sync_results else 0
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur sync toutes plateformes CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/crm/platforms")
+async def get_supported_crm_platforms():
+    """Récupère la liste des plateformes CRM supportées"""
+    try:
+        platforms = [
+            {
+                "id": "salesforce",
+                "name": "Salesforce",
+                "description": "Plateforme CRM leader mondial",
+                "auth_type": "oauth2",
+                "features": ["contacts", "leads", "opportunities", "accounts", "webhooks"],
+                "status": "supported"
+            },
+            {
+                "id": "hubspot", 
+                "name": "HubSpot",
+                "description": "CRM et marketing automation",
+                "auth_type": "api_key_or_oauth2",
+                "features": ["contacts", "companies", "deals", "tickets", "webhooks"],
+                "status": "supported"
+            },
+            {
+                "id": "pipedrive",
+                "name": "Pipedrive",
+                "description": "CRM orienté ventes",
+                "auth_type": "oauth2",
+                "features": ["persons", "organizations", "deals", "activities"],
+                "status": "supported"
+            },
+            {
+                "id": "monday",
+                "name": "Monday.com",
+                "description": "Plateforme de gestion de travail",
+                "auth_type": "oauth2",
+                "features": ["items", "boards", "groups"],
+                "status": "beta"
+            },
+            {
+                "id": "zoho",
+                "name": "Zoho CRM",
+                "description": "Suite CRM complète",
+                "auth_type": "oauth2",
+                "features": ["leads", "contacts", "accounts", "deals"],
+                "status": "planned"
+            }
+        ]
+        
+        return {
+            "platforms": platforms,
+            "total_supported": len([p for p in platforms if p["status"] == "supported"]),
+            "total_planned": len([p for p in platforms if p["status"] in ["beta", "planned"]]),
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur liste plateformes CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/crm/test-connection")
+async def test_crm_connection(request: dict):
+    """Teste la connexion à un CRM sans sauvegarder la configuration"""
+    try:
+        platform = request.get('platform')
+        credentials_data = request.get('credentials', {})
+        
+        if not platform:
+            raise HTTPException(status_code=400, detail="Platform CRM requise")
+        
+        # Créer les credentials temporaires
+        credentials = CRMCredentials(
+            platform=platform,
+            client_id=credentials_data.get('client_id', ''),
+            client_secret=credentials_data.get('client_secret', ''),
+            access_token=credentials_data.get('access_token'),
+            api_key=credentials_data.get('api_key'),
+            instance_url=credentials_data.get('instance_url')
+        )
+        
+        # Tester la connexion
+        test_result = await crm_service._test_crm_connection(platform, credentials)
+        
+        return {
+            "platform": platform,
+            "connection_test": test_result,
+            "tested_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur test connexion CRM: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/crm/{platform}/leads")
+async def get_crm_synced_leads(platform: str, limit: int = 50):
+    """Récupère les leads synchronisés avec un CRM spécifique"""
+    try:
+        synced_leads = await db.leads.find(
+            {
+                "crm_platform": platform,
+                "crm_sync_status": "synced"
+            },
+            {"_id": 0}
+        ).sort("last_crm_sync", -1).limit(limit).to_list(length=None)
+        
+        # Statistiques
+        total_synced = await db.leads.count_documents({
+            "crm_platform": platform,
+            "crm_sync_status": "synced"
+        })
+        
+        pending_sync = await db.leads.count_documents({
+            "crm_sync_status": {"$ne": "synced"}
+        })
+        
+        return {
+            "leads": synced_leads,
+            "statistics": {
+                "total_synced": total_synced,
+                "pending_sync": pending_sync,
+                "returned": len(synced_leads),
+                "platform": platform
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur récupération leads CRM {platform}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/crm/{platform}/integration")
+async def delete_crm_integration(platform: str):
+    """Supprime une intégration CRM"""
+    try:
+        # Supprimer la configuration
+        delete_result = await db.crm_integrations.delete_one({"platform": platform})
+        
+        if delete_result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail=f"Intégration {platform} non trouvée")
+        
+        # Réinitialiser le statut de sync des leads
+        await db.leads.update_many(
+            {"crm_platform": platform},
+            {
+                "$unset": {
+                    "crm_platform": "",
+                    "crm_sync_status": "",
+                    "last_crm_sync": ""
+                }
+            }
+        )
+        
+        # Notifier la suppression
+        await notification_service.send_notification(
+            NotificationType.SYSTEM_ALERT,
+            NotificationPriority.MEDIUM,
+            {
+                "message": f"Intégration {platform.title()} supprimée",
+                "platform": platform,
+                "action": "deleted"
+            }
+        )
+        
+        return {
+            "status": "success",
+            "message": f"Intégration {platform} supprimée avec succès",
+            "platform": platform,
+            "deleted_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur suppression intégration {platform}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/sheets/clean-sync")
