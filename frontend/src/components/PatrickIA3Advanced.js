@@ -44,7 +44,9 @@ import {
   ArrowUp,
   ArrowDown,
   Search,
-  Filter
+  Filter,
+  Lightbulb,
+  Settings
 } from 'lucide-react';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
