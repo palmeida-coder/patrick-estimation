@@ -1188,8 +1188,8 @@ class EfficiencyAPITester:
             return self.log_test("Patrick IA 3.0 Score Lead", False, f"- Lead scoring failed {details}")
     
     def test_patrick_ia_3_dashboard(self):
-        """Test GET /api/patrick-ia-3/dashboard - Should return Patrick IA 3.0 dashboard with insights"""
-        success, response, details = self.make_request('GET', 'api/patrick-ia-3/dashboard', expected_status=200)
+        """Test GET /api/patrick-ia/dashboard - Should return Patrick IA 3.0 dashboard with insights"""
+        success, response, details = self.make_request('GET', 'api/patrick-ia/dashboard', expected_status=200)
         
         expected_fields = ['model_performance', 'scoring_distribution', 'recent_scores', 'top_leads', 'system_status']
         
