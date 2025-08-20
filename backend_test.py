@@ -1365,7 +1365,7 @@ class EfficiencyAPITester:
         if not self.created_lead_id:
             return self.log_test("Patrick IA 3.0 Advanced Features", False, "- No lead ID available for testing")
         
-        success, response, details = self.make_request('GET', f'api/patrick-ia-3/score-lead/{self.created_lead_id}', expected_status=200)
+        success, response, details = self.make_request('GET', f'api/patrick-ia/score/{self.created_lead_id}', expected_status=200)
         
         if success:
             # Check for advanced features in response
