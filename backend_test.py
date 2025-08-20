@@ -1243,7 +1243,7 @@ class EfficiencyAPITester:
         lead_ids = [lead.get('id') for lead in leads_response.get('leads', [])[:3]]  # Max 3 for testing
         
         batch_request = {"lead_ids": lead_ids}
-        success, response, details = self.make_request('POST', 'api/patrick-ia-3/batch-score', data=batch_request, expected_status=200)
+        success, response, details = self.make_request('POST', 'api/patrick-ia/batch-score', data=batch_request, expected_status=200)
         
         if success and 'results' in response:
             results = response.get('results', [])
