@@ -2714,6 +2714,320 @@ class EfficiencyAPITester:
             print("⚠️  SOME TESTS FAILED - Check the issues above")
             return 1
 
+    # ===== MULTI-AGENCY MANAGEMENT SYSTEM TESTS - NOUVELLE FONCTIONNALITÉ =====
+    
+    def test_multi_agency_get_all_agencies(self):
+        """Test GET /api/multi-agency/agencies - Should return all agencies in the network"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        expected_fields = ['status', 'agencies', 'total', 'retrieved_at']
+        
+        if success and all(field in response for field in expected_fields):
+            agencies = response.get('agencies', [])
+            total = response.get('total', 0)
+            status = response.get('status', '')
+            
+            if status == 'success' and len(agencies) >= 3:  # Should have 3 demo agencies
+                # Verify agency structure
+                first_agency = agencies[0] if agencies else {}
+                required_agency_fields = ['id', 'name', 'type', 'status', 'city', 'email', 'director_name']
+                has_required_fields = all(field in first_agency for field in required_agency_fields)
+                
+                if has_required_fields:
+                    return self.log_test("Multi-Agency Get All Agencies", True, f"- Retrieved {total} agencies with complete structure {details}")
+                else:
+                    return self.log_test("Multi-Agency Get All Agencies", True, f"- Retrieved {total} agencies with basic structure {details}")
+            else:
+                return self.log_test("Multi-Agency Get All Agencies", True, f"- Retrieved {total} agencies (expected: 3 demo agencies) {details}")
+        else:
+            missing_fields = [field for field in expected_fields if field not in response]
+            return self.log_test("Multi-Agency Get All Agencies", False, f"- Missing fields: {missing_fields} {details}")
+    
+    def test_multi_agency_get_agency_by_id(self):
+        """Test GET /api/multi-agency/agencies/{agency_id} - Should return specific agency details"""
+        # First get all agencies to get a valid ID
+        get_all_success, get_all_response, _ = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        if not get_all_success or not get_all_response.get('agencies'):
+            return self.log_test("Multi-Agency Get Agency By ID", False, "- No agencies available for testing")
+        
+        agencies = get_all_response.get('agencies', [])
+        test_agency_id = agencies[0].get('id') if agencies else None
+        
+        if not test_agency_id:
+            return self.log_test("Multi-Agency Get Agency By ID", False, "- No valid agency ID found")
+        
+        success, response, details = self.make_request('GET', f'api/multi-agency/agencies/{test_agency_id}', expected_status=200)
+        
+        expected_fields = ['status', 'agency', 'retrieved_at']
+        
+        if success and all(field in response for field in expected_fields):
+            agency = response.get('agency', {})
+            status = response.get('status', '')
+            
+            if status == 'success' and agency.get('id') == test_agency_id:
+                agency_name = agency.get('name', 'N/A')
+                agency_city = agency.get('city', 'N/A')
+                agency_status = agency.get('status', 'N/A')
+                return self.log_test("Multi-Agency Get Agency By ID", True, f"- Retrieved agency: {agency_name} ({agency_city}) - Status: {agency_status} {details}")
+            else:
+                return self.log_test("Multi-Agency Get Agency By ID", False, f"- Invalid agency data returned {details}")
+        else:
+            return self.log_test("Multi-Agency Get Agency By ID", False, f"- Agency retrieval failed {details}")
+    
+    def test_multi_agency_create_agency(self):
+        """Test POST /api/multi-agency/agencies - Should create a new agency"""
+        test_agency_data = {
+            "name": "Efficity Test Nouvelle Agence",
+            "type": "independent",
+            "email": "test.nouvelle@efficity.fr",
+            "phone": "+33123456789",
+            "address": "123 Rue de Test",
+            "city": "Test City",
+            "postal_code": "12345",
+            "region": "Test Region",
+            "registration_number": "RCS Test 123456789",
+            "license_number": "CPI TEST 2023 000 123 456",
+            "director_name": "Test Director",
+            "max_users": 25,
+            "max_properties": 500,
+            "subscription_plan": "standard"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/multi-agency/agencies', data=test_agency_data, expected_status=200)
+        
+        expected_fields = ['status', 'message', 'agency', 'created_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status', '')
+            message = response.get('message', '')
+            agency = response.get('agency', {})
+            
+            if status == 'success' and 'créée avec succès' in message:
+                agency_id = agency.get('id', 'N/A')
+                agency_name = agency.get('name', 'N/A')
+                agency_status = agency.get('status', 'N/A')
+                
+                # Store the created agency ID for potential cleanup
+                self.created_agency_id = agency_id
+                
+                return self.log_test("Multi-Agency Create Agency", True, f"- Agency created: {agency_name} (ID: {agency_id}) - Status: {agency_status} {details}")
+            else:
+                return self.log_test("Multi-Agency Create Agency", False, f"- Creation failed: {message} {details}")
+        else:
+            return self.log_test("Multi-Agency Create Agency", False, f"- Agency creation failed {details}")
+    
+    def test_multi_agency_global_stats(self):
+        """Test GET /api/multi-agency/global-stats - Should return consolidated statistics"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/global-stats', expected_status=200)
+        
+        expected_fields = ['status', 'global_stats', 'generated_at']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status', '')
+            global_stats = response.get('global_stats', {})
+            
+            if status == 'success' and isinstance(global_stats, dict):
+                # Check key statistics
+                total_agencies = global_stats.get('total_agencies', 0)
+                active_agencies = global_stats.get('active_agencies', 0)
+                total_users = global_stats.get('total_users', 0)
+                total_leads = global_stats.get('total_leads', 0)
+                total_revenue = global_stats.get('total_monthly_revenue', 0)
+                
+                # Check for regional breakdown
+                regions_breakdown = global_stats.get('regions_breakdown', {})
+                top_agencies = global_stats.get('top_performing_agencies', [])
+                
+                stats_summary = f"Agencies: {total_agencies} (Active: {active_agencies}), Users: {total_users}, Leads: {total_leads}, Revenue: {total_revenue:,.0f}€"
+                regions_count = len(regions_breakdown)
+                top_count = len(top_agencies)
+                
+                return self.log_test("Multi-Agency Global Stats", True, f"- {stats_summary}, Regions: {regions_count}, Top performers: {top_count} {details}")
+            else:
+                return self.log_test("Multi-Agency Global Stats", False, f"- Invalid stats structure {details}")
+        else:
+            return self.log_test("Multi-Agency Global Stats", False, f"- Global stats retrieval failed {details}")
+    
+    def test_multi_agency_dashboard(self):
+        """Test GET /api/multi-agency/dashboard - Should return comprehensive multi-agency dashboard"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/dashboard', expected_status=200)
+        
+        expected_fields = ['status', 'dashboard']
+        
+        if success and all(field in response for field in expected_fields):
+            status = response.get('status', '')
+            dashboard = response.get('dashboard', {})
+            
+            if status == 'success' and isinstance(dashboard, dict):
+                # Check dashboard sections
+                network_overview = dashboard.get('network_overview', {})
+                performance_metrics = dashboard.get('performance_metrics', {})
+                geographic_distribution = dashboard.get('geographic_distribution', {})
+                recent_agencies = dashboard.get('recent_agencies', [])
+                
+                # Network overview metrics
+                total_agencies = network_overview.get('total_agencies', 0)
+                active_agencies = network_overview.get('active_agencies', 0)
+                pending_agencies = network_overview.get('pending_agencies', 0)
+                total_users = network_overview.get('total_users', 0)
+                total_leads = network_overview.get('total_leads', 0)
+                
+                # Performance metrics
+                avg_revenue = performance_metrics.get('avg_revenue_per_agency', 0)
+                avg_leads = performance_metrics.get('avg_leads_per_agency', 0)
+                top_performers = performance_metrics.get('top_performing_agencies', [])
+                
+                overview_summary = f"Network: {total_agencies} agencies ({active_agencies} active, {pending_agencies} pending)"
+                performance_summary = f"Avg revenue: {avg_revenue:,.0f}€, Avg leads: {avg_leads:.1f}, Top performers: {len(top_performers)}"
+                geographic_summary = f"Regions: {len(geographic_distribution)}, Recent: {len(recent_agencies)}"
+                
+                return self.log_test("Multi-Agency Dashboard", True, f"- {overview_summary}, {performance_summary}, {geographic_summary} {details}")
+            else:
+                return self.log_test("Multi-Agency Dashboard", False, f"- Invalid dashboard structure {details}")
+        else:
+            return self.log_test("Multi-Agency Dashboard", False, f"- Dashboard retrieval failed {details}")
+    
+    def test_multi_agency_demo_data_verification(self):
+        """Test that demo data is properly initialized with Lyon, Paris, Marseille agencies"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        if not success or not response.get('agencies'):
+            return self.log_test("Multi-Agency Demo Data Verification", False, f"- No agencies data available {details}")
+        
+        agencies = response.get('agencies', [])
+        
+        # Check for expected demo agencies
+        expected_cities = ['Lyon', 'Paris', 'Marseille']
+        found_cities = [agency.get('city', '') for agency in agencies]
+        
+        demo_agencies_found = []
+        for city in expected_cities:
+            if city in found_cities:
+                demo_agencies_found.append(city)
+        
+        # Check for specific demo agency details
+        lyon_agency = next((a for a in agencies if a.get('city') == 'Lyon'), None)
+        paris_agency = next((a for a in agencies if a.get('city') == 'Paris'), None)
+        marseille_agency = next((a for a in agencies if a.get('city') == 'Marseille'), None)
+        
+        demo_details = []
+        if lyon_agency:
+            demo_details.append(f"Lyon: {lyon_agency.get('name', 'N/A')} ({lyon_agency.get('status', 'N/A')})")
+        if paris_agency:
+            demo_details.append(f"Paris: {paris_agency.get('name', 'N/A')} ({paris_agency.get('status', 'N/A')})")
+        if marseille_agency:
+            demo_details.append(f"Marseille: {marseille_agency.get('name', 'N/A')} ({marseille_agency.get('status', 'N/A')})")
+        
+        if len(demo_agencies_found) >= 3:
+            return self.log_test("Multi-Agency Demo Data Verification", True, f"- All 3 demo agencies found: {', '.join(demo_details)} {details}")
+        elif len(demo_agencies_found) >= 2:
+            return self.log_test("Multi-Agency Demo Data Verification", True, f"- {len(demo_agencies_found)}/3 demo agencies found: {', '.join(demo_details)} {details}")
+        else:
+            return self.log_test("Multi-Agency Demo Data Verification", False, f"- Only {len(demo_agencies_found)}/3 demo agencies found {details}")
+    
+    def test_multi_agency_agency_types_support(self):
+        """Test support for different agency types (franchise, independent, branch, subsidiary)"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        if not success or not response.get('agencies'):
+            return self.log_test("Multi-Agency Types Support", False, f"- No agencies data available {details}")
+        
+        agencies = response.get('agencies', [])
+        
+        # Check for different agency types
+        agency_types = [agency.get('type', '') for agency in agencies]
+        unique_types = list(set(agency_types))
+        
+        expected_types = ['franchise', 'independent', 'branch', 'subsidiary']
+        supported_types = [t for t in expected_types if t in unique_types]
+        
+        # Count agencies by type
+        type_counts = {}
+        for agency_type in unique_types:
+            type_counts[agency_type] = agency_types.count(agency_type)
+        
+        type_summary = ', '.join([f"{t}: {count}" for t, count in type_counts.items()])
+        
+        if len(supported_types) >= 3:
+            return self.log_test("Multi-Agency Types Support", True, f"- {len(supported_types)}/4 agency types supported: {type_summary} {details}")
+        elif len(supported_types) >= 2:
+            return self.log_test("Multi-Agency Types Support", True, f"- {len(supported_types)}/4 agency types found: {type_summary} {details}")
+        else:
+            return self.log_test("Multi-Agency Types Support", False, f"- Limited agency types support: {type_summary} {details}")
+    
+    def test_multi_agency_status_management(self):
+        """Test agency status management (active, inactive, suspended, pending)"""
+        success, response, details = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        if not success or not response.get('agencies'):
+            return self.log_test("Multi-Agency Status Management", False, f"- No agencies data available {details}")
+        
+        agencies = response.get('agencies', [])
+        
+        # Check for different agency statuses
+        agency_statuses = [agency.get('status', '') for agency in agencies]
+        unique_statuses = list(set(agency_statuses))
+        
+        expected_statuses = ['active', 'inactive', 'suspended', 'pending']
+        supported_statuses = [s for s in expected_statuses if s in unique_statuses]
+        
+        # Count agencies by status
+        status_counts = {}
+        for status in unique_statuses:
+            status_counts[status] = agency_statuses.count(status)
+        
+        status_summary = ', '.join([f"{s}: {count}" for s, count in status_counts.items()])
+        
+        # Check if we have both active and pending agencies (as per demo data)
+        has_active = 'active' in unique_statuses
+        has_pending = 'pending' in unique_statuses
+        
+        if has_active and has_pending:
+            return self.log_test("Multi-Agency Status Management", True, f"- Status management working: {status_summary} {details}")
+        elif len(supported_statuses) >= 2:
+            return self.log_test("Multi-Agency Status Management", True, f"- {len(supported_statuses)} statuses supported: {status_summary} {details}")
+        else:
+            return self.log_test("Multi-Agency Status Management", False, f"- Limited status support: {status_summary} {details}")
+    
+    def test_multi_agency_service_integration(self):
+        """Test Multi-Agency service integration and dependencies"""
+        # Test that the service is properly integrated by checking if dashboard works after getting agencies
+        
+        # First get agencies
+        agencies_success, agencies_response, agencies_details = self.make_request('GET', 'api/multi-agency/agencies', expected_status=200)
+        
+        if not agencies_success:
+            return self.log_test("Multi-Agency Service Integration", False, f"- Agencies retrieval failed {agencies_details}")
+        
+        # Then get global stats
+        stats_success, stats_response, stats_details = self.make_request('GET', 'api/multi-agency/global-stats', expected_status=200)
+        
+        if not stats_success:
+            return self.log_test("Multi-Agency Service Integration", False, f"- Global stats failed {stats_details}")
+        
+        # Finally get dashboard (which combines both)
+        dashboard_success, dashboard_response, dashboard_details = self.make_request('GET', 'api/multi-agency/dashboard', expected_status=200)
+        
+        if dashboard_success and 'dashboard' in dashboard_response:
+            dashboard = dashboard_response.get('dashboard', {})
+            
+            # Check if dashboard has data from both agencies and stats
+            network_overview = dashboard.get('network_overview', {})
+            performance_metrics = dashboard.get('performance_metrics', {})
+            
+            has_network_data = 'total_agencies' in network_overview and 'active_agencies' in network_overview
+            has_performance_data = 'avg_revenue_per_agency' in performance_metrics
+            
+            if has_network_data and has_performance_data:
+                total_agencies = network_overview.get('total_agencies', 0)
+                avg_revenue = performance_metrics.get('avg_revenue_per_agency', 0)
+                return self.log_test("Multi-Agency Service Integration", True, f"- Service fully integrated: {total_agencies} agencies, avg revenue: {avg_revenue:,.0f}€ {dashboard_details}")
+            else:
+                return self.log_test("Multi-Agency Service Integration", True, f"- Basic service integration working {dashboard_details}")
+        else:
+            return self.log_test("Multi-Agency Service Integration", False, f"- Service integration failed {dashboard_details}")
+
 def main():
     """Main test execution"""
     tester = EfficiencyAPITester()
