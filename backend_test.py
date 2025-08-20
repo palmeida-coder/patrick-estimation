@@ -1072,7 +1072,7 @@ class EfficiencyAPITester:
             return self.log_test("Lyon IA Model Performance", False, f"- Model performance retrieval failed {details}")
     
     def test_lyon_ia_batch_predictions(self):
-        """Test POST /api/lyon-ia/batch-predict - Should handle batch price predictions"""
+        """Test POST /api/lyon-predictor/batch-predict - Should handle batch price predictions"""
         batch_properties = [
             {
                 "property_type": "appartement",
@@ -1092,7 +1092,7 @@ class EfficiencyAPITester:
             }
         ]
         
-        success, response, details = self.make_request('POST', 'api/lyon-ia/batch-predict', data={"properties": batch_properties}, expected_status=200)
+        success, response, details = self.make_request('POST', 'api/lyon-predictor/batch-predict', data={"properties": batch_properties}, expected_status=200)
         
         if success and 'predictions' in response:
             predictions = response.get('predictions', [])
