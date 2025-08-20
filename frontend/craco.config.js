@@ -41,12 +41,15 @@ module.exports = {
       }
       
       // SOLUTION DÉFINITIVE ELEVATOR BUG: Configuration cache préventive
-      // Utilise cache mémoire pour éviter corruption cache fichiers
-      if (webpackConfig.cache && webpackConfig.cache.type === 'filesystem') {
-        webpackConfig.cache = {
-          type: 'memory'
-        };
-      }
+      // Désactive complètement le cache pour éviter corruption
+      webpackConfig.cache = false;
+      
+      // Force la régénération complète
+      webpackConfig.optimization = {
+        ...webpackConfig.optimization,
+        moduleIds: 'named',
+        chunkIds: 'named',
+      };
       
       return webpackConfig;
     },
