@@ -37,7 +37,7 @@ import {
   Car,
   Trees,
   Sun,
-  Elevator,
+  ArrowUpDown,
   Stairs,
   Eye,
   Sparkles,
