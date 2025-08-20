@@ -42,6 +42,7 @@ import {
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
 import PatrickIA2 from './components/PatrickIA2';
+import PatrickIA3Advanced from './components/PatrickIA3Advanced';
 import LeadExtraction from './components/LeadExtraction';
 import NotificationCenter from './components/NotificationCenter';
 import IntelligentSequences from './components/IntelligentSequences';
