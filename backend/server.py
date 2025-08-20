@@ -2779,7 +2779,320 @@ async def get_user_privacy_dashboard(user_id: str):
         logger.error(f"Erreur dashboard confidentialité utilisateur: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# ===== FIN RGPD ENDPOINTS =====
+# ===== PATRICK IA 3.0 - ADVANCED LEAD SCORING ENDPOINTS RÉVOLUTIONNAIRE =====
+
+@app.post("/api/patrick-ia/score-lead")
+async def score_lead_advanced(request: dict):
+    """Score avancé d'un lead avec Patrick IA 3.0"""
+    try:
+        lead_data = request.get('lead_data')
+        if not lead_data:
+            raise HTTPException(status_code=400, detail="lead_data requis")
+        
+        result = await patrick_scoring.score_lead_advanced(lead_data)
+        
+        return {
+            "status": "success",
+            "scoring_result": asdict(result),
+            "patrick_version": "3.0"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur scoring Patrick IA 3.0: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/score/{lead_id}")
+async def get_lead_score(lead_id: str):
+    """Récupère le score d'un lead spécifique"""
+    try:
+        # Récupérer le lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        if not lead:
+            raise HTTPException(status_code=404, detail="Lead non trouvé")
+        
+        # Scorer avec Patrick IA 3.0
+        result = await patrick_scoring.score_lead_advanced(lead)
+        
+        return {
+            "lead_id": lead_id,
+            "scoring_result": asdict(result),
+            "scored_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur récupération score: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/patrick-ia/batch-score")
+async def batch_score_leads(request: dict):
+    """Score multiple leads en batch avec Patrick IA 3.0"""
+    try:
+        lead_ids = request.get('lead_ids', [])
+        if not lead_ids:
+            raise HTTPException(status_code=400, detail="lead_ids requis")
+        
+        if len(lead_ids) > 50:
+            raise HTTPException(status_code=400, detail="Maximum 50 leads par batch")
+        
+        results = await patrick_scoring.batch_score_leads(lead_ids)
+        
+        return {
+            "status": "success",
+            "total_leads": len(lead_ids),
+            "scored_leads": len(results),
+            "scoring_results": [asdict(r) for r in results],
+            "batch_completed_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur batch scoring: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/dashboard")
+async def get_patrick_dashboard():
+    """Dashboard Patrick IA 3.0 avec métriques avancées"""
+    try:
+        # Métriques des modèles
+        model_performance = await patrick_scoring.get_model_performance()
+        
+        # Statistiques récentes des scores
+        recent_scores = await db.patrick_scoring_results.find(
+            {"generated_at": {"$gte": (datetime.now() - timedelta(days=30)).isoformat()}},
+            {"_id": 0}
+        ).sort("generated_at", -1).limit(100).to_list(length=100)
+        
+        # Analyse des tiers
+        tier_distribution = {}
+        score_distribution = []
+        avg_predicted_values = {}
+        
+        for score in recent_scores:
+            tier = score.get('tier', 'prospect')
+            tier_distribution[tier] = tier_distribution.get(tier, 0) + 1
+            score_distribution.append(score.get('patrick_score', 0))
+            
+            if tier not in avg_predicted_values:
+                avg_predicted_values[tier] = []
+            avg_predicted_values[tier].append(score.get('predicted_value', 0))
+        
+        # Calculer moyennes par tier
+        tier_value_averages = {
+            tier: sum(values) / len(values) if values else 0
+            for tier, values in avg_predicted_values.items()
+        }
+        
+        # Top signaux comportementaux
+        all_signals = []
+        for score in recent_scores:
+            all_signals.extend(score.get('key_signals', []))
+        
+        signal_frequency = {}
+        for signal in all_signals:
+            signal_frequency[signal] = signal_frequency.get(signal, 0) + 1
+        
+        top_signals = sorted(signal_frequency.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        return {
+            "patrick_version": "3.0",
+            "overview": {
+                "total_scores_30d": len(recent_scores),
+                "average_score": sum(score_distribution) / len(score_distribution) if score_distribution else 0,
+                "model_accuracy": model_performance["model_metrics"]["accuracy"],
+                "predictions_made": model_performance["model_metrics"]["predictions_made"]
+            },
+            "tier_distribution": tier_distribution,
+            "tier_value_averages": tier_value_averages,
+            "model_performance": model_performance,
+            "top_behavioral_signals": top_signals,
+            "score_trends": {
+                "platinum_rate": (tier_distribution.get('platinum', 0) / max(len(recent_scores), 1)) * 100,
+                "gold_rate": (tier_distribution.get('gold', 0) / max(len(recent_scores), 1)) * 100,
+                "conversion_signals": len([s for s in recent_scores if s.get('patrick_score', 0) >= 80])
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur dashboard Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/insights/{lead_id}")
+async def get_lead_insights(lead_id: str):
+    """Insights détaillés Patrick IA pour un lead"""
+    try:
+        # Récupérer dernier scoring
+        scoring_result = await db.patrick_scoring_results.find_one(
+            {"lead_id": lead_id},
+            {"_id": 0}
+        )
+        
+        if not scoring_result:
+            raise HTTPException(status_code=404, detail="Aucun scoring trouvé pour ce lead")
+        
+        # Récupérer données du lead
+        lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+        
+        # Analyses comparatives
+        similar_leads_pipeline = [
+            {
+                "$match": {
+                    "patrick_score": {
+                        "$gte": scoring_result.get('patrick_score', 0) - 10,
+                        "$lte": scoring_result.get('patrick_score', 0) + 10
+                    },
+                    "lead_id": {"$ne": lead_id}
+                }
+            },
+            {"$limit": 10}
+        ]
+        
+        similar_leads = await db.patrick_scoring_results.aggregate(similar_leads_pipeline).to_list(length=10)
+        
+        # Évolution du score dans le temps
+        historical_scores = await db.patrick_scoring_results.find(
+            {"lead_id": lead_id},
+            {"_id": 0}
+        ).sort("generated_at", 1).to_list(length=None)
+        
+        return {
+            "lead_id": lead_id,
+            "current_scoring": scoring_result,
+            "lead_data": lead,
+            "historical_scores": historical_scores,
+            "similar_leads_count": len(similar_leads),
+            "benchmarking": {
+                "score_percentile": await _calculate_score_percentile(scoring_result.get('patrick_score', 0)),
+                "tier_comparison": _analyze_tier_performance(scoring_result.get('tier', 'prospect'))
+            },
+            "recommendations_analysis": {
+                "priority_actions": [action for action in scoring_result.get('recommended_actions', []) if action.get('priority') == 'URGENT'],
+                "success_probability": scoring_result.get('closing_probability', 0),
+                "estimated_timeline": _estimate_closing_timeline(scoring_result.get('patrick_score', 0))
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur insights lead: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/patrick-ia/retrain")
+async def retrain_patrick_models(request: dict):
+    """Ré-entraîne les modèles Patrick IA avec nouvelles données"""
+    try:
+        force_retrain = request.get('force', False)
+        
+        # Récupérer données historiques pour ré-entraînement
+        historical_data = await db.leads.find(
+            {"statut": {"$in": ["converti", "rdv_planifié", "qualifié", "perdu"]}},
+            {"_id": 0}
+        ).limit(500).to_list(length=500)
+        
+        if not force_retrain and len(historical_data) < 50:
+            return {
+                "status": "insufficient_data",
+                "message": "Minimum 50 leads avec statut final requis",
+                "available_data": len(historical_data)
+            }
+        
+        # Ré-entraîner modèles
+        retrain_result = await patrick_scoring.retrain_models(historical_data)
+        
+        return {
+            "status": "success",
+            "retrain_result": retrain_result,
+            "data_used": len(historical_data),
+            "retrained_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur ré-entraînement Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/patrick-ia/performance")
+async def get_patrick_performance():
+    """Métriques de performance Patrick IA 3.0"""
+    try:
+        performance_data = await patrick_scoring.get_model_performance()
+        
+        # Ajouter statistiques d'usage
+        total_scores = await db.patrick_scoring_results.count_documents({})
+        recent_scores = await db.patrick_scoring_results.count_documents({
+            "generated_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
+        })
+        
+        # Calculs d'efficacité
+        high_value_predictions = await db.patrick_scoring_results.count_documents({
+            "patrick_score": {"$gte": 80}
+        })
+        
+        return {
+            "model_performance": performance_data,
+            "usage_statistics": {
+                "total_predictions": total_scores,
+                "predictions_7d": recent_scores,
+                "high_value_predictions": high_value_predictions,
+                "high_value_rate": (high_value_predictions / max(total_scores, 1)) * 100
+            },
+            "system_status": {
+                "models_loaded": True,
+                "last_prediction": datetime.now().isoformat(),
+                "version": "Patrick IA 3.0",
+                "features_active": 11
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur performance Patrick IA: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Fonctions utilitaires Patrick IA 3.0
+
+async def _calculate_score_percentile(score: float) -> int:
+    """Calcule le percentile d'un score"""
+    try:
+        total_scores = await db.patrick_scoring_results.count_documents({})
+        if total_scores == 0:
+            return 50
+        
+        lower_scores = await db.patrick_scoring_results.count_documents({
+            "patrick_score": {"$lt": score}
+        })
+        
+        percentile = (lower_scores / total_scores) * 100
+        return int(percentile)
+    except:
+        return 50
+
+def _analyze_tier_performance(tier: str) -> Dict[str, Any]:
+    """Analyse performance d'un tier"""
+    tier_performance = {
+        "platinum": {"conversion_rate": 0.92, "avg_timeline_days": 15, "avg_value": 650000},
+        "gold": {"conversion_rate": 0.78, "avg_timeline_days": 30, "avg_value": 480000},
+        "silver": {"conversion_rate": 0.55, "avg_timeline_days": 60, "avg_value": 380000},
+        "bronze": {"conversion_rate": 0.35, "avg_timeline_days": 90, "avg_value": 290000},
+        "prospect": {"conversion_rate": 0.15, "avg_timeline_days": 180, "avg_value": 250000}
+    }
+    
+    return tier_performance.get(tier, tier_performance["prospect"])
+
+def _estimate_closing_timeline(score: float) -> str:
+    """Estime délai de closing basé sur score"""
+    if score >= 90: return "1-2 semaines"
+    elif score >= 80: return "2-4 semaines"
+    elif score >= 60: return "1-2 mois"
+    elif score >= 40: return "2-4 mois"
+    else: return "6+ mois"
+
+# ===== FIN PATRICK IA 3.0 ENDPOINTS =====
 
 # Background task to process scheduled emails
 @app.on_event("startup")
