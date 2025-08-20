@@ -1341,7 +1341,7 @@ class EfficiencyAPITester:
             return self.log_test("Patrick IA 3.0 Database Collections", False, f"- Could not create test scoring {score_details}")
         
         # Check dashboard for evidence of database activity
-        dashboard_success, dashboard_response, dashboard_details = self.make_request('GET', 'api/patrick-ia-3/dashboard', expected_status=200)
+        dashboard_success, dashboard_response, dashboard_details = self.make_request('GET', 'api/patrick-ia/dashboard', expected_status=200)
         
         if dashboard_success:
             recent_scores = dashboard_response.get('recent_scores', [])
