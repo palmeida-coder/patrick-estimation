@@ -22,7 +22,7 @@ import {
   Activity,
   Shield,
   Key,
-  Sync,
+  RotateCcw,
   ArrowRightLeft,
   Server,
   Cloud,
