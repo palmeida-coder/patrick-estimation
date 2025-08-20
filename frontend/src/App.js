@@ -149,6 +149,10 @@ function Navigation() {
               <Home className="w-4 h-4" />
               Prix Predictor
             </Link>
+            <Link to="/multi-agency" className="nav-link flex-shrink-0">
+              <Building2 className="w-4 h-4" />
+              Multi-Agences
+            </Link>
             <Link to="/ai-insights" className="nav-link flex-shrink-0">
               <Brain className="w-4 h-4" />
               IA Insights
