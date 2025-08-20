@@ -2308,6 +2308,30 @@ class EfficiencyAPITester:
         self.test_rgpd_legal_bases_support()
         self.test_rgpd_consent_types_coverage()
         
+        # LYON PRICE PREDICTOR AI TESTS - NEW REVOLUTIONARY FEATURE
+        print("\n🏡 LYON PRICE PREDICTOR AI TESTS - RÉVOLUTIONNAIRE")
+        print("-" * 65)
+        self.test_lyon_ia_predict_price()
+        self.test_lyon_ia_dashboard()
+        self.test_lyon_ia_arrondissement_stats()
+        self.test_lyon_ia_model_performance()
+        self.test_lyon_ia_batch_predictions()
+        self.test_lyon_ia_service_integration()
+        self.test_lyon_ia_database_collections()
+        
+        # PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - NEW REVOLUTIONARY FEATURE
+        print("\n🧠 PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - RÉVOLUTIONNAIRE")
+        print("-" * 75)
+        self.test_patrick_ia_3_score_lead()
+        self.test_patrick_ia_3_dashboard()
+        self.test_patrick_ia_3_insights()
+        self.test_patrick_ia_3_batch_scoring()
+        self.test_patrick_ia_3_model_performance()
+        self.test_patrick_ia_3_retrain_models()
+        self.test_patrick_ia_3_service_integration()
+        self.test_patrick_ia_3_database_collections()
+        self.test_patrick_ia_3_advanced_features()
+        
         # Cleanup
         self.test_delete_lead()
         
