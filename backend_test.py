@@ -1166,11 +1166,11 @@ class EfficiencyAPITester:
     # ===== PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - NEW REVOLUTIONARY FEATURE =====
     
     def test_patrick_ia_3_score_lead(self):
-        """Test GET /api/patrick-ia-3/score-lead - Should score lead with Patrick IA 3.0 advanced algorithms"""
+        """Test GET /api/patrick-ia/score/{lead_id} - Should score lead with Patrick IA 3.0 advanced algorithms"""
         if not self.created_lead_id:
             return self.log_test("Patrick IA 3.0 Score Lead", False, "- No lead ID available (create lead first)")
         
-        success, response, details = self.make_request('GET', f'api/patrick-ia-3/score-lead/{self.created_lead_id}', expected_status=200)
+        success, response, details = self.make_request('GET', f'api/patrick-ia/score/{self.created_lead_id}', expected_status=200)
         
         expected_fields = ['patrick_score', 'tier', 'closing_probability', 'predicted_value', 'contact_timing', 'lead_intent']
         
