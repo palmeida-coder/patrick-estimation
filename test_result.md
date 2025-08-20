@@ -311,14 +311,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Lyon Price Predictor Full Test"
-    - "Patrick IA 3.0 Advanced Lead Scoring Test"
-    - "Dashboard Principal Test"
-    - "Conduit/Pipeline Test"
-    - "Campagnes Marketing Test"
+    - "Test Frontend Complet - Tous Onglets"
+    - "Lyon Price Predictor Frontend Component"
+    - "Patrick IA 3.0 Advanced Frontend Component"
+    - "Dashboard Principal Navigation"
+    - "Navigation Responsive Design"
   stuck_tasks: []
   test_all: true
-  test_priority: "comprehensive_all_features"
+  test_priority: "frontend_comprehensive"
 
 agent_communication:
   - agent: "main"
