@@ -443,8 +443,12 @@ class RGPDComplianceService:
                 "recommendations": self._generate_compliance_recommendations(compliance_score)
             }
             
-            # Sauvegarder le rapport d'audit
-            await self.db.rgpd_audit_reports.insert_one(audit_report)
+            # Sauvegarder le rapport d'audit (créer collection si nécessaire)
+            try:
+                await self.db.rgpd_audit_reports.insert_one(audit_report)
+            except Exception as e:
+                logger.warning(f"Impossible de sauvegarder le rapport d'audit: {str(e)}")
+                # Le rapport peut quand même être retourné sans sauvegarde
             
             return audit_report
             
