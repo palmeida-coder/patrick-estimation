@@ -3,6 +3,7 @@ import uuid
 import logging
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
+from dataclasses import asdict
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
