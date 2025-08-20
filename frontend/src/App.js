@@ -142,6 +142,10 @@ function Navigation() {
               <Cpu className="w-4 h-4" />
               Patrick IA 3.0
             </Link>
+            <Link to="/lyon-predictor" className="nav-link flex-shrink-0">
+              <Home className="w-4 h-4" />
+              Prix Predictor
+            </Link>
             <Link to="/ai-insights" className="nav-link flex-shrink-0">
               <Brain className="w-4 h-4" />
               IA Insights
