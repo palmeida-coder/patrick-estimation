@@ -336,21 +336,25 @@ class RGPDComplianceService:
                 collections_to_anonymize = ["leads", "ai_predictions", "analytics_data"]
                 
                 for collection_name in collections_to_anonymize:
-                    collection = getattr(self.db, collection_name)
-                    result = await collection.update_many(
-                        {"$or": [{"user_id": user_id}, {"id": user_id}]},
-                        {
-                            "$set": {
-                                "user_id": anonymous_id,
-                                "email": f"anonymized@example.com",
-                                "nom": "Anonymisé",
-                                "prénom": "Utilisateur",
-                                "téléphone": "000000000",
-                                "anonymized_at": datetime.now().isoformat()
+                    try:
+                        collection = getattr(self.db, collection_name)
+                        result = await collection.update_many(
+                            {"$or": [{"user_id": user_id}, {"id": user_id}]},
+                            {
+                                "$set": {
+                                    "user_id": anonymous_id,
+                                    "email": f"anonymized@example.com",
+                                    "nom": "Anonymisé",
+                                    "prénom": "Utilisateur",
+                                    "téléphone": "000000000",
+                                    "anonymized_at": datetime.now().isoformat()
+                                }
                             }
-                        }
-                    )
-                    deleted_records[f"{collection_name}_anonymized"] = result.modified_count
+                        )
+                        deleted_records[f"{collection_name}_anonymized"] = result.modified_count
+                    except Exception as e:
+                        logger.warning(f"Collection {collection_name} non accessible pour anonymisation: {str(e)}")
+                        deleted_records[f"{collection_name}_anonymized"] = 0
             
             # Conserver les consentements pour preuves légales
             deletion_record = {
