@@ -74,6 +74,9 @@ market_service = get_market_intelligence_service(db, notification_service, enhan
 # Initialize CRM Integrations Service  
 crm_service = get_crm_integrations_service(db, notification_service, enhanced_ai)
 
+# Initialize RGPD Compliance Service
+rgpd_service = get_rgpd_compliance_service(db, notification_service)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
