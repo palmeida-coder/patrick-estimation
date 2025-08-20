@@ -438,7 +438,7 @@ function CRMIntegrations() {
                           size="sm"
                           variant="outline"
                         >
-                          <Sync className="w-4 h-4" />
+                          <RotateCcw className="w-4 h-4" />
                         </Button>
                         <Button
                           onClick={() => handleDeleteIntegration(integration.platform)}
