@@ -40,16 +40,20 @@ module.exports = {
         };
       }
       
-      // SOLUTION DÉFINITIVE ELEVATOR BUG: Configuration cache préventive
-      // Désactive complètement le cache pour éviter corruption
+      // SOLUTION DÉFINITIVE ELEVATOR BUG: Désactiver complètement le cache
       webpackConfig.cache = false;
       
-      // Force la régénération complète
+      // Force un nouveau build complet en ignorant tous les caches
       webpackConfig.optimization = {
         ...webpackConfig.optimization,
         moduleIds: 'named',
         chunkIds: 'named',
       };
+      
+      // Désactive le cache persistent 
+      if (webpackConfig.cache) {
+        delete webpackConfig.cache;
+      }
       
       return webpackConfig;
     },
