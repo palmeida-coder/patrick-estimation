@@ -39,7 +39,8 @@ import {
   Settings2,
   Shield,
   Cpu,
-  Home
+  Home,
+  Building2
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
