@@ -269,10 +269,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "RGPD Compliance Frontend Interface"
+    - "Lyon Price Predictor Full Test"
+    - "Patrick IA 3.0 Advanced Lead Scoring Test"
+    - "Dashboard Principal Test"
+    - "Conduit/Pipeline Test"
+    - "Campagnes Marketing Test"
   stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+  test_all: true
+  test_priority: "comprehensive_all_features"
 
 agent_communication:
   - agent: "main"
