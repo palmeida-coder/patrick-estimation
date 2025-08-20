@@ -46,6 +46,7 @@ import NotificationCenter from './components/NotificationCenter';
 import IntelligentSequences from './components/IntelligentSequences';
 import MarketIntelligence from './components/MarketIntelligence';
 import CRMIntegrations from './components/CRMIntegrations';
+import RGPDCompliance from './components/RGPDCompliance';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
