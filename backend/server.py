@@ -30,6 +30,7 @@ from market_intelligence_service import MarketIntelligenceService, get_market_in
 from crm_integrations_service import CRMIntegrationsService, CRMCredentials, get_crm_integrations_service, DEFAULT_CRM_CONFIG
 from rgpd_compliance_service import RGPDComplianceService, get_rgpd_compliance_service, ConsentRecord, DEFAULT_RGPD_CONFIG
 from advanced_lead_scoring_ai import AdvancedLeadScoringAI, get_advanced_lead_scoring_service, LeadScoringResult, DEFAULT_SCORING_CONFIG
+from lyon_price_predictor_ai import LyonPricePredictorAI, get_lyon_price_predictor_service, PropertyPredictionRequest, PricePredictionResult, DEFAULT_LYON_PREDICTOR_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
