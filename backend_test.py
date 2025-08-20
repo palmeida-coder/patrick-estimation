@@ -1421,6 +1421,24 @@ class EfficiencyAPITester:
         self.test_market_lyon_arrondissements()
         self.test_market_ai_analysis_integration()
         
+        # CRM INTEGRATIONS TESTS - NEW ENTERPRISE FEATURE
+        print("\n🔗 CRM INTEGRATIONS TESTS - NEW ENTERPRISE FEATURE")
+        print("-" * 65)
+        self.test_crm_status()
+        self.test_crm_history()
+        self.test_crm_platforms()
+        self.test_crm_test_connection()
+        self.test_crm_configure()
+        self.test_crm_sync_all()
+        self.test_crm_platform_leads()
+        self.test_crm_delete_integration()
+        self.test_crm_service_integration()
+        self.test_crm_database_collections()
+        self.test_crm_multi_platform_support()
+        self.test_crm_mongodb_integration()
+        self.test_crm_error_handling()
+        self.test_crm_credentials_security()
+        
         # Cleanup
         self.test_delete_lead()
         
