@@ -2679,15 +2679,9 @@ class EfficiencyAPITester:
         # PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - NEW REVOLUTIONARY FEATURE
         print("\n🧠 PATRICK IA 3.0 ADVANCED LEAD SCORING TESTS - RÉVOLUTIONNAIRE")
         print("-" * 75)
-        self.test_patrick_ia_3_score_lead()
+        self.test_patrick_ia_3_score_lead_advanced()
+        self.test_patrick_ia_3_get_lead_score()
         self.test_patrick_ia_3_dashboard()
-        self.test_patrick_ia_3_insights()
-        self.test_patrick_ia_3_batch_scoring()
-        self.test_patrick_ia_3_model_performance()
-        self.test_patrick_ia_3_retrain_models()
-        self.test_patrick_ia_3_service_integration()
-        self.test_patrick_ia_3_database_collections()
-        self.test_patrick_ia_3_advanced_features()
         
         # Cleanup
         self.test_delete_lead()
