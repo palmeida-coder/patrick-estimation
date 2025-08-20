@@ -1138,7 +1138,7 @@ class EfficiencyAPITester:
             "adresse": "Part-Dieu"
         }
         
-        predict_success, predict_response, predict_details = self.make_request('POST', 'api/lyon-ia/predict-price', data=test_property, expected_status=200)
+        predict_success, predict_response, predict_details = self.make_request('POST', 'api/lyon-predictor/predict-price', data=test_property, expected_status=200)
         
         if not predict_success:
             return self.log_test("Lyon IA Database Collections", False, f"- Could not create test prediction {predict_details}")
