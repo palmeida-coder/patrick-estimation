@@ -35,7 +35,8 @@ import {
   Lightbulb,
   Bell,
   Sparkles,
-  Radar
+  Radar,
+  Settings2
 } from 'lucide-react';
 import './App.css';
 import AdvancedAnalytics from './components/AdvancedAnalytics';
