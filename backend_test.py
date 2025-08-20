@@ -1439,6 +1439,25 @@ class EfficiencyAPITester:
         self.test_crm_error_handling()
         self.test_crm_credentials_security()
         
+        # RGPD COMPLIANCE TESTS - RÉVOLUTIONNAIRE ENTERPRISE
+        print("\n🔒 RGPD COMPLIANCE TESTS - RÉVOLUTIONNAIRE ENTERPRISE")
+        print("-" * 70)
+        self.test_rgpd_consent_record()
+        self.test_rgpd_consent_get()
+        self.test_rgpd_consent_withdraw()
+        self.test_rgpd_batch_consent()
+        self.test_rgpd_export_user_data()
+        self.test_rgpd_delete_user_data()
+        self.test_rgpd_audit_report()
+        self.test_rgpd_compliance_dashboard()
+        self.test_rgpd_compliance_score()
+        self.test_rgpd_user_privacy_dashboard()
+        self.test_rgpd_service_integration()
+        self.test_rgpd_database_collections()
+        self.test_rgpd_workflow_complete()
+        self.test_rgpd_legal_bases_support()
+        self.test_rgpd_consent_types_coverage()
+        
         # Cleanup
         self.test_delete_lead()
         
