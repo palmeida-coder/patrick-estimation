@@ -2683,6 +2683,19 @@ class EfficiencyAPITester:
         self.test_patrick_ia_3_get_lead_score()
         self.test_patrick_ia_3_dashboard()
         
+        # MULTI-AGENCY MANAGEMENT SYSTEM TESTS - NOUVELLE FONCTIONNALITÉ
+        print("\n🏢 MULTI-AGENCY MANAGEMENT SYSTEM TESTS - NOUVELLE FONCTIONNALITÉ")
+        print("-" * 75)
+        self.test_multi_agency_get_all_agencies()
+        self.test_multi_agency_get_agency_by_id()
+        self.test_multi_agency_create_agency()
+        self.test_multi_agency_global_stats()
+        self.test_multi_agency_dashboard()
+        self.test_multi_agency_demo_data_verification()
+        self.test_multi_agency_agency_types_support()
+        self.test_multi_agency_status_management()
+        self.test_multi_agency_service_integration()
+        
         # Cleanup
         self.test_delete_lead()
         
