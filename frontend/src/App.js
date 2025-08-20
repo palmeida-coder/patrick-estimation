@@ -135,6 +135,10 @@ function Navigation() {
               <Shield className="w-4 h-4" />
               RGPD
             </Link>
+            <Link to="/patrick-ia3" className="nav-link flex-shrink-0">
+              <Cpu className="w-4 h-4" />
+              Patrick IA 3.0
+            </Link>
             <Link to="/ai-insights" className="nav-link flex-shrink-0">
               <Brain className="w-4 h-4" />
               IA Insights
