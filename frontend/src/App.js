@@ -128,6 +128,10 @@ function Navigation() {
               <Settings2 className="w-4 h-4" />
               CRM
             </Link>
+            <Link to="/rgpd" className="nav-link flex-shrink-0">
+              <Shield className="w-4 h-4" />
+              RGPD
+            </Link>
             <Link to="/ai-insights" className="nav-link flex-shrink-0">
               <Brain className="w-4 h-4" />
               IA Insights
