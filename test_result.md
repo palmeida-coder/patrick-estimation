@@ -334,14 +334,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Test Frontend Complet - Tous Onglets - COMPLETED ✅"
-    - "Lyon Price Predictor Frontend Component - COMPLETED ✅"
-    - "Patrick IA 3.0 Advanced Frontend Component - COMPLETED ✅"
-    - "Dashboard Principal Navigation - COMPLETED ✅"
-    - "Navigation Responsive Design - COMPLETED ✅"
+    - "Google Sheets Real Service Integration - COMPLETED ✅"
+    - "Lyon Price Predictor AI Backend Service - COMPLETED ✅"
+    - "Advanced Lead Scoring AI Backend Service (Patrick IA 3.0) - COMPLETED ✅"
+    - "Backend Health Verification - COMPLETED ✅"
   stuck_tasks: []
-  test_all: true
-  test_priority: "frontend_comprehensive_completed"
+  test_all: false
+  test_priority: "google_sheets_real_service_completed"
 
 agent_communication:
   - agent: "main"
