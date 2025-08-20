@@ -319,11 +319,15 @@ class RGPDComplianceService:
                 ]
                 
                 for collection_name in collections_to_delete:
-                    collection = getattr(self.db, collection_name)
-                    result = await collection.delete_many(
-                        {"$or": [{"user_id": user_id}, {"id": user_id}, {"email": user_id}]}
-                    )
-                    deleted_records[collection_name] = result.deleted_count
+                    try:
+                        collection = getattr(self.db, collection_name)
+                        result = await collection.delete_many(
+                            {"$or": [{"user_id": user_id}, {"id": user_id}, {"email": user_id}]}
+                        )
+                        deleted_records[collection_name] = result.deleted_count
+                    except Exception as e:
+                        logger.warning(f"Collection {collection_name} non accessible: {str(e)}")
+                        deleted_records[collection_name] = 0
                     
             elif deletion_type == "anonymize":
                 # Anonymisation (préservation statistiques)
