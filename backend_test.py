@@ -1312,7 +1312,7 @@ class EfficiencyAPITester:
     def test_patrick_ia_3_service_integration(self):
         """Test Patrick IA 3.0 service integration with dependencies"""
         # Test that the service is properly integrated by checking model performance
-        success, response, details = self.make_request('GET', 'api/patrick-ia-3/model/performance', expected_status=200)
+        success, response, details = self.make_request('GET', 'api/patrick-ia/performance', expected_status=200)
         
         if success and 'model_metrics' in response:
             model_metrics = response.get('model_metrics', {})
