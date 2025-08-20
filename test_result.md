@@ -268,7 +268,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "RGPD Compliance Frontend Interface"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
