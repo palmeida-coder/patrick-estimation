@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 class EfficiencyAPITester:
-    def __init__(self, base_url="https://multi-agency-crm.preview.emergentagent.com"):
+    def __init__(self, base_url="https://lyon-lead-finder.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

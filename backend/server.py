@@ -257,7 +257,7 @@ async def analyze_and_notify_lead(lead_data: Dict[str, Any]):
                         'source': lead_data.get('source', 'Manuel'),
                         'ville': lead_data.get('ville', ''),
                         'score': analysis.get("global_score", 0),
-                        'app_url': 'https://multi-agency-crm.preview.emergentagent.com/leads',
+                        'app_url': 'https://lyon-lead-finder.preview.emergentagent.com/leads',
                         'recipients': ['palmeida@efficity.com']
                     }
                 )
@@ -1124,7 +1124,7 @@ async def test_notification_system():
             'telephone': '+33123456789',
             'email': 'test@efficity.com',
             'ai_recommendation': 'Contact immédiat pour test',
-            'app_url': 'https://multi-agency-crm.preview.emergentagent.com',
+            'app_url': 'https://lyon-lead-finder.preview.emergentagent.com',
             'recipients': ['palmeida@efficity.com']
         }
         
