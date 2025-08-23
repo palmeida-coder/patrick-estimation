@@ -20,8 +20,13 @@
     <!-- HEADER PATRICK ALMEIDA -->
     <header class="bg-green-600 text-white py-8">
         <div class="container mx-auto px-4 text-center">
-            <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span class="text-green-600 font-bold text-2xl">PA</span>
+            <!-- PHOTO PROFESSIONNELLE PATRICK -->
+            <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 overflow-hidden border-4 border-white">
+                <img src="patrick-visage-pour-site-estimation.jpg" alt="Patrick Almeida" class="w-full h-full object-cover" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="w-full h-full bg-white rounded-full flex items-center justify-center" style="display:none;">
+                    <span class="text-green-600 font-bold text-2xl">PA</span>
+                </div>
             </div>
             <h1 class="text-3xl font-bold">Patrick Almeida</h1>
             <p class="text-xl">Agent Immobilier Expert • Efficity Lyon</p>
@@ -207,21 +212,30 @@
     </section>
 
     <!-- CONTACT DIRECT -->
-    <section class="bg-white py-8">
+    <section class="bg-white py-8 border-t border-gray-200">
         <div class="container mx-auto px-4 text-center">
-            <h3 class="text-xl font-bold mb-4">📞 Contact direct</h3>
-            <div class="flex justify-center space-x-8">
-                <div>
-                    <span class="text-green-600 font-bold">📱 06.XX.XX.XX.XX</span>
-                    <p class="text-sm text-gray-600">(Direct 7j/7)</p>
+            <h3 class="text-xl font-bold mb-6 text-green-600">📞 Contact direct Patrick Almeida</h3>
+            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-8">
+                <div class="flex items-center justify-center">
+                    <span class="text-green-600 mr-2">📱</span>
+                    <div>
+                        <a href="tel:0682052824" class="text-lg font-bold text-green-600 hover:underline">06.82.05.28.24</a>
+                        <p class="text-sm text-gray-600">Direct 7j/7 - Réponse rapide</p>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-green-600 font-bold">✉️ palmeida@efficity.com</span>
-                    <p class="text-sm text-gray-600">(Réponse rapide)</p>
+                <div class="flex items-center justify-center">
+                    <span class="text-green-600 mr-2">✉️</span>
+                    <div>
+                        <a href="mailto:palmeida@efficity.com" class="text-lg font-bold text-green-600 hover:underline">palmeida@efficity.com</a>
+                        <p class="text-sm text-gray-600">Email professionnel</p>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-green-600 font-bold">📍 Efficity Lyon 4ème</span>
-                    <p class="text-sm text-gray-600">(Centre-ville)</p>
+                <div class="flex items-center justify-center">
+                    <span class="text-green-600 mr-2">📍</span>
+                    <div>
+                        <span class="text-lg font-bold text-green-600">6 place des Tapis</span>
+                        <p class="text-sm text-gray-600">69004 Lyon - Centre-ville</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -329,7 +343,7 @@ BIEN:
 
 INFORMATIONS: ${data.informations}
 
-Source: Formulaire estimation externe Netlify
+Source: Formulaire estimation externe GitHub Pages
 Date: ${new Date().toLocaleString('fr-FR')}
                     `;
                     
@@ -354,10 +368,10 @@ Date: ${new Date().toLocaleString('fr-FR')}
                             Merci pour votre demande d'estimation.<br>
                             <strong>Patrick Almeida</strong> vous recontactera dans les <strong>24 heures</strong>.
                         </p>
-                        <div class="bg-green-100 p-4 rounded-lg">
+                        <div class="bg-green-100 p-4 rounded-lg mb-4">
                             <p class="text-sm text-green-800">
-                                📱 Contact direct: 06.XX.XX.XX.XX<br>
-                                ✉️ palmeida@efficity.com
+                                📱 Contact direct: <a href="tel:0682052824" class="font-bold hover:underline">06.82.05.28.24</a><br>
+                                ✉️ <a href="mailto:palmeida@efficity.com" class="font-bold hover:underline">palmeida@efficity.com</a>
                             </p>
                         </div>
                         <div class="mt-4">
@@ -376,9 +390,26 @@ Date: ${new Date().toLocaleString('fr-FR')}
             gtag('event', 'page_view', {
                 page_title: 'Estimation Patrick Almeida Lyon',
                 page_location: window.location.href,
-                page_source: 'netlify_externe'
+                page_source: 'github_pages'
             });
         }
     </script>
+
+    <!-- FOOTER MENTIONS LÉGALES -->
+    <footer class="bg-gray-800 text-white py-6 text-xs">
+        <div class="container mx-auto px-4">
+            <div class="text-center space-y-2">
+                <p><strong>Patrick Almeida</strong> - Agent Commercial Immobilier</p>
+                <p>Représentant de la SARL E.MMOBILIER - 6 place des Tapis, 69004 LYON</p>
+                <p>Carte professionnelle CPI 6901 2016 000 006 458 - CCI de LYON METROPOLE</p>
+                <p>RCS LYON n°818 936 387 - Membre du réseau Efficity</p>
+                <p class="pt-2 border-t border-gray-600">
+                    Mandant : effiCity - 48 avenue de Villiers, 75017 PARIS - RCS Paris 497 617 746
+                </p>
+                <p>Carte professionnelle CPI 7501 2015 000 002 025 - Garantie GALIAN Assurances</p>
+                <p class="pt-2">© 2025 Patrick Almeida - Tous droits réservés</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
