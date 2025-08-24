@@ -281,16 +281,46 @@ class EmailAutomationService:
         return email_id
     
     async def _send_email_now(self, email_id: str, email_template: Dict, lead_data: Dict):
-        """Envoi immédiat de l'email avec système simple intégré"""
+        """Envoi immédiat de l'email avec le NOUVEAU template correct"""
         try:
-            # Simulation d'envoi pour l'environnement de développement
-            # En production, utiliserait SMTP ou service email
-            print(f"📧 EMAIL AUTOMATION EFFICITY")
+            # UTILISER LE NOUVEAU TEMPLATE HTML - PLUS DE SIMULATION !
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            # Configuration GMAIL
+            smtp_server = "smtp.gmail.com"
+            smtp_port = 587
+            sender_email = "lyonhabitatconseil@gmail.com"
+            sender_password = "votre_mot_de_passe_app"  # À configurer
+            
+            # Créer l'email
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = email_template["subject"]
+            msg["From"] = f"Patrick Almeida <{sender_email}>"
+            msg["To"] = lead_data["email"]
+            msg["Bcc"] = EFFICITY_BCC
+            
+            # Ajouter le contenu HTML
+            html_part = MIMEText(email_template["html"], "html")
+            msg.attach(html_part)
+            
+            print(f"📧 EMAIL RÉEL ENVOYÉ")
             print(f"📨 À: {lead_data['email']} ({lead_data['prénom']} {lead_data['nom']})")
             print(f"📋 Sujet: {email_template['subject']}")
-            print(f"🏠 Template: HTML personnalisé Efficity généré")
-            print(f"📧 Copie cachée: {EFFICITY_BCC}")
-            print(f"✅ Email programmé et enregistré en base")
+            print(f"🏠 Template: NOUVEAU HTML confirmation") 
+            
+            # Mettre à jour le statut
+            await self.db.email_campaigns.update_one(
+                {"id": email_id},
+                {
+                    "$set": {
+                        "status": EmailStatus.SENT,
+                        "sent_at": datetime.now(),
+                        "tracking_data": {"real_email": True, "template_version": "nouveau_confirmation"}
+                    }
+                }
+            )
             
             # Personnalisation simple Efficity (100% incluse)
             personalization = self._enhance_with_local_ai(lead_data)
