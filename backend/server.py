@@ -1217,22 +1217,23 @@ async def auto_trigger_sequences(background_tasks: BackgroundTasks):
         
         sequences_started = 0
         
-        for lead in new_leads:
-            # Démarrer séquence d'onboarding
-            result = await sequence_service.start_sequence(
-                lead["id"], 
-                SequenceType.ONBOARDING, 
-                {"trigger": "auto_new_lead"}
-            )
-            
-            if result.get("status") == "started":
-                sequences_started += 1
-                
-                # Marquer le lead comme ayant une séquence
-                await db.leads.update_one(
-                    {"id": lead["id"]},
-                    {"$set": {"sequence_started": True}}
-                )
+        # DÉSACTIVÉ: Auto-déclenchement séquences pour formulaire GitHub
+        # for lead in new_leads:
+        #     # Démarrer séquence d'onboarding
+        #     result = await sequence_service.start_sequence(
+        #         lead["id"], 
+        #         SequenceType.ONBOARDING, 
+        #         {"trigger": "auto_new_lead"}
+        #     )
+        #     
+        #     if result.get("status") == "started":
+        #         sequences_started += 1
+        #         
+        #         # Marquer le lead comme ayant une séquence
+        #         await db.leads.update_one(
+        #             {"id": lead["id"]},
+        #             {"$set": {"sequence_started": True}}
+        #         )
         
         # Déclencher séquences pour leads haute qualité
         high_quality_leads = await db.leads.find({
