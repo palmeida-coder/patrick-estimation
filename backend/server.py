@@ -3889,7 +3889,7 @@ async def submit_prospect_estimation(data: dict):
 
 # ===== NETTOYAGE CRM - SUPPRESSION LEADS TEST =====
 
-@app.delete("/api/leads/cleanup-test-data")
+@app.get("/api/leads/cleanup-test-data")
 async def cleanup_test_leads():
     """Supprime tous les leads de test pour préparer la production"""
     try:
