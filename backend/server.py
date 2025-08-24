@@ -3887,6 +3887,51 @@ async def submit_prospect_estimation(data: dict):
             "message": f"Erreur: {str(e)}"
         }
 
+# ===== NETTOYAGE CRM - SUPPRESSION LEADS TEST =====
+
+@app.delete("/api/leads/cleanup-test-data")
+async def cleanup_test_leads():
+    """Supprime tous les leads de test pour préparer la production"""
+    try:
+        # Supprimer tous les leads de test (emails de test, noms de test, etc.)
+        test_patterns = [
+            {"email": {"$regex": "test|exemple|debug|demo|@gmail.com", "$options": "i"}},
+            {"nom": {"$regex": "test|demo|debug|exemple|correction|template|endpoint|api", "$options": "i"}},
+            {"prénom": {"$regex": "test|demo|debug|exemple|correction|template|endpoint|api", "$options": "i"}},
+            {"source": {"$regex": "test|debug|demo", "$options": "i"}},
+            {"email": "lyonhabitatconseil@gmail.com"},
+            {"email": "pilotageefficity.patrick@gmail.com"}
+        ]
+        
+        total_deleted = 0
+        for pattern in test_patterns:
+            result = await db.leads.delete_many(pattern)
+            total_deleted += result.deleted_count
+        
+        # Nettoyer aussi les campagnes email liées
+        await db.email_campaigns.delete_many({})
+        
+        # Nettoyer les séquences email
+        await db.email_sequences.delete_many({})
+        
+        # Nettoyer les notifications
+        await db.notifications.delete_many({})
+        
+        return {
+            "status": "success",
+            "message": f"✅ Nettoyage terminé - {total_deleted} leads de test supprimés",
+            "deleted_count": total_deleted,
+            "collections_cleaned": ["leads", "email_campaigns", "email_sequences", "notifications"],
+            "cleaned_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur nettoyage: {str(e)}")
+        return {
+            "success": False,
+            "message": f"Erreur nettoyage: {str(e)}"
+        }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
