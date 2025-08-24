@@ -3808,6 +3808,85 @@ async def startup_event():
     asyncio.create_task(process_sequences_periodically())
     asyncio.create_task(collect_market_data_periodically())
 
+# ===== ENDPOINT FORMULAIRE GITHUB ESTIMATION =====
+
+@app.post("/api/estimation/submit-prospect-email")
+async def submit_prospect_estimation(data: dict):
+    """Endpoint pour recevoir les prospects du formulaire GitHub Pages"""
+    try:
+        # Générer ID unique
+        lead_id = str(uuid.uuid4())
+        
+        # Préparer données lead
+        lead_data = {
+            "id": lead_id,
+            "prénom": data.get('prenom', ''),
+            "nom": data.get('nom', ''),
+            "email": data.get('email', ''),
+            "téléphone": data.get('telephone', ''),
+            "adresse": data.get('adresse', ''),
+            "type_bien": data.get('type_bien', ''),
+            "surface": data.get('surface', ''),
+            "pieces": data.get('pieces', ''),
+            "prix_souhaite": data.get('prix_souhaite', ''),
+            "delai_vente": data.get('delai_vente', ''),
+            "informations": data.get('informations', ''),
+            "source": "estimation_email_externe",
+            "statut": "nouveau",
+            "assigné_à": "patrick-almeida",
+            "score_qualification": 100,  # Score élevé pour formulaire direct
+            "priority": "high",
+            "créé_le": datetime.now(),
+            "modifié_le": datetime.now(),
+            "dernière_activité": datetime.now()
+        }
+        
+        # Sauvegarder en base
+        await db.leads.insert_one(lead_data)
+        
+        # ENVOYER EMAIL DE CONFIRMATION AU PROSPECT
+        await email_service.send_email(
+            lead_id=lead_id,
+            template=EmailTemplate.ESTIMATION_GRATUITE,  # Template confirmation modifié
+            lead_data=lead_data
+        )
+        
+        # ENVOYER NOTIFICATION À PATRICK
+        await notification_service.send_notification(
+            NotificationType.LEAD_NEW,
+            NotificationPriority.HIGH,
+            {
+                'lead_name': f"{lead_data['prénom']} {lead_data['nom']}",
+                'email': lead_data['email'],
+                'telephone': lead_data['téléphone'],
+                'adresse': lead_data['adresse'],
+                'type_bien': lead_data['type_bien'],
+                'surface': lead_data['surface'],
+                'prix_souhaite': lead_data['prix_souhaite'],
+                'source': 'Formulaire GitHub Pages',
+                'score': 100,
+                'recipients': ['palmeida@efficity.com']
+            }
+        )
+        
+        return {
+            "success": True,
+            "message": "✅ Demande d'estimation reçue avec succès",
+            "lead_id": lead_id,
+            "prospect_name": f"{lead_data['prénom']} {lead_data['nom']}",
+            "patrick_ai_score": 100,
+            "tier_classification": "Platinum",
+            "priority_level": "high",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur soumission prospect: {str(e)}")
+        return {
+            "success": False,
+            "message": f"Erreur: {str(e)}"
+        }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
