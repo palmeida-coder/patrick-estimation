@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimation Gratuite - Patrick Almeida Lyon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- HEADER PATRICK ALMEIDA -->
+    <header class="bg-green-600 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-3xl font-bold">Patrick Almeida</h1>
+            <p class="text-xl">Agent Immobilier Expert • Efficity Lyon</p>
+            <p class="text-lg">Spécialiste vente particuliers • 15 ans d'expérience</p>
+            <div class="flex justify-center items-center mt-4">
+                <span class="text-yellow-400">★★★★★</span>
+                <span class="ml-2">500+ ventes réalisées à Lyon</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION ESTIMATION -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- COLONNE GAUCHE - AVANTAGES -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h2 class="text-2xl font-bold text-green-600 mb-6 flex items-center">
+                        🏠 Estimation gratuite de votre bien
+                    </h2>
+                    <p class="text-gray-700 mb-6">
+                        Obtenez une <strong>estimation précise et gratuite</strong> de votre propriété
+                        Lyon par un expert du marché local.
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <span class="text-green-500 mr-3">✓</span>
+                            <span>Analyse du marché en temps réel</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-green-500 mr-3">✓</span>
+                            <span>Visite gratuite sous 48H</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-green-500 mr-3">✓</span>
+                            <span>Stratégie de vente personnalisée</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLONNE DROITE - FORMULAIRE -->
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold mb-6 flex items-center">
+                        📝 Demande d'estimation
+                    </h3>
+
+                    <form id="estimationForm" class="space-y-4">
+                        <!-- COORDONNÉES -->
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                                <input type="text" name="prenom" required 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                                <input type="text" name="nom" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
+                                <input type="tel" name="telephone" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">E-mail *</label>
+                                <input type="email" name="email" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+
+                        <!-- BIEN IMMOBILIER -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse du bien à vendre *</label>
+                            <input type="text" name="adresse" required placeholder="Ex: 4 Rue Laurent Mourguet, Lyon 5ème"
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type de bien *</label>
+                                <select name="type_bien" required
+                                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                    <option value="">Sélectionnez</option>
+                                    <option value="appartement">Appartement</option>
+                                    <option value="maison">Maison</option>
+                                    <option value="studio">Studio</option>
+                                    <option value="loft">Loft</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Surface (m²) *</label>
+                                <input type="number" name="surface" required min="10" max="500"
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+
+                        <!-- BOUTON SOUMISSION -->
+                        <button type="submit" id="submitBtn"
+                                class="w-full bg-green-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:bg-green-700 transition-colors">
+                            🏠 Demander mon estimation gratuite
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JAVASCRIPT SIMPLE -->
+    <script>
+        document.getElementById('estimationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collecter données
+            const formData = new FormData(this);
+            const data = {
+                prenom: formData.get('prenom'),
+                nom: formData.get('nom'),
+                telephone: formData.get('telephone'),
+                email: formData.get('email'),
+                adresse: formData.get('adresse'),
+                type_bien: formData.get('type_bien'),
+                surface: formData.get('surface')
+            };
+
+            // EMAIL DIRECT À PATRICK - TEMPLATE PROFESSIONNEL
+            const emailBody = `✅ NOUVELLE DEMANDE ESTIMATION IMMOBILIÈRE
+
+🎯 PROSPECT PRIORITAIRE - ACTION REQUISE SOUS 24H
+
+CONTACT:
+- Nom: ${data.prenom} ${data.nom}
+- Téléphone: ${data.telephone}
+- Email: ${data.email}
+
+BIEN À ESTIMER:
+- Adresse: ${data.adresse}
+- Type: ${data.type_bien}
+- Surface: ${data.surface}m²
+
+📍 Source: Formulaire estimation GitHub Pages
+📅 Date: ${new Date().toLocaleString('fr-FR')}
+
+🚀 APPELER SOUS 4H POUR CONVERSION OPTIMALE !`;
+
+            // EMAIL PATRICK
+            window.location.href = `mailto:palmeida@efficity.com?subject=🚨 NOUVELLE ESTIMATION - ${data.prenom} ${data.nom} - ${data.type_bien} ${data.adresse}&body=${encodeURIComponent(emailBody)}`;
+            
+            // MESSAGE DE CONFIRMATION PROSPECT
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="min-h-screen bg-green-50 flex items-center justify-center">
+                        <div class="bg-white p-12 rounded-lg shadow-lg text-center max-w-md">
+                            <div class="text-6xl mb-6">✅</div>
+                            <h2 class="text-2xl font-bold text-green-600 mb-4">Demande envoyée !</h2>
+                            <p class="text-gray-700 mb-6">
+                                Merci ${data.prenom},<br>
+                                <strong>Patrick Almeida</strong> vous recontactera dans les <strong>4 heures</strong>.
+                            </p>
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <p class="text-sm text-green-800">
+                                    📱 Contact direct: <strong>06.82.05.28.24</strong><br>
+                                    ✉️ <strong>palmeida@efficity.com</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
