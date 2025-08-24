@@ -179,7 +179,7 @@ class EmailAutomationService:
             },
             
             EmailTemplate.ESTIMATION_GRATUITE: {
-                "subject": f"🏡 {lead_data['prénom']}, votre estimation gratuite vous attend",
+                "subject": f"✅ {lead_data['prénom']}, votre demande d'estimation a été reçue",
                 "html": f"""
                 <!DOCTYPE html>
                 <html>
@@ -188,58 +188,50 @@ class EmailAutomationService:
                     <style>
                         body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }}
                         .container {{ max-width: 600px; margin: 0 auto; background-color: white; }}
-                        .header {{ background: linear-gradient(135deg, #dc2626, #b91c1c); padding: 25px; text-align: center; }}
+                        .header {{ background: linear-gradient(135deg, #059669, #047857); padding: 25px; text-align: center; }}
                         .logo {{ color: white; font-size: 24px; font-weight: bold; }}
-                        .content {{ padding: 25px; }}
-                        .offer-box {{ background: linear-gradient(135deg, #fef2f2, #fee2e2); padding: 25px; border-radius: 12px; border: 2px solid #dc2626; margin: 20px 0; text-align: center; }}
-                        .price {{ font-size: 32px; font-weight: bold; color: #dc2626; }}
-                        .cta-button {{ display: inline-block; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; }}
-                        .benefits {{ background-color: #f8fafc; padding: 20px; border-radius: 8px; }}
+                        .content {{ padding: 30px; }}
+                        .success-box {{ background: linear-gradient(135deg, #f0fdf4, #dcfce7); padding: 25px; border-radius: 12px; border: 2px solid #059669; margin: 20px 0; text-align: center; }}
+                        .next-steps {{ background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; }}
+                        .contact-info {{ background-color: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; }}
                     </style>
                 </head>
                 <body>
                     <div class="container">
                         <div class="header">
-                            <div class="logo">🏡 ESTIMATION GRATUITE</div>
+                            <div class="logo">✅ DEMANDE REÇUE</div>
                         </div>
                         
                         <div class="content">
                             <p>Bonjour {lead_data['prénom']},</p>
                             
-                            <div class="offer-box">
-                                <h2>🎁 OFFRE SPÉCIALE</h2>
-                                <div class="price">GRATUIT</div>
-                                <p><strong>Estimation professionnelle de votre bien</strong></p>
-                                <p>Valeur habituelle : 150€</p>
+                            <div class="success-box">
+                                <h2>🎉 Merci pour votre confiance !</h2>
+                                <p><strong>Nous avons bien pris connaissance de votre demande d'estimation</strong></p>
+                                <p>📍 Bien situé : {lead_data.get('adresse', 'Lyon')}</p>
                             </div>
                             
-                            <p>En tant que <strong>première agence Efficity à Lyon</strong>, nous vous offrons une estimation complète et détaillée de votre bien immobilier.</p>
-                            
-                            <div class="benefits">
-                                <h3>✅ Votre estimation inclut :</h3>
+                            <div class="next-steps">
+                                <h3>📋 Prochaines étapes :</h3>
                                 <ul>
-                                    <li>Analyse comparative du marché local</li>
-                                    <li>Évaluation par un expert certifié</li>
-                                    <li>Rapport détaillé avec recommandations</li>
-                                    <li>Conseils pour optimiser la vente</li>
+                                    <li><strong>Sous 4 heures</strong> : Patrick Almeida vous contactera</li>
+                                    <li><strong>Sous 48 heures</strong> : Visite et analyse de votre bien</li>
+                                    <li><strong>Sous 72 heures</strong> : Rapport d'estimation détaillé</li>
                                 </ul>
                             </div>
                             
-                            <p style="text-align: center;">
-                                <strong>📍 Secteur : {lead_data.get('ville', 'Lyon')} ({lead_data.get('code_postal', '69000')})</strong>
-                            </p>
+                            <p>En tant qu'<strong>expert secteur Lyon 1er-4ème</strong> avec plus de 15 ans d'expérience, Patrick vous accompagnera personnellement dans votre projet de vente.</p>
                             
-                            <div style="text-align: center;">
-                                <a href="tel:0682052824" class="cta-button">📞 Réserver mon estimation gratuite</a>
+                            <div class="contact-info">
+                                <h3>📞 Contact direct Patrick Almeida</h3>
+                                <p><strong>Mobile :</strong> 06.82.05.28.24</p>
+                                <p><strong>Email :</strong> palmeida@efficity.com</p>
+                                <p><strong>Agence :</strong> 6 place des Tapis, 69004 Lyon</p>
                             </div>
                             
-                            <p><em>Estimation sans engagement - Rapport remis sous 48h</em></p>
-                        </div>
-                        
-                        <div class="signature" style="background-color: #f8fafc; padding: 20px; border-top: 1px solid #e5e7eb;">
-                            <strong>Patrick Almeida</strong><br>
-                            Consultant Efficity - Expert immobilier Lyon<br>
-                            📱 06 82 05 28 24 | 📧 palmeida@efficity.com
+                            <p style="text-align: center; color: #6b7280; font-size: 14px; margin-top: 30px;">
+                                <em>Estimation gratuite et sans engagement • Première agence Efficity à Lyon</em>
+                            </p>
                         </div>
                     </div>
                 </body>
