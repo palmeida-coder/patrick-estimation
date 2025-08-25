@@ -399,7 +399,7 @@ test_plan:
     - "Test Dashboard Einstein et Interface Complete"
   stuck_tasks: []
   test_all: false
-  test_priority: "multi_agency_system_completed"
+  test_priority: "post_configuration_verification"
 
 agent_communication:
   - agent: "main"
