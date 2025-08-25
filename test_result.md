@@ -452,12 +452,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Test Backend Complet Post-Configuration"
-    - "Verification Workflow GitHub→API→CRM→Email"
-    - "Test Dashboard Einstein et Interface Complete"
+    - "Workflow GitHub → Email Prospect Critique Complet"
+    - "Endpoint Formulaire GitHub Critique"
+    - "Configuration Base de Données efficity_crm"
   stuck_tasks: []
   test_all: false
-  test_priority: "post_configuration_verification"
+  test_priority: "critical_workflow_verified"
 
 agent_communication:
   - agent: "main"
