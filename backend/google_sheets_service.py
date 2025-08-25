@@ -20,8 +20,8 @@ class GoogleSheetsService:
     def _initialize_service(self):
         """Initialize Google Sheets service avec credentials Efficity"""
         try:
-            # Chemin direct vers le fichier credentials (solution robuste)
-            credentials_file = "/app/backend/google-credentials.json"
+            # Utiliser variable d'environnement pour le fichier credentials
+            credentials_file = os.environ.get('GOOGLE_CREDENTIALS_FILE', '/app/backend/google-credentials.json')
             
             if os.path.exists(credentials_file):
                 # Depuis fichier local
