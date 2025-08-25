@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend API Tests for Efficity Lead Prospection System
-Tests all API endpoints with comprehensive coverage
+🎯 BACKEND API TESTS - WORKFLOW GITHUB → EMAIL PROSPECT CRITIQUE
+Tests critiques pour vérification workflow marketing Patrick Almeida
+Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques
 """
 
 import requests
@@ -11,13 +12,14 @@ from datetime import datetime
 from typing import Dict, Any
 
 class EfficiencyAPITester:
-    def __init__(self, base_url="https://efficity-crm.preview.emergentagent.com"):
+    def __init__(self, base_url="https://realestate-leadgen.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
         self.created_lead_id = None
         self.created_campaign_id = None
         self.created_activity_id = None
+        self.github_lead_id = None
 
     def log_test(self, name: str, success: bool, details: str = ""):
         """Log test results"""
