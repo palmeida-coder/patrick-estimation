@@ -3889,7 +3889,7 @@ async def submit_prospect_estimation(data: dict):
 
 # ===== NETTOYAGE CRM - SUPPRESSION LEADS TEST =====
 
-@app.post("/api/leads/cleanup-for-production")
+@app.get("/api/cleanup-crm-production")
 async def cleanup_for_production():
     """Nettoie le CRM pour production - garde seulement vrais prospects GitHub"""
     try:
