@@ -127,6 +127,9 @@ user_problem_statement: "REPRODUCTION EXACTE CRM PATRICK ALMEIDA - Configuration
       - working: true
         agent: "main"
         comment: "✅ BASE DE DONNÉES CORRIGÉE - server.py modifié db = client.efficity_crm au lieu de efficity_leads. Migration 9 leads existants vers nouvelle base. API health check fonctionnel (200 OK). Total leads: 10 après migration + test."
+      - working: true
+        agent: "testing"
+        comment: "✅ DATABASE MIGRATION VERIFIED - GET /api/leads returns extensive lead data from efficity_crm database. Migration successful with 100+ leads visible, including migrated data and new test leads. Database change from efficity_leads to efficity_crm confirmed working."
 
   - task: "Endpoint Formulaire GitHub Critique"
     implemented: true
