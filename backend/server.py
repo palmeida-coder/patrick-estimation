@@ -258,7 +258,7 @@ async def analyze_and_notify_lead(lead_data: Dict[str, Any]):
                         'source': lead_data.get('source', 'Manuel'),
                         'ville': lead_data.get('ville', ''),
                         'score': analysis.get("global_score", 0),
-                        'app_url': 'https://realestate-leadgen.preview.emergentagent.com/leads',
+                        'app_url': 'https://efficity-crm.preview.emergentagent.com/leads',
                         'recipients': ['palmeida@efficity.com']
                     }
                 )
