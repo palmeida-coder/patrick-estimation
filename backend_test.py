@@ -67,6 +67,42 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Health Check", False, f"- Health check failed {details}")
 
+    def test_estimation_submit_prospect_email(self):
+        """Test CRITICAL GitHub form endpoint - POST /api/estimation/submit-prospect-email"""
+        test_prospect = {
+            "email": "prospect.github@efficity.com",
+            "nom": "Prospect",
+            "prenom": "GitHub",
+            "telephone": "+33123456789",
+            "ville": "Lyon",
+            "code_postal": "69001",
+            "type_bien": "appartement",
+            "surface": 75,
+            "budget_min": 300000,
+            "budget_max": 450000,
+            "message": "Demande d'estimation via formulaire GitHub",
+            "source": "estimation_email_externe"
+        }
+        
+        success, response, details = self.make_request('POST', 'api/estimation/submit-prospect-email', data=test_prospect, expected_status=200)
+        
+        required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
+        
+        if success and all(field in response for field in required_fields):
+            success_status = response.get('success', False)
+            lead_id = response.get('lead_id', 'N/A')
+            patrick_score = response.get('patrick_ai_score', 0)
+            tier = response.get('tier_classification', 'N/A')
+            priority = response.get('priority_level', 'N/A')
+            
+            if success_status and patrick_score == 100:
+                return self.log_test("CRITICAL GitHub Form Endpoint", True, f"- SUCCESS: Lead ID: {lead_id}, Patrick Score: {patrick_score}/100, Tier: {tier}, Priority: {priority} {details}")
+            else:
+                return self.log_test("CRITICAL GitHub Form Endpoint", False, f"- Unexpected response: Success: {success_status}, Score: {patrick_score} {details}")
+        else:
+            missing_fields = [field for field in required_fields if field not in response]
+            return self.log_test("CRITICAL GitHub Form Endpoint", False, f"- Missing fields: {missing_fields} {details}")
+
     def test_create_lead(self):
         """Test creating a new lead with French test data"""
         test_lead = {
