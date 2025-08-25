@@ -270,6 +270,17 @@ frontend:
     implemented: true
     working: true
     file: "/app/frontend/src/components/RGPDCompliance.js"
+  - task: "Configuration URL Backend Frontend"
+    implemented: true
+    working: true
+    file: "/app/frontend/.env"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "✅ URL FRONTEND CORRIGÉE - REACT_APP_BACKEND_URL=https://efficity-crm.preview.emergentagent.com selon spécifications utilisateur. Frontend restart effectué. URL conforme aux exigences pour workflow marketing Facebook→bit.ly→GitHub→API."
     stuck_count: 0
     priority: "high"
     needs_retesting: false
