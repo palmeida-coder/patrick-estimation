@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "TEST COMPLET DE TOUTES LES FONCTIONNALITÉS EFFICITY - Vérification systématique de tous les onglets et fonctionnalités de l'application après résolution du bug compilation. User demande test complet de chaque onglet : Tableau de bord, Conduit, Campagnes, Analytique, Extraction, Notifications, Séquences IA, Intel. Marché, CRM, RGPD, Lyon Prix IA, Patrick IA 3.0. Objectif : s'assurer que tout fonctionne parfaitement avant ajout nouvelles fonctionnalités (Multi-agences, expansion géographique à venir)."
+user_problem_statement: "REPRODUCTION EXACTE CRM PATRICK ALMEIDA - Configuration système pour correspondre exactement aux spécifications détaillées. Corrections des variables d'environnement (MONGO_URL vers efficity_crm, REACT_APP_BACKEND_URL vers efficity-crm.preview.emergentagent.com), migration données, test workflow complet GitHub→API→CRM→Email. Objectif: système 100% conforme aux spécifications utilisateur avec 108 leads pipeline, workflow marketing Facebook actif."
 
 backend:
   - task: "Google Sheets Real Service Integration"
