@@ -251,9 +251,6 @@ function Dashboard() {
           icon={<Zap className="w-5 h-5" />}
           color="orange"
           trend="Auto 24/7 vs 12m"
-          icon={<Mail className="w-5 h-5" />}
-          color="orange"
-          trend="3 en cours"
         />
       </div>
 
