@@ -616,7 +616,7 @@ class NotificationService:
             'high_quality': extraction_stats.get('high_quality_leads', 0),
             'sources': extraction_stats.get('sources_used', []),
             'duration': extraction_stats.get('duration', ''),
-            'app_url': 'https://realestate-leadgen.preview.emergentagent.com/extraction',
+            'app_url': 'https://efficity-crm.preview.emergentagent.com/extraction',
             'recipients': ['palmeida@efficity.com']
         }
         
