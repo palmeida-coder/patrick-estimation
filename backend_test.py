@@ -2595,11 +2595,11 @@ class EfficiencyAPITester:
         
         # Google Sheets Real Service
         print("\n📊 Google Sheets Real Service")
-        self.test_google_sheets_real_initialize()
-        self.test_google_sheets_real_prospects()
-        self.test_google_sheets_real_add_prospect()
-        self.test_google_sheets_real_stats()
-        self.test_google_sheets_real_sync_to_crm()
+        self.test_sheets_real_initialize()
+        self.test_sheets_real_prospects()
+        self.test_sheets_real_add_prospect()
+        self.test_sheets_real_stats()
+        self.test_sheets_real_sync_to_crm()
         
         # Multi-Agency Management
         print("\n🏢 Multi-Agency Management")
