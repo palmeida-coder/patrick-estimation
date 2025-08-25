@@ -597,7 +597,7 @@ class NotificationService:
             'telephone': lead_data.get('téléphone', ''),
             'email': lead_data.get('email', ''),
             'ai_recommendation': ai_analysis.get('optimal_approach', ''),
-            'app_url': 'https://realestate-leadgen.preview.emergentagent.com/leads',
+            'app_url': 'https://efficity-crm.preview.emergentagent.com/leads',
             'phone_numbers': ['+33123456789'],  # Numéro Patrick
             'recipients': ['palmeida@efficity.com']
         }
