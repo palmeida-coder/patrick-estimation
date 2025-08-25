@@ -56,7 +56,7 @@ app.add_middleware(
 # MongoDB connection
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(MONGO_URL)
-db = client.efficity_leads
+db = client.efficity_crm
 
 # Initialize Email Automation Service
 email_service = EmailAutomationService(db)
