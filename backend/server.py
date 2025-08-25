@@ -1125,7 +1125,7 @@ async def test_notification_system():
             'telephone': '+33123456789',
             'email': 'test@efficity.com',
             'ai_recommendation': 'Contact immédiat pour test',
-            'app_url': 'https://realestate-leadgen.preview.emergentagent.com',
+            'app_url': 'https://efficity-crm.preview.emergentagent.com',
             'recipients': ['palmeida@efficity.com']
         }
         
