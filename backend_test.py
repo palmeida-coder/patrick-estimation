@@ -3550,4 +3550,16 @@ def main():
         return tester.run_post_configuration_tests()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    print("🎯 DÉMARRAGE TESTS CRITIQUES WORKFLOW GITHUB → EMAIL PROSPECT")
+    print("=" * 80)
+    print("OBJECTIF: Vérifier workflow marketing Patrick Almeida")
+    print("Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques")
+    print("=" * 80)
+    
+    tester = EfficiencyAPITester()
+    
+    # Exécuter tests critiques workflow
+    workflow_success = tester.run_critical_workflow_tests()
+    
+    # Exit code basé sur le succès du workflow critique
+    sys.exit(0 if workflow_success else 1)
