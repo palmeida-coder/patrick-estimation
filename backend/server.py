@@ -3889,7 +3889,43 @@ async def submit_prospect_estimation(data: dict):
 
 # ===== NETTOYAGE CRM - SUPPRESSION LEADS TEST =====
 
-@app.get("/api/leads/cleanup-test-data")
+@app.post("/api/leads/cleanup-for-production")
+async def cleanup_for_production():
+    """Nettoie le CRM pour production - garde seulement vrais prospects GitHub"""
+    try:
+        # Compter leads avant nettoyage
+        total_before = await db.leads.count_documents({})
+        
+        # Supprimer TOUS les leads SAUF ceux du formulaire GitHub
+        # Garder seulement source "estimation_email_externe" 
+        result = await db.leads.delete_many({
+            "source": {"$ne": "estimation_email_externe"}
+        })
+        
+        # Nettoyer autres collections
+        await db.email_campaigns.delete_many({})
+        await db.email_sequences.delete_many({})  
+        await db.notifications.delete_many({})
+        
+        # Compter leads restants (vrais prospects)
+        remaining = await db.leads.count_documents({})
+        
+        return {
+            "status": "success", 
+            "message": "✅ CRM nettoyé pour production - Seuls vrais prospects conservés",
+            "before_cleanup": total_before,
+            "deleted_count": result.deleted_count,
+            "real_prospects_remaining": remaining,
+            "kept_source": "estimation_email_externe",
+            "cleaned_at": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur nettoyage production: {str(e)}")
+        return {
+            "success": False,
+            "message": f"Erreur: {str(e)}"
+        }
 async def cleanup_test_leads():
     """Supprime tous les leads de test pour préparer la production"""
     try:
