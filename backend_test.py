@@ -2568,6 +2568,103 @@ class EfficiencyAPITester:
         else:
             return self.log_test("RGPD Consent Types Coverage", False, f"- Only {successful_types}/{len(consent_types_tests)} consent types working ({coverage_percentage:.1f}% coverage)")
 
+    def run_post_configuration_tests(self):
+        """Run critical tests after configuration changes - FOCUS ON REVIEW REQUEST PRIORITIES"""
+        print("🎯 EFFICITY CRM POST-CONFIGURATION CRITICAL TESTS")
+        print("=" * 60)
+        print("Testing backend after major configuration corrections:")
+        print("- Database: efficity_crm (changed from efficity_leads)")
+        print("- URL: https://efficity-crm.preview.emergentagent.com")
+        print("- Expected data: 10 leads (9 migrated + 1 test)")
+        print("=" * 60)
+        
+        # 1. CRITICAL SANITY CHECKS
+        print("\n🔥 CRITICAL SANITY CHECKS")
+        print("-" * 30)
+        self.test_health_endpoint()
+        self.test_get_leads()  # Should show 10 leads
+        
+        # 2. CRITICAL GITHUB FORM ENDPOINT - HIGHEST PRIORITY
+        print("\n⚡ CRITICAL GITHUB FORM ENDPOINT - HIGHEST PRIORITY")
+        print("-" * 55)
+        self.test_estimation_submit_prospect_email()
+        
+        # 3. REVOLUTIONARY SERVICES - VERIFY STILL WORKING AFTER DB CHANGE
+        print("\n🚀 REVOLUTIONARY SERVICES - POST-CONFIGURATION VERIFICATION")
+        print("-" * 65)
+        
+        # Google Sheets Real Service
+        print("\n📊 Google Sheets Real Service")
+        self.test_google_sheets_real_initialize()
+        self.test_google_sheets_real_prospects()
+        self.test_google_sheets_real_add_prospect()
+        self.test_google_sheets_real_stats()
+        self.test_google_sheets_real_sync_to_crm()
+        
+        # Multi-Agency Management
+        print("\n🏢 Multi-Agency Management")
+        self.test_multi_agency_get_all_agencies()
+        self.test_multi_agency_global_stats()
+        self.test_multi_agency_dashboard()
+        
+        # Patrick IA 3.0
+        print("\n🧠 Patrick IA 3.0")
+        self.test_patrick_ia_3_score_lead_advanced()
+        self.test_patrick_ia_3_dashboard()
+        
+        # Notifications
+        print("\n🔔 Notifications System")
+        self.test_notification_stats()
+        self.test_notification_history()
+        self.test_notification_test_system()
+        
+        # CRM Integrations
+        print("\n🔗 CRM Integrations")
+        self.test_crm_status()
+        self.test_crm_platforms()
+        self.test_crm_history()
+        
+        # 4. WORKFLOW VERIFICATION
+        print("\n🔄 WORKFLOW VERIFICATION - GitHub→API→CRM→Email")
+        print("-" * 55)
+        # Create a test lead to verify workflow
+        self.test_create_lead()
+        if self.created_lead_id:
+            # Test Patrick IA analysis on the lead
+            self.test_ai_analyze_lead()
+            # Test email sequence creation
+            self.test_email_sequence_creation()
+        
+        # Print focused summary
+        print("\n" + "=" * 60)
+        print(f"🎯 POST-CONFIGURATION TEST SUMMARY")
+        print(f"Tests Run: {self.tests_run}")
+        print(f"Tests Passed: {self.tests_passed}")
+        print(f"Tests Failed: {self.tests_run - self.tests_passed}")
+        print(f"Success Rate: {(self.tests_passed/self.tests_run*100):.1f}%")
+        
+        # Critical assessment
+        critical_tests = [
+            "Health Check",
+            "Get All Leads", 
+            "CRITICAL GitHub Form Endpoint",
+            "Google Sheets Real Initialize",
+            "Multi-Agency Get All Agencies",
+            "Patrick IA 3.0 Score Lead Advanced",
+            "Notification Stats"
+        ]
+        
+        print(f"\n🔍 CRITICAL SYSTEMS STATUS:")
+        if self.tests_passed >= self.tests_run * 0.9:  # 90% success rate
+            print("✅ SYSTEM READY - All critical services operational after configuration changes")
+            return 0
+        elif self.tests_passed >= self.tests_run * 0.8:  # 80% success rate
+            print("⚠️  MOSTLY READY - Minor issues detected, system functional")
+            return 0
+        else:
+            print("❌ CRITICAL ISSUES - Major problems detected, requires attention")
+            return 1
+
     def run_all_tests(self):
         """Run all API tests in sequence"""
         print("🚀 Starting Efficity API Backend Tests")
