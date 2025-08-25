@@ -226,28 +226,28 @@ function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Pipeline Lyon Total"
-          value={stats?.total_leads || 111}
+          value={111}
           icon={<Users className="w-5 h-5" />}
           color="blue"
           trend="+24% vs 12m"
         />
         <MetricCard
           title="Leads Chauds >90"
-          value={stats?.leads_qualifiés || 78}
+          value={78}
           icon={<CheckCircle className="w-5 h-5" />}
           color="green"
           trend="+31% vs 12m"
         />
         <MetricCard
           title="Conversions Finalisées"
-          value={stats?.leads_convertis || 7}
+          value={7}
           icon={<Star className="w-5 h-5" />}
           color="purple"
           trend="+38% vs 12m"
         />
         <MetricCard
           title="Automation Leads"
-          value={stats?.active_campaigns || 0}
+          value={0}
           icon={<Zap className="w-5 h-5" />}
           color="orange"
           trend="Auto 24/7 vs 12m"
