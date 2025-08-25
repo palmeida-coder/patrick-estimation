@@ -3162,9 +3162,18 @@ class EfficiencyAPITester:
             return self.log_test("Multi-Agency Service Integration", False, f"- Service integration failed {dashboard_details}")
 
 def main():
-    """Main test execution"""
-    tester = EfficiencyAPITester()
-    return tester.run_all_tests()
+    """Main test execution - Focus on post-configuration critical tests"""
+    import sys
+    
+    # Check if we want to run all tests or just critical ones
+    if len(sys.argv) > 1 and sys.argv[1] == "--all":
+        print("Running ALL tests...")
+        tester = EfficiencyAPITester()
+        return tester.run_all_tests()
+    else:
+        print("Running POST-CONFIGURATION CRITICAL tests...")
+        tester = EfficiencyAPITester()
+        return tester.run_post_configuration_tests()
 
 if __name__ == "__main__":
     sys.exit(main())
