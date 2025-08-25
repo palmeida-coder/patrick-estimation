@@ -211,7 +211,7 @@ function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
-              Dashboard Einstein ⚡ Efficity Lyon Pro
+              Tableau de bord Einstein ⚡ Efficity Lyon Pro
             </span>
           </h1>
           <p className="text-slate-600 mt-1">Intelligence artificielle proactive • Analytics temps réel • Insights prédictifs</p>
