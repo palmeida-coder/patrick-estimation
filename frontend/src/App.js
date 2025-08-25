@@ -58,21 +58,6 @@ import MultiAgencyManagement from './components/MultiAgencyManagement';
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
-  // Redirection automatique si sur l'ancienne URL
-  useEffect(() => {
-    const currentDomain = window.location.hostname;
-    const currentUrl = window.location.href;
-    
-    // Si on détecte qu'on est sur l'ancienne URL (realestate-leadgen)
-    if (currentDomain.includes('realestate-leadgen') || currentUrl.includes('realestate-leadgen')) {
-      console.log('🔄 Redirection détectée de realestate-leadgen vers efficity-crm');
-      // Rediriger vers la nouvelle URL
-      const newUrl = currentUrl.replace('realestate-leadgen.preview.emergentagent.com', 'efficity-crm.preview.emergentagent.com/dashboard');
-      window.location.replace(newUrl);
-      return;
-    }
-  }, []);
-
   return (
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
