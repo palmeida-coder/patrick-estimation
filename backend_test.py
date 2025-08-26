@@ -434,6 +434,242 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Patrick Notification System", False, f"- Test notification failed {send_details}")
 
+    def test_critical_url_detection_github_form(self):
+        """🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE - Identifier quelle URL le formulaire utilise"""
+        print("\n" + "="*80)
+        print("🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE")
+        print("OBJECTIF: Déterminer quelle URL le formulaire GitHub utilise actuellement")
+        print("="*80)
+        
+        # URLs à tester selon la demande
+        preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        production_url = "https://efficity-crm.emergent.host"
+        
+        # Données test d'identification spécifiques selon la demande
+        identification_data = {
+            "prenom": "GitHub",
+            "nom": "FormDetection",
+            "email": "github.form.detection.test@example.com",
+            "telephone": "06 88 99 77 66",
+            "adresse": "1 Place Bellecour, Lyon 1er",
+            "type_bien": "Appartement",
+            "surface": "88",
+            "pieces": "4",
+            "prix_souhaite": "390000",
+            "ville": "Lyon 1er",
+            "source": "estimation_email_externe",
+            "message": "TEST IDENTIFICATION URL FORMULAIRE"
+        }
+        
+        print(f"📝 Testing with identification data:")
+        print(f"📧 Email: {identification_data['email']}")
+        print(f"👤 Name: {identification_data['prenom']} {identification_data['nom']}")
+        print(f"💬 Message: {identification_data['message']}")
+        print(f"🏠 Property: {identification_data['type_bien']} {identification_data['surface']}m² - {identification_data['prix_souhaite']}€")
+        
+        results = {}
+        
+        # TEST 1: URL Preview
+        print(f"\n🔍 TESTING URL PREVIEW: {preview_url}")
+        print("-" * 60)
+        
+        preview_tester = EfficiencyAPITester(preview_url)
+        preview_success, preview_response, preview_details = preview_tester.make_request(
+            'POST', 'api/estimation/submit-prospect-email', 
+            data=identification_data, 
+            expected_status=200
+        )
+        
+        if preview_success:
+            print(f"✅ URL Preview ACCESSIBLE - Response received")
+            print(f"   Success: {preview_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {preview_response.get('lead_id', 'N/A')}")
+            print(f"   Patrick AI Score: {preview_response.get('patrick_ai_score', 'N/A')}")
+            print(f"   Tier: {preview_response.get('tier_classification', 'N/A')}")
+            print(f"   Priority: {preview_response.get('priority_level', 'N/A')}")
+            
+            # Vérifier si toutes les données critiques sont présentes
+            required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
+            missing_fields = [f for f in required_fields if f not in preview_response]
+            
+            if not missing_fields and preview_response.get('success'):
+                results['preview'] = {
+                    'status': 'FULLY_OPERATIONAL',
+                    'lead_id': preview_response.get('lead_id'),
+                    'response_complete': True,
+                    'workflow_functional': True
+                }
+                print(f"✅ URL Preview: WORKFLOW COMPLET FONCTIONNEL")
+            else:
+                results['preview'] = {
+                    'status': 'PARTIAL_RESPONSE',
+                    'missing_fields': missing_fields,
+                    'response_complete': False,
+                    'workflow_functional': False
+                }
+                print(f"⚠️ URL Preview: RÉPONSE INCOMPLÈTE - Champs manquants: {missing_fields}")
+        else:
+            results['preview'] = {
+                'status': 'ENDPOINT_ERROR',
+                'error': preview_details,
+                'response_complete': False,
+                'workflow_functional': False
+            }
+            print(f"❌ URL Preview: ERREUR ENDPOINT - {preview_details}")
+        
+        # TEST 2: URL Production
+        print(f"\n🔍 TESTING URL PRODUCTION: {production_url}")
+        print("-" * 60)
+        
+        production_tester = EfficiencyAPITester(production_url)
+        production_success, production_response, production_details = production_tester.make_request(
+            'POST', 'api/estimation/submit-prospect-email', 
+            data=identification_data, 
+            expected_status=200
+        )
+        
+        if production_success:
+            print(f"✅ URL Production ACCESSIBLE - Response received")
+            print(f"   Success: {production_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {production_response.get('lead_id', 'N/A')}")
+            print(f"   Patrick AI Score: {production_response.get('patrick_ai_score', 'N/A')}")
+            print(f"   Tier: {production_response.get('tier_classification', 'N/A')}")
+            print(f"   Priority: {production_response.get('priority_level', 'N/A')}")
+            
+            # Vérifier si toutes les données critiques sont présentes
+            required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
+            missing_fields = [f for f in required_fields if f not in production_response]
+            
+            if not missing_fields and production_response.get('success'):
+                results['production'] = {
+                    'status': 'FULLY_OPERATIONAL',
+                    'lead_id': production_response.get('lead_id'),
+                    'response_complete': True,
+                    'workflow_functional': True
+                }
+                print(f"✅ URL Production: WORKFLOW COMPLET FONCTIONNEL")
+            else:
+                results['production'] = {
+                    'status': 'PARTIAL_RESPONSE',
+                    'missing_fields': missing_fields,
+                    'response_complete': False,
+                    'workflow_functional': False
+                }
+                print(f"⚠️ URL Production: RÉPONSE INCOMPLÈTE - Champs manquants: {missing_fields}")
+        else:
+            results['production'] = {
+                'status': 'ENDPOINT_ERROR',
+                'error': production_details,
+                'response_complete': False,
+                'workflow_functional': False
+            }
+            print(f"❌ URL Production: ERREUR ENDPOINT - {production_details}")
+        
+        # ANALYSE ET RECOMMANDATION
+        print(f"\n" + "="*80)
+        print("🎯 ANALYSE CRITIQUE ET RECOMMANDATION")
+        print("="*80)
+        
+        preview_functional = results.get('preview', {}).get('workflow_functional', False)
+        production_functional = results.get('production', {}).get('workflow_functional', False)
+        
+        if preview_functional and production_functional:
+            print("✅ RÉSULTAT: LES DEUX URLs SONT FONCTIONNELLES")
+            print("📋 RECOMMANDATION: Vérifier quelle base de données reçoit le lead 'github.form.detection.test@example.com'")
+            print("   - Si reçu sur Preview → Formulaire pointe vers Preview (CORRECT)")
+            print("   - Si reçu sur Production → Formulaire pointe vers Production (À CORRIGER)")
+            recommendation = "VERIFY_DATABASE_RECEPTION"
+            
+        elif preview_functional and not production_functional:
+            print("✅ RÉSULTAT: SEULE URL PREVIEW EST FONCTIONNELLE")
+            print("📋 RECOMMANDATION: CONTINUER AVEC URL PREVIEW - Configuration actuelle correcte")
+            print(f"   URL à utiliser: {preview_url}/api/estimation/submit-prospect-email")
+            recommendation = "USE_PREVIEW_URL"
+            
+        elif production_functional and not preview_functional:
+            print("⚠️ RÉSULTAT: SEULE URL PRODUCTION EST FONCTIONNELLE")
+            print("📋 RECOMMANDATION: MODIFIER FORMULAIRE GITHUB VERS URL PRODUCTION")
+            print(f"   URL à configurer: {production_url}/api/estimation/submit-prospect-email")
+            recommendation = "SWITCH_TO_PRODUCTION_URL"
+            
+        else:
+            print("❌ RÉSULTAT: AUCUNE URL N'EST FONCTIONNELLE")
+            print("📋 RECOMMANDATION: PROBLÈME CRITIQUE - VÉRIFIER CONFIGURATION BACKEND")
+            recommendation = "CRITICAL_BACKEND_ISSUE"
+        
+        # TEST 3: Vérification base de données pour identifier réception
+        print(f"\n🔍 VÉRIFICATION BASE DE DONNÉES - Recherche lead test")
+        print("-" * 60)
+        
+        # Utiliser l'URL Preview pour vérifier la base de données
+        db_success, db_response, db_details = preview_tester.make_request('GET', 'api/leads', expected_status=200)
+        
+        if db_success and 'leads' in db_response:
+            leads = db_response.get('leads', [])
+            test_lead = next((lead for lead in leads if lead.get('email') == identification_data['email']), None)
+            
+            if test_lead:
+                print(f"✅ LEAD TEST TROUVÉ EN BASE DE DONNÉES")
+                print(f"   Email: {test_lead.get('email')}")
+                print(f"   Nom: {test_lead.get('prénom', '')} {test_lead.get('nom', '')}")
+                print(f"   Source: {test_lead.get('source', 'N/A')}")
+                print(f"   Lead ID: {test_lead.get('id', 'N/A')}")
+                print(f"   Créé le: {test_lead.get('créé_le', 'N/A')}")
+                
+                database_detection = "LEAD_FOUND_IN_PREVIEW_DATABASE"
+            else:
+                print(f"⚠️ LEAD TEST NON TROUVÉ EN BASE DE DONNÉES")
+                print(f"   Recherché: {identification_data['email']}")
+                print(f"   Total leads en base: {len(leads)}")
+                
+                database_detection = "LEAD_NOT_FOUND"
+        else:
+            print(f"❌ IMPOSSIBLE D'ACCÉDER À LA BASE DE DONNÉES")
+            print(f"   Erreur: {db_details}")
+            database_detection = "DATABASE_ACCESS_ERROR"
+        
+        # CONCLUSION FINALE
+        print(f"\n" + "="*80)
+        print("🎯 CONCLUSION FINALE - DÉTECTION URL FORMULAIRE GITHUB")
+        print("="*80)
+        
+        final_result = {
+            'preview_url_status': results.get('preview', {}).get('status'),
+            'production_url_status': results.get('production', {}).get('status'),
+            'recommendation': recommendation,
+            'database_detection': database_detection,
+            'test_email': identification_data['email'],
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        if recommendation == "USE_PREVIEW_URL":
+            print("✅ FORMULAIRE GITHUB DOIT UTILISER URL PREVIEW")
+            print(f"   URL correcte: {preview_url}/api/estimation/submit-prospect-email")
+            print("   ✅ Workflow marketing Facebook peut continuer sans interruption")
+            success_status = True
+            
+        elif recommendation == "SWITCH_TO_PRODUCTION_URL":
+            print("⚠️ FORMULAIRE GITHUB DOIT ÊTRE MODIFIÉ VERS URL PRODUCTION")
+            print(f"   URL à configurer: {production_url}/api/estimation/submit-prospect-email")
+            print("   ⚠️ Action requise: Modifier configuration formulaire GitHub")
+            success_status = False
+            
+        elif recommendation == "VERIFY_DATABASE_RECEPTION":
+            print("✅ LES DEUX URLs FONCTIONNENT - VÉRIFIER RÉCEPTION EN BASE")
+            print("   Action: Vérifier quelle base reçoit le lead test")
+            success_status = True
+            
+        else:
+            print("❌ PROBLÈME CRITIQUE DÉTECTÉ")
+            print("   Action urgente: Vérifier configuration backend")
+            success_status = False
+        
+        return self.log_test("🚨 URL Detection GitHub Form", success_status, 
+                           f"- URL Detection completed. Recommendation: {recommendation}. "
+                           f"Preview: {results.get('preview', {}).get('status')}, "
+                           f"Production: {results.get('production', {}).get('status')}. "
+                           f"Database detection: {database_detection}")
+
     def run_critical_workflow_tests(self):
         """🎯 EXÉCUTION TESTS CRITIQUES WORKFLOW GITHUB"""
         print("\n" + "="*80)
