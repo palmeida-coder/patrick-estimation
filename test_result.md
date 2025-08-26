@@ -474,11 +474,9 @@ metadata:
 test_plan:
   current_focus:
     - "Workflow GitHub → Email Prospect Critique Complet"
-    - "Endpoint Formulaire GitHub Critique"
-    - "Configuration Base de Données efficity_crm"
   stuck_tasks: []
   test_all: false
-  test_priority: "critical_workflow_verified"
+  test_priority: "interface_originale_restored_verified"
 
 agent_communication:
   - agent: "main"
