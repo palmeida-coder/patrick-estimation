@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 class EfficiencyAPITester:
-    def __init__(self, base_url="https://realestate-leadgen.preview.emergentagent.com"):
+    def __init__(self, base_url="https://realestate-leads-5.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -2948,7 +2948,7 @@ class EfficiencyAPITester:
         print("=" * 60)
         print("Testing backend after major configuration corrections:")
         print("- Database: efficity_crm (changed from efficity_leads)")
-        print("- URL: https://efficity-crm.preview.emergentagent.com")
+        print("- URL: https://realestate-leads-5.preview.emergentagent.com")
         print("- Expected data: 10 leads (9 migrated + 1 test)")
         print("=" * 60)
         

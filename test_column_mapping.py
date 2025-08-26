@@ -10,7 +10,7 @@ from datetime import datetime
 
 def test_column_mapping_fix():
     """Test the specific column mapping fix for Google Sheets"""
-    base_url = "https://realestate-leadgen.preview.emergentagent.com"
+    base_url = "https://realestate-leads-5.preview.emergentagent.com"
     
     print("🔍 Testing Google Sheets Column Mapping Fix")
     print("=" * 50)
