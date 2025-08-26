@@ -580,8 +580,9 @@ function LeadsManager() {
 
   const fetchLeads = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/leads`);
-      setLeads(response.data.leads);
+      const response = await axios.get(`${API_BASE_URL}/api/leads?limit=100&sort=created_desc`);
+      setLeads(response.data.leads || []);
+      console.log('Leads chargés:', response.data.leads?.length || 0, 'total:', response.data.total || 0);
     } catch (error) {
       console.error('Erreur lors du chargement des leads:', error);
     } finally {
