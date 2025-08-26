@@ -1113,9 +1113,10 @@ class EfficiencyAPITester:
         print("Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques")
         print("="*80)
         
-        # Tests critiques dans l'ordre - AJOUT DIAGNOSTIC LEAD MANQUANT
+        # Tests critiques dans l'ordre - AJOUT BUG OAUTH CRITIQUE
         critical_tests = [
-            self.test_missing_lead_diagnostic_patrick_duarnd,  # NOUVEAU DIAGNOSTIC CRITIQUE
+            self.test_oauth_bug_github_form_critical,  # NOUVEAU TEST BUG OAUTH CRITIQUE
+            self.test_missing_lead_diagnostic_patrick_duarnd,  # DIAGNOSTIC LEAD MANQUANT
             self.test_critical_url_detection_github_form,  # TEST DÉTECTION URL
             self.test_critical_github_workflow_complete,
             self.test_database_efficity_crm_verification,
