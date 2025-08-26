@@ -96,7 +96,10 @@ function Navigation() {
               <Target className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Efficity Prospection
+              Efficity
+            </span>
+            <span className="ml-1 px-2 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded">
+              M PRO
             </span>
           </div>
           
