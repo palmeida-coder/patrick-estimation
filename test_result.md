@@ -475,11 +475,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Workflow GitHub → Email Prospect Critique Complet"
+  current_focus: []
   stuck_tasks: []
   test_all: false
-  test_priority: "interface_originale_restored_verified"
+  test_priority: "post_deployment_verification_completed"
 
 agent_communication:
   - agent: "main"
