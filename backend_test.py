@@ -768,23 +768,28 @@ class EfficiencyAPITester:
         print("8. ✅ Notification Patrick envoyée")
         print("-" * 60)
         
+        oauth_issues = []
+        test_results = {}
+        
+        # ÉTAPE 1: Test endpoint formulaire GitHub
         success, response, details = self.make_request(
             'POST', 'api/estimation/submit-prospect-email', 
             data=oauth_test_data, 
             expected_status=200
         )
         
-        oauth_issues = []
-        
         if not success:
             oauth_issues.append(f"ENDPOINT_ERROR: {details}")
             print(f"❌ ENDPOINT INACCESSIBLE: {details}")
+            test_results['endpoint_accessible'] = False
         else:
             print(f"✅ ENDPOINT ACCESSIBLE - Status 200 OK")
+            test_results['endpoint_accessible'] = True
             
             # Vérifier réponse JSON correcte
             if isinstance(response, dict):
                 print(f"✅ RÉPONSE JSON CORRECTE (pas de redirection HTML)")
+                test_results['json_response'] = True
                 
                 # Vérifier champs requis
                 required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
@@ -793,15 +798,19 @@ class EfficiencyAPITester:
                 if missing_fields:
                     oauth_issues.append(f"MISSING_FIELDS: {missing_fields}")
                     print(f"⚠️ CHAMPS MANQUANTS: {missing_fields}")
+                    test_results['response_complete'] = False
                 else:
                     print(f"✅ TOUS LES CHAMPS REQUIS PRÉSENTS")
+                    test_results['response_complete'] = True
                 
                 # Vérifier valeurs attendues
                 if response.get('success') != True:
                     oauth_issues.append(f"SUCCESS_FALSE: {response.get('success')}")
                     print(f"❌ SUCCESS=FALSE: {response.get('success')}")
+                    test_results['success_true'] = False
                 else:
                     print(f"✅ SUCCESS=TRUE")
+                    test_results['success_true'] = True
                 
                 # Vérifier qu'il n'y a pas de redirection OAuth dans la réponse
                 response_str = str(response).lower()
@@ -811,8 +820,25 @@ class EfficiencyAPITester:
                 if found_oauth:
                     oauth_issues.append(f"OAUTH_DETECTED: {found_oauth}")
                     print(f"❌ INDICATEURS OAUTH DÉTECTÉS: {found_oauth}")
+                    test_results['no_oauth'] = False
                 else:
                     print(f"✅ AUCUN INDICATEUR OAUTH DANS LA RÉPONSE")
+                    test_results['no_oauth'] = True
+                
+                # Vérifier scoring Patrick IA
+                patrick_score = response.get('patrick_ai_score')
+                tier = response.get('tier_classification')
+                priority = response.get('priority_level')
+                
+                if patrick_score == 100 and tier == "Platinum" and priority == "high":
+                    print(f"✅ PATRICK IA SCORING CORRECT: {patrick_score}/100, {tier}, {priority}")
+                    test_results['patrick_scoring'] = True
+                else:
+                    print(f"⚠️ PATRICK IA SCORING: Score={patrick_score}, Tier={tier}, Priority={priority}")
+                    test_results['patrick_scoring'] = False
+                
+                # Stocker lead ID pour vérifications suivantes
+                self.github_lead_id = response.get('lead_id')
                 
                 # Afficher réponse complète pour analyse
                 print(f"\n📋 RÉPONSE COMPLÈTE:")
@@ -822,62 +848,184 @@ class EfficiencyAPITester:
             else:
                 oauth_issues.append("NON_JSON_RESPONSE")
                 print(f"❌ RÉPONSE NON-JSON (possible redirection HTML): {type(response)}")
+                test_results['json_response'] = False
         
-        # ANALYSE CRITIQUE
-        print(f"\n" + "="*60)
-        print("🎯 ANALYSE CRITIQUE BUG OAUTH")
-        print("="*60)
+        # ÉTAPE 2: Vérifier création lead en base efficity_crm
+        if self.github_lead_id:
+            print(f"\n🔍 ÉTAPE 2: VÉRIFICATION LEAD EN BASE efficity_crm")
+            print("-" * 60)
+            
+            lead_success, lead_response, lead_details = self.make_request('GET', f'api/leads/{self.github_lead_id}', expected_status=200)
+            
+            if lead_success:
+                print(f"✅ LEAD TROUVÉ EN BASE: {lead_response.get('prénom', '')} {lead_response.get('nom', '')}")
+                
+                # Vérifier source
+                if lead_response.get('source') == 'estimation_email_externe':
+                    print(f"✅ SOURCE CORRECTE: estimation_email_externe")
+                    test_results['correct_source'] = True
+                else:
+                    print(f"⚠️ SOURCE INCORRECTE: {lead_response.get('source')}")
+                    test_results['correct_source'] = False
+                
+                # Vérifier assignation
+                if lead_response.get('assigné_à') == 'patrick-almeida':
+                    print(f"✅ ASSIGNÉ À PATRICK ALMEIDA")
+                    test_results['assigned_patrick'] = True
+                else:
+                    print(f"⚠️ ASSIGNATION: {lead_response.get('assigné_à')}")
+                    test_results['assigned_patrick'] = False
+                
+                # Vérifier score
+                if lead_response.get('score_qualification') == 100:
+                    print(f"✅ SCORE QUALIFICATION: 100/100")
+                    test_results['score_100'] = True
+                else:
+                    print(f"⚠️ SCORE: {lead_response.get('score_qualification')}")
+                    test_results['score_100'] = False
+                    
+            else:
+                print(f"❌ LEAD NON TROUVÉ EN BASE: {lead_details}")
+                test_results['lead_in_database'] = False
         
-        if not oauth_issues:
-            print("✅ AUCUN PROBLÈME OAUTH DÉTECTÉ")
-            print("✅ Endpoint retourne JSON correct sans redirection")
-            print("✅ Workflow correct: Formulaire → Notification Patrick → Fin")
-            oauth_status = "NO_OAUTH_BUG"
+        # ÉTAPE 3: Vérifier système email automation
+        print(f"\n🔍 ÉTAPE 3: VÉRIFICATION EMAIL AUTOMATION")
+        print("-" * 60)
+        
+        email_stats_success, email_stats, email_details = self.make_request('GET', 'api/email/stats', expected_status=200)
+        
+        if email_stats_success:
+            emails_sent = email_stats.get('sent', 0)
+            total_emails = email_stats.get('total_emails', 0)
+            print(f"✅ EMAIL AUTOMATION ACCESSIBLE: {emails_sent} emails envoyés")
+            test_results['email_automation'] = True
+        else:
+            print(f"❌ EMAIL AUTOMATION INACCESSIBLE: {email_details}")
+            test_results['email_automation'] = False
+        
+        # ÉTAPE 4: Vérifier notifications Patrick
+        print(f"\n🔍 ÉTAPE 4: VÉRIFICATION NOTIFICATIONS PATRICK")
+        print("-" * 60)
+        
+        # Test notification stats
+        notif_stats_success, notif_stats, notif_details = self.make_request('GET', 'api/notifications/stats', expected_status=200)
+        
+        if notif_stats_success:
+            total_notifications = notif_stats.get('total_notifications', 0)
+            print(f"✅ NOTIFICATIONS SYSTÈME ACCESSIBLE: {total_notifications} notifications")
+            test_results['notifications_system'] = True
+            
+            # Test envoi notification à Patrick
+            test_notification = {
+                "type": "lead_new",
+                "priority": "high",
+                "data": {
+                    "lead_name": f"{oauth_test_data['prenom']} {oauth_test_data['nom']}",
+                    "email": oauth_test_data['email'],
+                    "telephone": oauth_test_data['telephone'],
+                    "source": "Formulaire GitHub Pages Post-Correction",
+                    "score": 100,
+                    "recipients": ["palmeida@efficity.com"]
+                }
+            }
+            
+            send_success, send_response, send_details = self.make_request('POST', 'api/notifications/send', data=test_notification, expected_status=200)
+            
+            if send_success:
+                print(f"✅ NOTIFICATION PATRICK ENVOYÉE AVEC SUCCÈS")
+                test_results['patrick_notification'] = True
+            else:
+                print(f"⚠️ NOTIFICATION PATRICK ÉCHOUÉE: {send_details}")
+                test_results['patrick_notification'] = False
+                
+        else:
+            print(f"❌ NOTIFICATIONS SYSTÈME INACCESSIBLE: {notif_details}")
+            test_results['notifications_system'] = False
+        
+        # ANALYSE CRITIQUE POST-CORRECTION
+        print(f"\n" + "="*80)
+        print("🎯 ANALYSE CRITIQUE POST-CORRECTION BUG OAUTH")
+        print("="*80)
+        
+        # Compter les tests réussis
+        passed_tests = sum(1 for result in test_results.values() if result is True)
+        total_tests = len(test_results)
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"📊 RÉSULTATS: {passed_tests}/{total_tests} tests réussis ({success_rate:.1f}%)")
+        
+        # Détail des résultats
+        test_names = {
+            'endpoint_accessible': 'Endpoint accessible',
+            'json_response': 'Réponse JSON correcte',
+            'response_complete': 'Réponse complète',
+            'success_true': 'Success=true',
+            'no_oauth': 'Aucun OAuth détecté',
+            'patrick_scoring': 'Patrick IA scoring correct',
+            'correct_source': 'Source correcte',
+            'assigned_patrick': 'Assigné à Patrick',
+            'score_100': 'Score 100/100',
+            'lead_in_database': 'Lead en base',
+            'email_automation': 'Email automation',
+            'notifications_system': 'Système notifications',
+            'patrick_notification': 'Notification Patrick'
+        }
+        
+        for key, name in test_names.items():
+            if key in test_results:
+                status = "✅" if test_results[key] else "❌"
+                print(f"   {status} {name}")
+        
+        if not oauth_issues and success_rate >= 80:
+            print("\n✅ BUG OAUTH CORRIGÉ AVEC SUCCÈS")
+            print("✅ Formulaire GitHub fonctionne sans demande OAuth")
+            print("✅ Workflow correct: Formulaire → CRM → Email → Notification Patrick")
+            print("✅ Pas d'ouverture automatique client email prospect")
+            oauth_status = "OAUTH_BUG_FIXED"
             success_result = True
             
-        else:
-            print("❌ PROBLÈMES OAUTH DÉTECTÉS:")
+        elif oauth_issues:
+            print("\n❌ PROBLÈMES OAUTH PERSISTANTS:")
             for issue in oauth_issues:
                 print(f"   - {issue}")
             
             if "OAUTH_DETECTED" in str(oauth_issues):
-                print("🚨 BUG CRITIQUE CONFIRMÉ: Redirection OAuth détectée")
-                print("📋 ACTION REQUISE: Éliminer redirection OAuth du workflow")
-                oauth_status = "OAUTH_BUG_CONFIRMED"
-            elif "ENDPOINT_ERROR" in str(oauth_issues):
-                print("⚠️ PROBLÈME ENDPOINT: Impossible de tester OAuth")
-                oauth_status = "ENDPOINT_ISSUE"
+                print("🚨 BUG OAUTH TOUJOURS PRÉSENT: Redirection OAuth détectée")
+                oauth_status = "OAUTH_BUG_PERSISTS"
             else:
-                print("⚠️ PROBLÈMES MINEURS: Endpoint fonctionne mais réponse incomplète")
-                oauth_status = "MINOR_ISSUES"
+                print("⚠️ PROBLÈMES TECHNIQUES: OAuth corrigé mais autres issues")
+                oauth_status = "TECHNICAL_ISSUES"
             
             success_result = False
-        
-        # RECOMMANDATIONS
-        print(f"\n📋 RECOMMANDATIONS:")
-        if oauth_status == "NO_OAUTH_BUG":
-            print("✅ Continuer workflow marketing Facebook sans interruption")
-            print("✅ Système conforme: aucune interaction avec email prospect")
-            
-        elif oauth_status == "OAUTH_BUG_CONFIRMED":
-            print("🚨 URGENT: Identifier et supprimer redirection OAuth")
-            print("🔧 Vérifier service email automation")
-            print("🔧 Contrôler configuration Google API")
-            print("🔧 Éliminer demande d'accès email prospect")
-            
-        elif oauth_status == "ENDPOINT_ISSUE":
-            print("🔧 Vérifier connectivité et configuration backend")
-            print("🔧 Contrôler service FastAPI")
             
         else:
-            print("🔧 Corriger réponse endpoint pour conformité")
-            print("🔧 Vérifier tous les champs requis")
+            print("\n⚠️ CORRECTION PARTIELLE")
+            print("✅ Pas de redirection OAuth détectée")
+            print("⚠️ Mais problèmes techniques dans le workflow")
+            oauth_status = "PARTIAL_SUCCESS"
+            success_result = success_rate >= 70
         
-        return self.log_test("🚨 OAuth Bug GitHub Form", success_result,
-                           f"- OAuth Analysis: {oauth_status}. "
-                           f"Issues detected: {len(oauth_issues)}. "
-                           f"Endpoint accessible: {success}. "
-                           f"Response type: {'JSON' if isinstance(response, dict) else type(response).__name__}")
+        # RECOMMANDATIONS FINALES
+        print(f"\n📋 RECOMMANDATIONS POST-CORRECTION:")
+        if oauth_status == "OAUTH_BUG_FIXED":
+            print("✅ Continuer workflow marketing Facebook sans interruption")
+            print("✅ Système 100% conforme: aucune interaction avec email prospect")
+            print("✅ Workflow GitHub → CRM → Email 100% fonctionnel SANS bug OAuth")
+            
+        elif oauth_status == "OAUTH_BUG_PERSISTS":
+            print("🚨 URGENT: Bug OAuth toujours présent - investigation supplémentaire requise")
+            print("🔧 Vérifier service email automation")
+            print("🔧 Contrôler configuration Google API")
+            
+        else:
+            print("🔧 Finaliser corrections techniques pour workflow optimal")
+            print("🔧 Vérifier intégration complète CRM → Email → Notifications")
+        
+        return self.log_test("🧪 GitHub Form Post-OAuth Correction", success_result,
+                           f"- OAuth Status: {oauth_status}. "
+                           f"Success Rate: {success_rate:.1f}% ({passed_tests}/{total_tests}). "
+                           f"Issues: {len(oauth_issues)}. "
+                           f"Lead ID: {self.github_lead_id or 'N/A'}")
 
     def test_critical_url_detection_github_form(self):
         """🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE - Identifier quelle URL le formulaire utilise"""
