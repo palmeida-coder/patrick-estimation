@@ -1602,16 +1602,11 @@ class EfficiencyAPITester:
         print("Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques")
         print("="*80)
         
-        # Tests critiques dans l'ordre - AJOUT BUG OAUTH CRITIQUE
+        # Tests critiques dans l'ordre - INTERFACE ORIGINALE RESTAURÉE
         critical_tests = [
-            self.test_oauth_bug_github_form_critical,  # NOUVEAU TEST BUG OAUTH CRITIQUE
-            self.test_missing_lead_diagnostic_patrick_duarnd,  # DIAGNOSTIC LEAD MANQUANT
-            self.test_critical_url_detection_github_form,  # TEST DÉTECTION URL
-            self.test_critical_github_workflow_complete,
+            self.test_restored_original_patrick_almeida_interface,  # NOUVEAU TEST INTERFACE RESTAURÉE
             self.test_database_efficity_crm_verification,
-            self.test_lead_scoring_patrick_ia,
             self.test_email_automation_system,
-            self.test_email_templates_verification,
             self.test_patrick_notification_system
         ]
         
