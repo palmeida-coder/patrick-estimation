@@ -97,98 +97,149 @@ function App() {
   );
 }
 
-function Navigation() {
+// Sidebar Navigation Component
+function SidebarNavigation() {
+  const location = useLocation();
+  
+  const menuItems = [
+    { path: '/', icon: <BarChart3 className="w-5 h-5" />, label: 'Tableau de bord', badge: null },
+    { path: '/leads', icon: <Users className="w-5 h-5" />, label: 'Métro Lyon', badge: '📍' },
+    { path: '/patrick-ia', icon: <Brain className="w-5 h-5" />, label: 'Patrick IA', badge: null },
+    { path: '/patrick-ia3', icon: <Cpu className="w-5 h-5" />, label: 'Patrick IA 4.0', badge: 'NOUVEAU' },
+    { path: '/sequences', icon: <Zap className="w-5 h-5" />, label: 'Automation', badge: '⚡' },
+    { path: '/analytics', icon: <TrendingUp className="w-5 h-5" />, label: 'Analytique', badge: 'PRO' },
+    { path: '/multi-agency', icon: <Building2 className="w-5 h-5" />, label: 'Agences', badge: null },
+    { path: '/market', icon: <Radar className="w-5 h-5" />, label: 'Intelligence de marché', badge: null },
+    { path: '/campaigns', icon: <Mail className="w-5 h-5" />, label: 'Suivi du site Web', badge: 'RÉVOLUTION' },
+    { path: '/notifications', icon: <Bell className="w-5 h-5" />, label: 'Marketing par e-mail', badge: 'NOUVEAU' },
+    { path: '/extraction', icon: <Search className="w-5 h-5" />, label: 'Sources de prospects et automatisation', badge: 'AUTO' },
+    { path: '/rgpd', icon: <Shield className="w-5 h-5" />, label: 'Google Sheets', badge: null },
+    { path: '/crm', icon: <Settings2 className="w-5 h-5" />, label: 'RGPD', badge: null }
+  ];
+
   return (
-    <nav className="bg-white shadow-lg border-b border-slate-200">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Target className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Efficity
+    <div className="w-64 bg-white shadow-lg border-r border-slate-200 h-screen flex flex-col">
+      {/* Sidebar Header */}
+      <div className="p-4 border-b border-slate-200">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <Target className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Efficité
             </span>
             <span className="ml-1 px-2 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded">
-              M PRO
+              AI PRO
             </span>
           </div>
-          
-          <div className="flex items-center space-x-4 overflow-x-auto">
-            <Link to="/" className="nav-link flex-shrink-0">
-              <BarChart3 className="w-4 h-4" />
-              Dashboard
+        </div>
+      </div>
+
+      {/* Menu Items */}
+      <nav className="flex-1 overflow-y-auto">
+        <div className="px-3 py-2">
+          {menuItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center justify-between px-3 py-2.5 mb-1 rounded-lg text-sm transition-colors ${
+                location.pathname === item.path
+                  ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-500'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                {item.icon}
+                <span className="font-medium">{item.label}</span>
+              </div>
+              {item.badge && (
+                <Badge 
+                  variant="secondary" 
+                  className={`text-xs ${
+                    item.badge === 'NOUVEAU' ? 'bg-green-100 text-green-800' :
+                    item.badge === 'PRO' ? 'bg-purple-100 text-purple-800' :
+                    item.badge === 'RÉVOLUTION' ? 'bg-red-100 text-red-800' :
+                    item.badge === 'AUTO' ? 'bg-orange-100 text-orange-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  {item.badge}
+                </Badge>
+              )}
             </Link>
-            <Link to="/leads" className="nav-link flex-shrink-0">
-              <Users className="w-4 h-4" />
-              Leads
-            </Link>
-            <Link to="/campaigns" className="nav-link flex-shrink-0">
-              <Mail className="w-4 h-4" />
-              Campagnes
-            </Link>
-            <Link to="/analytics" className="nav-link flex-shrink-0">
-              <TrendingUp className="w-4 h-4" />
-              Analytics
-            </Link>
-            <Link to="/extraction" className="nav-link flex-shrink-0">
-              <Search className="w-4 h-4" />
-              Extraction
-            </Link>
-            <Link to="/notifications" className="nav-link flex-shrink-0">
-              <Bell className="w-4 h-4" />
-              Notifications
-            </Link>
-            <Link to="/sequences" className="nav-link flex-shrink-0">
-              <Sparkles className="w-4 h-4" />
-              Séquences IA
-            </Link>
-            <Link to="/market" className="nav-link flex-shrink-0">
-              <Radar className="w-4 h-4" />
-              Intel. Marché
-            </Link>
-            <Link to="/crm" className="nav-link flex-shrink-0">
-              <Settings2 className="w-4 h-4" />
-              CRM
-            </Link>
-            <Link to="/rgpd" className="nav-link flex-shrink-0">
-              <Shield className="w-4 h-4" />
-              RGPD
-            </Link>
-            <Link to="/patrick-ia3" className="nav-link flex-shrink-0">
-              <Cpu className="w-4 h-4" />
-              Patrick IA 3.0
-            </Link>
-            <Link to="/lyon-predictor" className="nav-link flex-shrink-0">
-              <Home className="w-4 h-4" />
-              Prix Predictor
-            </Link>
-            <Link to="/multi-agency" className="nav-link flex-shrink-0">
-              <Building2 className="w-4 h-4" />
-              Multi-Agences
-            </Link>
-            <Link to="/ai-insights" className="nav-link flex-shrink-0">
-              <Brain className="w-4 h-4" />
-              IA Insights
-            </Link>
-            <Link to="/patrick-ia" className="nav-link flex-shrink-0">
-              <Lightbulb className="w-4 h-4" />
-              Patrick IA
-            </Link>
+          ))}
+        </div>
+      </nav>
+
+      {/* Sidebar Footer */}
+      <div className="p-4 border-t border-slate-200">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-medium">
+            PA
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="text-sm text-slate-600">
-              <div className="font-medium">Patrick Almeida</div>
-              <div className="text-xs">Directeur Efficity Lyon</div>
-            </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
-              PA
+          <div className="flex-1">
+            <div className="text-sm font-medium text-slate-900">Efficity Lyon</div>
+            <div className="text-xs text-slate-500">
+              6 Place des Tapis<br />
+              Lyon 4ème • 69004
             </div>
           </div>
         </div>
       </div>
-    </nav>
+    </div>
+  );
+}
+
+// Top Header Component  
+function TopHeader() {
+  return (
+    <header className="bg-white shadow-sm border-b border-slate-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="text-2xl">📊</div>
+          <div>
+            <span className="text-lg font-bold">Efficity Lyon</span>
+            <span className="ml-2 px-2 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded">
+              M PRO
+            </span>
+          </div>
+          <div className="text-sm text-slate-600">Intelligence immobilière</div>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <div className="text-sm text-slate-600">📍 Marché de Lyon en direct</div>
+          <div className="text-sm text-slate-600">📞 28.29.04.97.57</div>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span className="text-sm text-slate-600">Efficity Lyon</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
+              PA
+            </div>
+            <div>
+              <div className="text-sm font-medium">Patrick Almeida</div>
+              <div className="text-xs text-slate-500">Agent Expert</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Blue Action Bar */}
+      <div className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-between">
+        <div className="flex items-center space-x-6">
+          <div className="text-sm">⭐ Marché Lyon 4ème actif</div>
+          <div className="text-sm">Préqui liq: 7 200€/m² (+3,5%)</div>
+          <div className="text-sm">Prix Discl: 5 200€/m² (+6,8%)</div>
+          <div className="text-sm">Coût-Rousse: 4 600€/m² (+12,1%)</div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm">⚡ Patrick IA : 28 analyses aujourd'hui</span>
+          <span className="text-sm">📅 05.02.05.26.24</span>
+        </div>
+      </div>
+    </header>
   );
 }
 
