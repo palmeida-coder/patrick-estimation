@@ -25,7 +25,7 @@
             position: relative;
         }
 
-        /* Photo Patrick dans le cercle en haut à droite */
+        /* VRAIE PHOTO PATRICK - GitHub */
         .profile-photo {
             position: absolute;
             top: 20px;
@@ -33,9 +33,33 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border: 4px solid rgba(255,255,255,0.8);
+            border: 4px solid rgba(255,255,255,0.9);
             object-fit: cover;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            object-position: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+        }
+
+        /* Fallback si image ne charge pas */
+        .profile-fallback {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.2);
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
         }
 
         .hero h1 {
@@ -148,6 +172,7 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
         }
 
         .full-width {
@@ -165,17 +190,19 @@
             cursor: pointer;
             width: 100%;
             margin-top: 20px;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
         .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .disclaimer {
@@ -243,6 +270,7 @@
             border-radius: 8px;
             margin-top: 20px;
             text-align: center;
+            font-weight: bold;
         }
 
         .error-message {
@@ -268,6 +296,14 @@
                 top: 15px;
                 right: 15px;
             }
+
+            .profile-fallback {
+                width: 60px;
+                height: 60px;
+                top: 15px;
+                right: 15px;
+                font-size: 16px;
+            }
             
             .form-grid {
                 grid-template-columns: 1fr;
@@ -277,20 +313,25 @@
             .benefits {
                 grid-template-columns: 1fr;
             }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Section hero avec photo Patrick -->
+    <!-- Section hero avec vraie photo Patrick -->
     <div class="hero">
-        <!-- Photo Patrick Almeida dans le cercle -->
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format" 
-             alt="Patrick Almeida" 
+        <!-- VRAIE PHOTO PATRICK ALMEIDA depuis GitHub -->
+        <img src="https://raw.githubusercontent.com/palmeida-coder/patrick-estimation/main/patrick-visage-pour-site-estimation.jpg" 
+             alt="Patrick Almeida - Agent Immobilier Expert Lyon" 
              class="profile-photo"
              onerror="this.style.display='none'; document.querySelector('.profile-fallback').style.display='flex';">
         
         <!-- Fallback si l'image ne charge pas -->
-        <div class="profile-fallback" style="display:none; position: absolute; top: 20px; right: 30px; width: 80px; height: 80px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.2); align-items: center; justify-content: center; font-weight: bold; font-size: 18px; color: white;">PA</div>
+        <div class="profile-fallback">PA</div>
 
         <h1>🏠 Estimation gratuite de votre bien</h1>
         <p>Obtenez une <strong>estimation précise et gratuite</strong> de votre propriété Lyon par un expert du marché local.</p>
@@ -310,7 +351,7 @@
             </div>
         </div>
 
-        <!-- Stats -->
+        <!-- Stats Patrick -->
         <div class="stats">
             <div class="stat">
                 <h3>500+</h3>
@@ -333,7 +374,7 @@
 
             <form id="estimationForm">
                 <div class="form-grid">
-                    <!-- Champs formulaire -->
+                    <!-- Informations personnelles -->
                     <div class="form-group">
                         <label for="firstName">Prénom <span class="required">*</span></label>
                         <input type="text" id="firstName" name="firstName" required>
@@ -354,9 +395,10 @@
                         <input type="email" id="email" name="email" required>
                     </div>
 
+                    <!-- Informations du bien -->
                     <div class="form-group">
                         <label for="address">Adresse du bien à vendre <span class="required">*</span></label>
-                        <input type="text" id="address" name="address" required>
+                        <input type="text" id="address" name="address" placeholder="Ex: 5 Place Bellecour, Lyon 69002" required>
                     </div>
 
                     <div class="form-group">
@@ -372,7 +414,7 @@
 
                     <div class="form-group">
                         <label for="surface">Surface (m²) <span class="required">*</span></label>
-                        <input type="number" id="surface" name="surface" required>
+                        <input type="number" id="surface" name="surface" required min="1">
                     </div>
 
                     <div class="form-group">
@@ -389,12 +431,12 @@
 
                     <div class="form-group">
                         <label for="floor">Étage</label>
-                        <input type="text" id="floor" name="floor">
+                        <input type="text" id="floor" name="floor" placeholder="Ex: 3ème étage">
                     </div>
 
                     <div class="form-group">
                         <label for="priceWished">Prix de vente souhaité (optionnel)</label>
-                        <input type="number" id="priceWished" name="priceWished">
+                        <input type="number" id="priceWished" name="priceWished" placeholder="En euros">
                     </div>
 
                     <div class="form-group">
@@ -410,7 +452,7 @@
 
                 <div class="form-group full-width">
                     <label for="message">Informations complémentaires</label>
-                    <textarea id="message" name="message" rows="4"></textarea>
+                    <textarea id="message" name="message" rows="4" placeholder="Décrivez votre bien, vos attentes, contraintes particulières..."></textarea>
                 </div>
 
                 <button type="submit" class="btn" id="submitBtn">
@@ -438,22 +480,22 @@
         </div>
     </div>
 
-    <!-- Contact -->
+    <!-- Contact Patrick -->
     <div class="contact">
         <h3>📞 Contact direct Patrick Almeida</h3>
         <div class="contact-grid">
             <div class="contact-item">
-                <h4>📱</h4>
+                <h4>📱 Téléphone</h4>
                 <a href="tel:0682052824">06.82.05.28.24</a>
                 <p>Direct 7j/7 - Réponse rapide</p>
             </div>
             <div class="contact-item">
-                <h4>✉️</h4>
+                <h4>✉️ Email</h4>
                 <a href="mailto:palmeida@efficity.com">palmeida@efficity.com</a>
                 <p>Email professionnel</p>
             </div>
             <div class="contact-item">
-                <h4>📍</h4>
+                <h4>📍 Adresse</h4>
                 <p>6 place des Tapis</p>
                 <p>69004 Lyon - Centre-ville</p>
             </div>
@@ -461,7 +503,7 @@
     </div>
 
     <script>
-        // ✅ SCRIPT AVEC CORRECTION BUG OAUTH - VOTRE FICHIER ORIGINAL
+        // ✅ SCRIPT FINAL - VRAIE PHOTO PATRICK + BUG OAUTH CORRIGÉ
         document.getElementById('estimationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -470,11 +512,11 @@
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
             
-            // Reset messages
+            // Reset tous les messages
             successMessage.style.display = 'none';
             errorMessage.style.display = 'none';
             
-            // Show loading
+            // Afficher loading
             submitBtn.disabled = true;
             submitBtn.textContent = 'Envoi en cours...';
             loadingMessage.style.display = 'block';
@@ -496,9 +538,9 @@
                     message: formData.get('message')
                 };
                 
-                console.log('Envoi des données:', data);
+                console.log('Envoi données vers CRM Patrick:', data);
                 
-                // ✅ CORRECTION: API call SANS ouverture automatique email
+                // ✅ ENVOI VERS API CRM EFFICITY - BUG OAUTH CORRIGÉ
                 const response = await fetch('https://realestate-leads-5.preview.emergentagent.com/api/estimation/submit-prospect-email', {
                     method: 'POST',
                     headers: {
@@ -508,33 +550,71 @@
                 });
                 
                 const result = await response.json();
-                console.log('Réponse API:', result);
+                console.log('Réponse CRM Patrick:', result);
                 
                 if (result.success) {
-                    // ✅ SUCCÈS: Message confirmation SEULEMENT  
+                    // ✅ SUCCÈS - AFFICHAGE MESSAGE CONFIRMATION SEULEMENT
                     loadingMessage.style.display = 'none';
                     successMessage.style.display = 'block';
+                    
+                    // Reset formulaire pour nouvelle demande
                     this.reset();
                     
-                    // ❌ SUPPRIMÉ: window.open(), mailto:, OAuth
-                    console.log('✅ Demande envoyée - Lead ID:', result.lead_id);
+                    // ❌ CORRECTION BUG OAUTH - SUPPRIMÉ:
+                    // - window.open()
+                    // - mailto: automatique  
+                    // - Google OAuth redirection
+                    
+                    console.log('✅ Lead créé avec succès - ID:', result.lead_id);
+                    console.log('✅ Patrick IA score:', result.patrick_ai_score || 'En cours...');
                     
                 } else {
-                    throw new Error(result.message || 'Erreur lors de l\\'envoi');
+                    throw new Error(result.message || 'Erreur lors de l\\'envoi de la demande');
                 }
                 
             } catch (error) {
-                console.error('❌ Erreur:', error);
+                console.error('❌ Erreur soumission formulaire:', error);
+                
+                // Afficher message d'erreur
                 loadingMessage.style.display = 'none';
                 errorMessage.style.display = 'block';
+                errorMessage.innerHTML = `
+                    ❌ <strong>Erreur lors de l'envoi :</strong><br>
+                    ${error.message}<br><br>
+                    <strong>Contactez Patrick directement :</strong><br>
+                    📞 <a href="tel:0682052824" style="color: #721c24;">06.82.05.28.24</a><br>
+                    ✉️ <a href="mailto:palmeida@efficity.com" style="color: #721c24;">palmeida@efficity.com</a>
+                `;
+                
             } finally {
+                // Restaurer bouton dans tous les cas
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🏠 Demander mon estimation gratuite';
                 loadingMessage.style.display = 'none';
             }
         });
-        
-        console.log('✅ Interface Patrick Almeida avec photo chargée - Bug OAuth corrigé');
+
+        // Validation temps réel des champs requis
+        document.querySelectorAll('input[required], select[required]').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.style.borderColor = '#dc3545';
+                } else {
+                    this.style.borderColor = '#28a745';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.style.borderColor = '#28a745';
+                }
+            });
+        });
+
+        console.log('✅ Formulaire Patrick Almeida initialisé');
+        console.log('✅ Vraie photo Patrick chargée depuis GitHub');
+        console.log('✅ Bug OAuth corrigé - Pas d\\'ouverture email automatique');
+        console.log('✅ Workflow : Formulaire → CRM → Notification Patrick uniquement');
     </script>
 </body>
 </html>
