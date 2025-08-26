@@ -749,18 +749,23 @@ class EfficiencyAPITester:
             "prix_souhaite": "475000"
         }
         
-        print(f"📝 Testing OAuth bug with data:")
+        print(f"📝 Testing OAuth bug correction with data:")
         print(f"👤 Prospect: {oauth_test_data['prenom']} {oauth_test_data['nom']}")
         print(f"📧 Email: {oauth_test_data['email']}")
         print(f"🏠 Property: {oauth_test_data['type_bien']} {oauth_test_data['surface']}m² - {oauth_test_data['prix_souhaite']}€")
+        print(f"📍 Location: {oauth_test_data['adresse']}")
         
         # TEST CRITIQUE: Vérifier réponse JSON sans redirection OAuth
         print(f"\n🔍 TESTING ENDPOINT POST /api/estimation/submit-prospect-email")
-        print("VÉRIFICATIONS CRITIQUES:")
-        print("1. ✅ Réponse JSON correcte")
-        print("2. ❌ AUCUNE redirection OAuth")
-        print("3. ❌ AUCUNE demande d'accès email prospect")
-        print("4. ✅ Notification SEULEMENT à palmeida@efficity.com")
+        print("VÉRIFICATIONS CRITIQUES POST-CORRECTION:")
+        print("1. ✅ Endpoint accessible")
+        print("2. ✅ Réponse JSON correcte")
+        print("3. ❌ AUCUNE redirection OAuth")
+        print("4. ❌ AUCUNE demande d'accès email prospect")
+        print("5. ✅ Lead créé avec source='estimation_email_externe'")
+        print("6. ✅ Score Patrick IA = 100/100, Platinum, High priority")
+        print("7. ✅ Email automation déclenchée")
+        print("8. ✅ Notification Patrick envoyée")
         print("-" * 60)
         
         success, response, details = self.make_request(
