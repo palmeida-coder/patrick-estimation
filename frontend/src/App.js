@@ -226,7 +226,7 @@ function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Pipeline Lyon Total"
-          value={113}
+          value={111}
           icon={<Users className="w-5 h-5" />}
           color="blue"
           trend="+24% vs 12m"
