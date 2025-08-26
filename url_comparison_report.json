@@ -1,0 +1,57 @@
+{
+  "test_timestamp": "2025-08-26T16:13:29.382249",
+  "test_objective": "Déterminer quelle URL utiliser pour workflow GitHub et publicité Facebook",
+  "urls_tested": {
+    "preview": "https://realestate-leads-5.preview.emergentagent.com",
+    "production": "https://efficity-crm.emergent.host"
+  },
+  "results": {
+    "preview": {
+      "url": "https://realestate-leads-5.preview.emergentagent.com",
+      "endpoint": "api/estimation/submit-prospect-email",
+      "success": true,
+      "response": {
+        "success": true,
+        "message": "✅ Demande d'estimation reçue avec succès",
+        "lead_id": "8429f745-51df-4929-ad79-deeaf743b2d7",
+        "prospect_name": "Test Preview GitHub",
+        "patrick_ai_score": 100,
+        "tier_classification": "Platinum",
+        "priority_level": "high",
+        "timestamp": "2025-08-26T16:13:29.253261"
+      },
+      "details": "(Status: 200, Expected: 200)",
+      "timestamp": "2025-08-26T16:13:29.257497",
+      "complete_response": true,
+      "patrick_ai_score": 100,
+      "tier_classification": "Platinum",
+      "priority_level": "high",
+      "lead_id": "8429f745-51df-4929-ad79-deeaf743b2d7"
+    },
+    "production": {
+      "url": "https://efficity-crm.emergent.host",
+      "endpoint": "api/estimation/submit-prospect-email",
+      "success": true,
+      "response": {
+        "success": false,
+        "message": "Erreur: not authorized on efficity_crm to execute command { insert: \"leads\", ordered: true, lsid: { id: UUID(\"7ea4912a-7468-4bb4-8e87-d7fb3f04885e\") }, txnNumber: 4, $clusterTime: { clusterTime: Timestamp(1756224797, 6), signature: { hash: BinData(0, 98E7CFAB5E08D92F8412434B49C8BA9E2C6CD89F), keyId: 7536007827253362693 } }, writeConcern: { w: \"majority\" }, $db: \"efficity_crm\" }, full error: {'ok': 0.0, 'errmsg': 'not authorized on efficity_crm to execute command { insert: \"leads\", ordered: true, lsid: { id: UUID(\"7ea4912a-7468-4bb4-8e87-d7fb3f04885e\") }, txnNumber: 4, $clusterTime: { clusterTime: Timestamp(1756224797, 6), signature: { hash: BinData(0, 98E7CFAB5E08D92F8412434B49C8BA9E2C6CD89F), keyId: 7536007827253362693 } }, writeConcern: { w: \"majority\" }, $db: \"efficity_crm\" }', 'code': 13, 'codeName': 'Unauthorized', '$clusterTime': {'clusterTime': Timestamp(1756224808, 1), 'signature': {'hash': b'\\xca\\xb97\\x89Z\\xc4\\x1b\\xc2\\xe0\\x94\\xd5V\\x13\\xcd\\xbf\\xceM\\xb5\\x9f\\x02', 'keyId': 7536007827253362693}}, 'operationTime': Timestamp(1756224808, 1)}"
+      },
+      "details": "(Status: 200, Expected: 200)",
+      "timestamp": "2025-08-26T16:13:29.382118",
+      "missing_fields": [
+        "lead_id",
+        "patrick_ai_score",
+        "tier_classification",
+        "priority_level"
+      ],
+      "complete_response": false
+    }
+  },
+  "summary": {
+    "preview_operational": true,
+    "production_operational": true,
+    "both_working": true,
+    "recommended_url": "https://efficity-crm.emergent.host",
+    "recommendation_reason": "URL production plus stable pour marketing Facebook"
+  }
+}
