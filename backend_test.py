@@ -721,27 +721,32 @@ class EfficiencyAPITester:
                            f"GitHub form: {'working' if github_working else 'not working'}")
 
     def test_oauth_bug_github_form_critical(self):
-        """🚨 BUG CRITIQUE OAUTH - Test formulaire GitHub pour détecter redirection OAuth incorrecte"""
+        """🚨 TEST FORMULAIRE GITHUB POST-CORRECTION - VÉRIFICATION BUG OAUTH CORRIGÉ"""
         print("\n" + "="*80)
-        print("🚨 BUG CRITIQUE OAUTH FORMULAIRE GITHUB - DEMANDE OUVERTURE MAIL PROSPECT")
-        print("PROBLÈME: Formulaire déclenche OAuth 'Sélectionnez un compte sur efficity.com'")
-        print("SYMPTÔMES: Redirection vers Google OAuth au lieu de simple réponse JSON")
-        print("OBJECTIF: Vérifier que l'endpoint retourne SEULEMENT JSON sans OAuth")
+        print("🧪 TEST FORMULAIRE GITHUB POST-CORRECTION - VÉRIFICATION BUG OAUTH CORRIGÉ")
+        print("OBJECTIF: Tester le formulaire GitHub après les modifications pour confirmer que le bug d'ouverture automatique d'email est corrigé")
+        print("WORKFLOW À VÉRIFIER:")
+        print("1. ✅ Formulaire soumis sans demande OAuth")
+        print("2. ✅ Pas d'ouverture automatique client email prospect")
+        print("3. ✅ Lead créé dans CRM efficity_crm")
+        print("4. ✅ Patrick IA scoring automatique")
+        print("5. ✅ Email notification SEULEMENT à palmeida@efficity.com")
+        print("6. ✅ Message confirmation affiché au prospect")
         print("="*80)
         
-        # Données test exactes selon le bug report
+        # Données test exactes selon la review request
         oauth_test_data = {
             "prenom": "Test",
-            "nom": "Debug",
-            "email": "test.debug.oauth@example.com",
-            "telephone": "0623456789",
-            "adresse": "1 Place Bellecour, Lyon 1er",
+            "nom": "PostCorrection",
+            "email": "test.postcorrection.oauth@example.com",
+            "telephone": "06 99 77 88 55",
+            "adresse": "5 Place Bellecour, Lyon 2ème",
+            "ville": "Lyon 2ème",
+            "code_postal": "69002",
             "type_bien": "Appartement",
-            "surface": "85",
+            "surface": "92",
             "pieces": "4",
-            "prix_souhaite": "420000",
-            "ville": "Lyon",
-            "code_postal": "69001"
+            "prix_souhaite": "475000"
         }
         
         print(f"📝 Testing OAuth bug with data:")
