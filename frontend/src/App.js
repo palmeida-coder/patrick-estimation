@@ -271,19 +271,20 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Main Dashboard Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-4xl font-bold text-slate-900">
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 bg-clip-text text-transparent">
               Tableau de bord Einstein ⚡ Efficity Lyon Pro
             </span>
           </h1>
-          <p className="text-slate-600 mt-1">Intelligence artificielle proactive • Analytics temps réel • Insights prédictifs</p>
+          <p className="text-slate-600 mt-2">Intelligence artificielle proactive • Analytics temps réel • Insights prédictifs</p>
         </div>
         <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
           <Plus className="w-4 h-4 mr-2" />
-          Nouveau Lead
+          Nouveau Lead Lyon
         </Button>
       </div>
 
@@ -291,158 +292,141 @@ function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Pipeline Lyon Total"
-          value={111}
-          icon={<Users className="w-5 h-5" />}
+          value={113}
+          icon={<Users className="w-6 h-6" />}
           color="blue"
           trend="+24% vs 12m"
         />
         <MetricCard
-          title="Leads Chauds >90"
-          value={78}
-          icon={<CheckCircle className="w-5 h-5" />}
+          title="Conduites chaudes >90"
+          value={80}
+          icon={<CheckCircle className="w-6 h-6" />}
           color="green"
           trend="+31% vs 12m"
         />
         <MetricCard
           title="Conversions Finalisées"
           value={7}
-          icon={<Star className="w-5 h-5" />}
+          icon={<Star className="w-6 h-6" />}
           color="purple"
           trend="+38% vs 12m"
         />
         <MetricCard
-          title="Automation Leads"
+          title="Leads d'automatisation"
           value={0}
-          icon={<Zap className="w-5 h-5" />}
+          icon={<Zap className="w-6 h-6" />}
           color="orange"
-          trend="Auto 24/7 vs 12m"
+          trend="Détecté aujourd'hui"
         />
       </div>
 
-      {/* Charts and Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lead Sources */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              Sources de Leads
+      {/* Modules Révolutionnaires Patrick IA */}
+      <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+        <CardHeader className="border-b border-purple-100">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3 text-purple-800">
+              <Sparkles className="w-6 h-6" />
+              Modules Révolutionnaires Patrick IA
             </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats?.sources_breakdown?.map((source, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span className="font-medium capitalize">{source._id}</span>
+            <div className="flex items-center gap-2">
+              <Badge className="bg-purple-100 text-purple-800">NOUVEAU!</Badge>
+              <span className="text-sm text-purple-600">100% Opérationnel</span>
+            </div>
+          </div>
+          <CardDescription className="text-purple-600">
+            Accès direct aux outils d'automatisation email et tracking web
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Marketing par e-mail */}
+            <div className="p-6 bg-white rounded-xl border-2 border-purple-200 hover:border-purple-300 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-white" />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold">{source.count}</span>
-                    <Badge variant="secondary">leads</Badge>
+                  <div>
+                    <h3 className="text-lg font-bold text-purple-800">Marketing par e-mail</h3>
+                    <p className="text-sm text-purple-600">Automatisation • Suivi Patrick IA</p>
                   </div>
                 </div>
-              ))}
+                <div className="flex gap-2">
+                  <Badge className="bg-purple-100 text-purple-800">NOUVEAU</Badge>
+                  <Badge className="bg-pink-100 text-pink-800">100% D'ENGAGEMENT</Badge>
+                </div>
+              </div>
+              
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Modèle Patrick IA (+15 à +30 points boost)
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Workflow 1=clic → Client → Email → Suivi → Boost IA
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Analytics unifiées Email + Web temps réel
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Campagnes groupées depuis leads CRM
+                </div>
+              </div>
+              
+              <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Révolutionner l'efficacité commerciale
+              </Button>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Recent Activities */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5" />
-              Activités Récentes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {stats?.recent_activities?.slice(0, 5).map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.description}</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {activity.créé_par} • {new Date(activity.planifié_pour).toLocaleDateString()}
-                    </p>
+            {/* Suivi du site Web */}
+            <div className="p-6 bg-white rounded-xl border-2 border-red-200 hover:border-red-300 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-red-800">Suivi du site Web</h3>
+                    <p className="text-sm text-red-600">efficity.com/palmeida → Patrick IA</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Insights & Email Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-orange-800">
-              <Zap className="w-5 h-5" />
-              Insights IA - Prédictions de Vente
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl font-bold text-orange-600">23</div>
-                <div className="text-sm text-slate-600">Ventes probables 3 mois</div>
-              </div>
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl font-bold text-amber-600">45</div>
-                <div className="text-sm text-slate-600">Ventes probables 6 mois</div>
-              </div>
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm">
-                <div className="text-2xl font-bold text-yellow-600">67</div>
-                <div className="text-sm text-slate-600">Ventes probables 9 mois</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
-              <Mail className="w-5 h-5" />
-              Performance Email Automation
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Taux d'ouverture</span>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {stats?.email_stats?.open_rate || 0}%
-                  </div>
-                  <Badge variant="secondary">+12%</Badge>
+                <div className="flex gap-2">
+                  <Badge className="bg-red-100 text-red-800">RÉVOLUTION</Badge>
+                  <Badge className="bg-orange-100 text-orange-800">+300% VISIBILITÉ</Badge>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Taux de clic</span>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-bold text-green-600">
-                    {stats?.email_stats?.click_rate || 0}%
-                  </div>
-                  <Badge variant="secondary">+8%</Badge>
+              
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Liens trackés automatiques vers le site Patrick
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Booster Patrick IA sur clics (+15 à +25 points)
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Analyse détaillée parcours client complet
+                </div>
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle className="w-4 h-4" />
+                  Vision 360° : Web → CRM → Scoring temps réel
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Templates actifs</span>
-                <div className="text-lg font-bold text-indigo-600">3</div>
-              </div>
-              <div className="text-center">
-                <Button className="bg-blue-600 hover:bg-blue-700" size="sm">
-                  <Link to="/campaigns" className="flex items-center gap-1">
-                    <Mail className="w-3 h-3" />
-                    Voir les campagnes
-                  </Link>
-                </Button>
-              </div>
+              
+              <Button className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white">
+                <Target className="w-4 h-4 mr-2" />
+                Suivi de l'activité révolutionnaire web
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
