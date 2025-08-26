@@ -1027,6 +1027,255 @@ class EfficiencyAPITester:
                            f"Issues: {len(oauth_issues)}. "
                            f"Lead ID: {self.github_lead_id or 'N/A'}")
 
+    def test_production_endpoint_critical_diagnosis(self):
+        """🚨 DIAGNOSTIC CRITIQUE - ENDPOINT PRODUCTION DIRECT SELON REVIEW REQUEST"""
+        print("\n" + "="*80)
+        print("🚨 DIAGNOSTIC CRITIQUE - TABLEAU LEADS VIDE MALGRÉ INTERFACE FONCTIONNELLE")
+        print("PROBLÈME: Interface dashboard charge correctement mais tableau complètement vide")
+        print("URL PRODUCTION: https://realestate-leads-5.emergentagent.host/leads")
+        print("OBJECTIF: Tester endpoint production direct et identifier pourquoi tableau vide")
+        print("="*80)
+        
+        # URLs selon review request
+        production_url = "https://realestate-leads-5.emergentagent.host"
+        preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        
+        results = {}
+        
+        # TEST 1: ENDPOINT PRODUCTION DIRECT
+        print(f"\n🔍 TEST 1: ENDPOINT PRODUCTION DIRECT")
+        print(f"URL: {production_url}/api/leads")
+        print("-" * 60)
+        
+        production_tester = EfficiencyAPITester(production_url)
+        prod_success, prod_response, prod_details = production_tester.make_request('GET', 'api/leads', expected_status=200)
+        
+        if prod_success:
+            leads = prod_response.get('leads', [])
+            total = prod_response.get('total', 0)
+            
+            print(f"✅ ENDPOINT PRODUCTION ACCESSIBLE")
+            print(f"   Status: 200 OK")
+            print(f"   Total leads: {total}")
+            print(f"   Leads dans réponse: {len(leads)}")
+            
+            if total == 0:
+                print(f"❌ PROBLÈME IDENTIFIÉ: BASE DE DONNÉES PRODUCTION VIDE")
+                results['production'] = {
+                    'accessible': True,
+                    'total_leads': 0,
+                    'issue': 'EMPTY_DATABASE'
+                }
+            else:
+                print(f"✅ Base de données production contient {total} leads")
+                # Afficher quelques exemples
+                for i, lead in enumerate(leads[:3]):
+                    print(f"   Lead {i+1}: {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - Source: {lead.get('source', '')}")
+                
+                results['production'] = {
+                    'accessible': True,
+                    'total_leads': total,
+                    'leads_sample': leads[:3],
+                    'issue': 'DATA_EXISTS_BUT_FRONTEND_EMPTY'
+                }
+        else:
+            print(f"❌ ENDPOINT PRODUCTION INACCESSIBLE: {prod_details}")
+            results['production'] = {
+                'accessible': False,
+                'error': prod_details,
+                'issue': 'ENDPOINT_ERROR'
+            }
+        
+        # TEST 2: COMPARAISON AVEC PREVIEW
+        print(f"\n🔍 TEST 2: COMPARAISON AVEC PREVIEW (RÉFÉRENCE)")
+        print(f"URL: {preview_url}/api/leads")
+        print("-" * 60)
+        
+        preview_tester = EfficiencyAPITester(preview_url)
+        prev_success, prev_response, prev_details = preview_tester.make_request('GET', 'api/leads', expected_status=200)
+        
+        if prev_success:
+            prev_leads = prev_response.get('leads', [])
+            prev_total = prev_response.get('total', 0)
+            
+            print(f"✅ ENDPOINT PREVIEW ACCESSIBLE")
+            print(f"   Total leads: {prev_total}")
+            print(f"   Leads dans réponse: {len(prev_leads)}")
+            
+            # Analyser sources des leads preview
+            if prev_leads:
+                sources = {}
+                for lead in prev_leads:
+                    source = lead.get('source', 'unknown')
+                    sources[source] = sources.get(source, 0) + 1
+                
+                print(f"   Sources breakdown:")
+                for source, count in sources.items():
+                    print(f"     - {source}: {count} leads")
+            
+            results['preview'] = {
+                'accessible': True,
+                'total_leads': prev_total,
+                'sources_breakdown': sources if prev_leads else {}
+            }
+        else:
+            print(f"❌ ENDPOINT PREVIEW INACCESSIBLE: {prev_details}")
+            results['preview'] = {
+                'accessible': False,
+                'error': prev_details
+            }
+        
+        # TEST 3: TEST CRÉATION LEAD PRODUCTION
+        print(f"\n🔍 TEST 3: TEST CRÉATION LEAD DIRECTEMENT EN PRODUCTION")
+        print("-" * 60)
+        
+        test_lead_data = {
+            "prenom": "Test",
+            "nom": "ProductionDiagnostic",
+            "email": "test.production.diagnostic@example.com",
+            "telephone": "06 77 88 99 00",
+            "adresse": "Place Bellecour, Lyon",
+            "ville": "Lyon",
+            "code_postal": "69002",
+            "type_bien": "Appartement",
+            "surface": "90",
+            "pieces": "4",
+            "prix_souhaite": "450000"
+        }
+        
+        # Test endpoint GitHub sur production
+        github_success, github_response, github_details = production_tester.make_request(
+            'POST', 'api/estimation/submit-prospect-email', 
+            data=test_lead_data, 
+            expected_status=200
+        )
+        
+        if github_success:
+            print(f"✅ ENDPOINT GITHUB PRODUCTION FONCTIONNE")
+            print(f"   Success: {github_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {github_response.get('lead_id', 'N/A')}")
+            
+            # Vérifier si le lead apparaît maintenant
+            new_check_success, new_check_response, new_check_details = production_tester.make_request('GET', 'api/leads', expected_status=200)
+            
+            if new_check_success:
+                new_total = new_check_response.get('total', 0)
+                print(f"   Nouveau total après création: {new_total}")
+                
+                if new_total > results.get('production', {}).get('total_leads', 0):
+                    print(f"✅ LEAD CRÉÉ AVEC SUCCÈS EN PRODUCTION")
+                    results['lead_creation'] = {
+                        'success': True,
+                        'new_total': new_total
+                    }
+                else:
+                    print(f"❌ LEAD NON VISIBLE APRÈS CRÉATION")
+                    results['lead_creation'] = {
+                        'success': False,
+                        'issue': 'LEAD_NOT_VISIBLE'
+                    }
+            
+        else:
+            print(f"❌ ENDPOINT GITHUB PRODUCTION ÉCHOUE: {github_details}")
+            results['lead_creation'] = {
+                'success': False,
+                'error': github_details
+            }
+        
+        # TEST 4: VÉRIFICATION FORMAT RÉPONSE API
+        print(f"\n🔍 TEST 4: ANALYSE FORMAT RÉPONSE API PRODUCTION")
+        print("-" * 60)
+        
+        if results.get('production', {}).get('accessible'):
+            prod_response_analysis = {
+                'has_leads_array': 'leads' in prod_response,
+                'has_total_field': 'total' in prod_response,
+                'has_pagination': all(field in prod_response for field in ['page', 'limite', 'pages']),
+                'response_structure': list(prod_response.keys()) if isinstance(prod_response, dict) else 'NOT_DICT'
+            }
+            
+            print(f"   Structure réponse:")
+            print(f"     - Array 'leads': {'✅' if prod_response_analysis['has_leads_array'] else '❌'}")
+            print(f"     - Field 'total': {'✅' if prod_response_analysis['has_total_field'] else '❌'}")
+            print(f"     - Pagination: {'✅' if prod_response_analysis['has_pagination'] else '❌'}")
+            print(f"     - Champs: {prod_response_analysis['response_structure']}")
+            
+            results['response_format'] = prod_response_analysis
+        
+        # DIAGNOSTIC FINAL
+        print(f"\n" + "="*80)
+        print("🎯 DIAGNOSTIC FINAL - TABLEAU LEADS VIDE PRODUCTION")
+        print("="*80)
+        
+        prod_total = results.get('production', {}).get('total_leads', 0)
+        prev_total = results.get('preview', {}).get('total_leads', 0)
+        prod_accessible = results.get('production', {}).get('accessible', False)
+        
+        if not prod_accessible:
+            print("❌ PROBLÈME CRITIQUE: ENDPOINT PRODUCTION INACCESSIBLE")
+            print("📋 CAUSE: Problème de connectivité ou configuration serveur")
+            print("📋 SOLUTION: Vérifier configuration réseau et serveur backend")
+            diagnostic = "ENDPOINT_INACCESSIBLE"
+            success_status = False
+            
+        elif prod_total == 0 and prev_total > 0:
+            print("❌ PROBLÈME IDENTIFIÉ: BASE DE DONNÉES PRODUCTION VIDE")
+            print(f"📋 PREVIEW: {prev_total} leads | PRODUCTION: {prod_total} leads")
+            print("📋 CAUSE: Les données sont uniquement en preview, pas en production")
+            print("📋 SOLUTION: Migrer les données de preview vers production")
+            diagnostic = "PRODUCTION_DATABASE_EMPTY"
+            success_status = False
+            
+        elif prod_total == 0 and prev_total == 0:
+            print("⚠️ PROBLÈME: AUCUNE DONNÉE DANS LES DEUX ENVIRONNEMENTS")
+            print("📋 CAUSE: Système complètement vide ou problème de configuration")
+            print("📋 SOLUTION: Vérifier configuration base de données et créer données test")
+            diagnostic = "ALL_DATABASES_EMPTY"
+            success_status = False
+            
+        elif prod_total > 0:
+            print("✅ BASE DE DONNÉES PRODUCTION CONTIENT DES DONNÉES")
+            print(f"📋 PRODUCTION: {prod_total} leads disponibles")
+            print("❌ MAIS: Tableau frontend reste vide malgré données présentes")
+            print("📋 CAUSE: Problème de communication frontend-backend ou filtrage")
+            print("📋 SOLUTION: Vérifier configuration frontend et filtres dashboard")
+            diagnostic = "FRONTEND_BACKEND_COMMUNICATION_ISSUE"
+            success_status = True  # Backend fonctionne, problème frontend
+            
+        else:
+            print("⚠️ SITUATION COMPLEXE DÉTECTÉE")
+            diagnostic = "COMPLEX_ISSUE"
+            success_status = False
+        
+        # RECOMMANDATIONS SPÉCIFIQUES
+        print(f"\n📋 RECOMMANDATIONS CRITIQUES:")
+        if diagnostic == "PRODUCTION_DATABASE_EMPTY":
+            print("1. 🚨 URGENT: Migrer les 37 leads de preview vers production")
+            print("2. Vérifier configuration MONGO_URL en production")
+            print("3. Tester création de nouveaux leads directement en production")
+            print("4. Synchroniser les bases de données preview → production")
+            
+        elif diagnostic == "FRONTEND_BACKEND_COMMUNICATION_ISSUE":
+            print("1. ✅ Backend production fonctionne correctement")
+            print("2. 🔧 Vérifier configuration REACT_APP_BACKEND_URL frontend")
+            print("3. 🔧 Contrôler les filtres et pagination du dashboard")
+            print("4. 🔧 Vérifier les appels API depuis le frontend")
+            
+        elif diagnostic == "ENDPOINT_INACCESSIBLE":
+            print("1. 🚨 URGENT: Vérifier connectivité réseau production")
+            print("2. Contrôler configuration serveur backend")
+            print("3. Vérifier certificats SSL et DNS")
+            
+        else:
+            print("1. Investigation approfondie requise")
+            print("2. Vérifier logs serveur backend")
+            print("3. Contrôler configuration complète")
+        
+        return self.log_test("🚨 Production Endpoint Critical Diagnosis", success_status,
+                           f"- Diagnostic: {diagnostic}. "
+                           f"Production: {prod_total} leads, Preview: {prev_total} leads. "
+                           f"Endpoint accessible: {prod_accessible}")
+
     def test_critical_url_detection_github_form(self):
         """🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE - Identifier quelle URL le formulaire utilise"""
         print("\n" + "="*80)
