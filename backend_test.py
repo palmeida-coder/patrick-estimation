@@ -678,8 +678,9 @@ class EfficiencyAPITester:
         print("Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques")
         print("="*80)
         
-        # Tests critiques dans l'ordre
+        # Tests critiques dans l'ordre - AJOUT TEST DÉTECTION URL CRITIQUE
         critical_tests = [
+            self.test_critical_url_detection_github_form,  # NOUVEAU TEST CRITIQUE
             self.test_critical_github_workflow_complete,
             self.test_database_efficity_crm_verification,
             self.test_lead_scoring_patrick_ia,
