@@ -61,26 +61,37 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/leads" element={<LeadsManager />} />
-            <Route path="/campaigns" element={<CampaignManager />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/extraction" element={<LeadExtraction />} />
-            <Route path="/notifications" element={<NotificationCenter />} />
-            <Route path="/sequences" element={<IntelligentSequences />} />
-            <Route path="/market" element={<MarketIntelligence />} />
-            <Route path="/crm" element={<CRMIntegrations />} />
-            <Route path="/rgpd" element={<RGPDCompliance />} />
-            <Route path="/patrick-ia3" element={<PatrickIA3Advanced />} />
-            <Route path="/lyon-predictor" element={<LyonRealEstatePredictor />} />
-            <Route path="/multi-agency" element={<MultiAgencyManagement />} />
-            <Route path="/ai-insights" element={<AIInsights />} />
-            <Route path="/patrick-ia" element={<PatrickIA2 />} />
-          </Routes>
-        </main>
+        <div className="flex">
+          {/* Sidebar Verticale */}
+          <SidebarNavigation />
+          
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col">
+            {/* Top Header */}
+            <TopHeader />
+            
+            {/* Main Content Area */}
+            <main className="flex-1 p-6">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/leads" element={<LeadsManager />} />
+                <Route path="/campaigns" element={<CampaignManager />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/extraction" element={<LeadExtraction />} />
+                <Route path="/notifications" element={<NotificationCenter />} />
+                <Route path="/sequences" element={<IntelligentSequences />} />
+                <Route path="/market" element={<MarketIntelligence />} />
+                <Route path="/crm" element={<CRMIntegrations />} />
+                <Route path="/rgpd" element={<RGPDCompliance />} />
+                <Route path="/patrick-ia3" element={<PatrickIA3Advanced />} />
+                <Route path="/lyon-predictor" element={<LyonRealEstatePredictor />} />
+                <Route path="/multi-agency" element={<MultiAgencyManagement />} />
+                <Route path="/ai-insights" element={<AIInsights />} />
+                <Route path="/patrick-ia" element={<PatrickIA2 />} />
+              </Routes>
+            </main>
+          </div>
+        </div>
       </div>
     </Router>
   );
