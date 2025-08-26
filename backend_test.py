@@ -434,6 +434,292 @@ class EfficiencyAPITester:
         else:
             return self.log_test("Patrick Notification System", False, f"- Test notification failed {send_details}")
 
+    def test_missing_lead_diagnostic_patrick_duarnd(self):
+        """🚨 DIAGNOSTIC CRITIQUE - LEAD MANQUANT PATRICK DUARND"""
+        print("\n" + "="*80)
+        print("🚨 DIAGNOSTIC CRITIQUE - LEAD MANQUANT DASHBOARD PREVIEW")
+        print("PROBLÈME: Lead 'Patrick DUARND - 4 Rue Laurent Mourguet 69005 lyon' soumis mais n'apparaît pas")
+        print("OBJECTIF: Localiser le lead et identifier le problème de synchronisation")
+        print("="*80)
+        
+        # Données du lead manquant selon la demande
+        missing_lead_data = {
+            "nom": "DUARND",
+            "prenom": "Patrick", 
+            "email": "lyonestimationconseil@gmail.com",
+            "telephone": "0623456789",
+            "adresse": "4 Rue Laurent Mourguet",
+            "ville": "Lyon",
+            "code_postal": "69005",
+            "type_bien": "Appartement",
+            "surface": "75",
+            "pieces": "3",
+            "prix_souhaite": "350000"
+        }
+        
+        print(f"🔍 RECHERCHE LEAD MANQUANT:")
+        print(f"👤 Nom: {missing_lead_data['prenom']} {missing_lead_data['nom']}")
+        print(f"📧 Email probable: {missing_lead_data['email']}")
+        print(f"🏠 Adresse: {missing_lead_data['adresse']} {missing_lead_data['code_postal']} {missing_lead_data['ville']}")
+        print(f"🏠 Type: {missing_lead_data['type_bien']}")
+        
+        results = {}
+        
+        # ÉTAPE 1: Recherche dans base Preview
+        print(f"\n🔍 ÉTAPE 1: VÉRIFICATION BASE DONNÉES PREVIEW")
+        print(f"URL: https://realestate-leads-5.preview.emergentagent.com/api/leads")
+        print("-" * 60)
+        
+        preview_success, preview_response, preview_details = self.make_request('GET', 'api/leads?limite=100', expected_status=200)
+        
+        if preview_success and 'leads' in preview_response:
+            leads = preview_response.get('leads', [])
+            total_leads = preview_response.get('total', 0)
+            
+            print(f"✅ Base Preview accessible: {total_leads} leads totaux")
+            
+            # Recherche par nom
+            patrick_leads_by_name = [lead for lead in leads if 
+                                   'patrick' in lead.get('prénom', '').lower() or 
+                                   'patrick' in lead.get('nom', '').lower() or
+                                   'duarnd' in lead.get('nom', '').lower()]
+            
+            # Recherche par adresse
+            laurent_mourguet_leads = [lead for lead in leads if 
+                                    'laurent mourguet' in lead.get('adresse', '').lower() or
+                                    'mourguet' in lead.get('adresse', '').lower()]
+            
+            # Recherche par email
+            email_leads = [lead for lead in leads if 
+                         'lyonestimationconseil' in lead.get('email', '').lower()]
+            
+            # Recherche par code postal 69005
+            lyon5_leads = [lead for lead in leads if 
+                         lead.get('code_postal') == '69005' or
+                         '69005' in lead.get('adresse', '')]
+            
+            print(f"🔍 RÉSULTATS RECHERCHE PREVIEW:")
+            print(f"   - Par nom 'Patrick/DUARND': {len(patrick_leads_by_name)} leads")
+            print(f"   - Par adresse 'Laurent Mourguet': {len(laurent_mourguet_leads)} leads")
+            print(f"   - Par email 'lyonestimationconseil': {len(email_leads)} leads")
+            print(f"   - Par code postal '69005': {len(lyon5_leads)} leads")
+            
+            # Afficher détails des leads trouvés
+            all_matching_leads = []
+            for lead_list, search_type in [
+                (patrick_leads_by_name, "nom"),
+                (laurent_mourguet_leads, "adresse"),
+                (email_leads, "email"),
+                (lyon5_leads, "code_postal")
+            ]:
+                for lead in lead_list:
+                    if lead not in all_matching_leads:
+                        all_matching_leads.append(lead)
+                        print(f"   📋 LEAD TROUVÉ ({search_type}): {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - {lead.get('adresse', '')} - ID: {lead.get('id', '')}")
+            
+            results['preview'] = {
+                'accessible': True,
+                'total_leads': total_leads,
+                'matching_leads': len(all_matching_leads),
+                'leads_found': all_matching_leads
+            }
+            
+            if all_matching_leads:
+                print(f"✅ LEAD(S) POTENTIEL(S) TROUVÉ(S) EN PREVIEW: {len(all_matching_leads)}")
+            else:
+                print(f"❌ AUCUN LEAD CORRESPONDANT TROUVÉ EN PREVIEW")
+                
+        else:
+            print(f"❌ ERREUR ACCÈS BASE PREVIEW: {preview_details}")
+            results['preview'] = {'accessible': False, 'error': preview_details}
+        
+        # ÉTAPE 2: Recherche dans base Production
+        print(f"\n🔍 ÉTAPE 2: VÉRIFICATION BASE DONNÉES PRODUCTION")
+        print(f"URL: https://efficity-crm.emergent.host/api/leads")
+        print("-" * 60)
+        
+        production_tester = EfficiencyAPITester("https://efficity-crm.emergent.host")
+        prod_success, prod_response, prod_details = production_tester.make_request('GET', 'api/leads?limite=100', expected_status=200)
+        
+        if prod_success and 'leads' in prod_response:
+            prod_leads = prod_response.get('leads', [])
+            prod_total = prod_response.get('total', 0)
+            
+            print(f"✅ Base Production accessible: {prod_total} leads totaux")
+            
+            # Même recherche en production
+            prod_patrick_leads = [lead for lead in prod_leads if 
+                                'patrick' in lead.get('prénom', '').lower() or 
+                                'patrick' in lead.get('nom', '').lower() or
+                                'duarnd' in lead.get('nom', '').lower()]
+            
+            prod_laurent_leads = [lead for lead in prod_leads if 
+                                'laurent mourguet' in lead.get('adresse', '').lower() or
+                                'mourguet' in lead.get('adresse', '').lower()]
+            
+            prod_email_leads = [lead for lead in prod_leads if 
+                              'lyonestimationconseil' in lead.get('email', '').lower()]
+            
+            prod_lyon5_leads = [lead for lead in prod_leads if 
+                              lead.get('code_postal') == '69005' or
+                              '69005' in lead.get('adresse', '')]
+            
+            print(f"🔍 RÉSULTATS RECHERCHE PRODUCTION:")
+            print(f"   - Par nom 'Patrick/DUARND': {len(prod_patrick_leads)} leads")
+            print(f"   - Par adresse 'Laurent Mourguet': {len(prod_laurent_leads)} leads")
+            print(f"   - Par email 'lyonestimationconseil': {len(prod_email_leads)} leads")
+            print(f"   - Par code postal '69005': {len(prod_lyon5_leads)} leads")
+            
+            # Afficher détails des leads trouvés en production
+            all_prod_matching = []
+            for lead_list, search_type in [
+                (prod_patrick_leads, "nom"),
+                (prod_laurent_leads, "adresse"),
+                (prod_email_leads, "email"),
+                (prod_lyon5_leads, "code_postal")
+            ]:
+                for lead in lead_list:
+                    if lead not in all_prod_matching:
+                        all_prod_matching.append(lead)
+                        print(f"   📋 LEAD TROUVÉ PRODUCTION ({search_type}): {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - {lead.get('adresse', '')} - ID: {lead.get('id', '')}")
+            
+            results['production'] = {
+                'accessible': True,
+                'total_leads': prod_total,
+                'matching_leads': len(all_prod_matching),
+                'leads_found': all_prod_matching
+            }
+            
+            if all_prod_matching:
+                print(f"✅ LEAD(S) POTENTIEL(S) TROUVÉ(S) EN PRODUCTION: {len(all_prod_matching)}")
+            else:
+                print(f"❌ AUCUN LEAD CORRESPONDANT TROUVÉ EN PRODUCTION")
+                
+        else:
+            print(f"❌ ERREUR ACCÈS BASE PRODUCTION: {prod_details}")
+            results['production'] = {'accessible': False, 'error': prod_details}
+        
+        # ÉTAPE 3: Test formulaire GitHub avec données exactes
+        print(f"\n🔍 ÉTAPE 3: TEST FORMULAIRE GITHUB AVEC DONNÉES EXACTES")
+        print("-" * 60)
+        
+        github_test_data = {
+            "prenom": "Patrick",
+            "nom": "DUARND",
+            "email": "lyonestimationconseil@gmail.com",
+            "telephone": "0623456789",
+            "adresse": "4 Rue Laurent Mourguet",
+            "ville": "Lyon",
+            "code_postal": "69005",
+            "type_bien": "Appartement",
+            "surface": "75",
+            "pieces": "3",
+            "prix_souhaite": "350000"
+        }
+        
+        # Test sur Preview
+        github_success, github_response, github_details = self.make_request(
+            'POST', 'api/estimation/submit-prospect-email', 
+            data=github_test_data, 
+            expected_status=200
+        )
+        
+        if github_success:
+            print(f"✅ FORMULAIRE GITHUB PREVIEW FONCTIONNE")
+            print(f"   Success: {github_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {github_response.get('lead_id', 'N/A')}")
+            print(f"   Patrick AI Score: {github_response.get('patrick_ai_score', 'N/A')}")
+            
+            test_lead_id = github_response.get('lead_id')
+            if test_lead_id:
+                # Vérifier que le lead est créé
+                verify_success, verify_response, verify_details = self.make_request('GET', f'api/leads/{test_lead_id}', expected_status=200)
+                if verify_success:
+                    print(f"✅ LEAD TEST CRÉÉ ET VÉRIFIABLE: {verify_response.get('prénom', '')} {verify_response.get('nom', '')}")
+                    results['github_test'] = {
+                        'working': True,
+                        'lead_created': True,
+                        'lead_id': test_lead_id
+                    }
+                else:
+                    print(f"❌ LEAD TEST CRÉÉ MAIS NON VÉRIFIABLE")
+                    results['github_test'] = {
+                        'working': True,
+                        'lead_created': False
+                    }
+            else:
+                print(f"❌ FORMULAIRE FONCTIONNE MAIS AUCUN LEAD ID RETOURNÉ")
+                results['github_test'] = {
+                    'working': True,
+                    'lead_created': False
+                }
+        else:
+            print(f"❌ FORMULAIRE GITHUB PREVIEW NE FONCTIONNE PAS: {github_details}")
+            results['github_test'] = {
+                'working': False,
+                'error': github_details
+            }
+        
+        # DIAGNOSTIC FINAL
+        print(f"\n" + "="*80)
+        print("🎯 DIAGNOSTIC FINAL - LEAD MANQUANT PATRICK DUARND")
+        print("="*80)
+        
+        preview_found = results.get('preview', {}).get('matching_leads', 0) > 0
+        production_found = results.get('production', {}).get('matching_leads', 0) > 0
+        github_working = results.get('github_test', {}).get('working', False)
+        
+        if preview_found:
+            print("✅ LEAD TROUVÉ EN BASE PREVIEW - Problème d'affichage dashboard")
+            print("📋 RECOMMANDATION: Vérifier filtres et pagination du dashboard frontend")
+            diagnostic = "LEAD_IN_PREVIEW_DISPLAY_ISSUE"
+            
+        elif production_found:
+            print("⚠️ LEAD TROUVÉ EN BASE PRODUCTION - Mauvaise redirection formulaire")
+            print("📋 RECOMMANDATION: Formulaire GitHub pointe vers production au lieu de preview")
+            diagnostic = "LEAD_IN_PRODUCTION_WRONG_REDIRECT"
+            
+        elif github_working:
+            print("⚠️ FORMULAIRE FONCTIONNE MAIS LEAD INTROUVABLE")
+            print("📋 RECOMMANDATION: Problème de synchronisation ou données différentes")
+            diagnostic = "FORM_WORKING_LEAD_NOT_FOUND"
+            
+        else:
+            print("❌ PROBLÈME CRITIQUE - FORMULAIRE ET BASES INACCESSIBLES")
+            print("📋 RECOMMANDATION: Vérifier configuration backend et connectivité")
+            diagnostic = "CRITICAL_SYSTEM_ISSUE"
+        
+        # Recommandations spécifiques
+        print(f"\n📋 ACTIONS RECOMMANDÉES:")
+        if diagnostic == "LEAD_IN_PREVIEW_DISPLAY_ISSUE":
+            print("1. Vérifier les filtres du dashboard frontend")
+            print("2. Augmenter la limite de pagination")
+            print("3. Vérifier l'ordre de tri (plus récents en premier)")
+            print("4. Contrôler les critères de recherche du dashboard")
+            
+        elif diagnostic == "LEAD_IN_PRODUCTION_WRONG_REDIRECT":
+            print("1. Modifier l'URL du formulaire GitHub vers Preview")
+            print("2. Vérifier la configuration des variables d'environnement")
+            print("3. Tester le workflow complet après correction")
+            
+        elif diagnostic == "FORM_WORKING_LEAD_NOT_FOUND":
+            print("1. Vérifier que les données soumises correspondent exactement")
+            print("2. Contrôler les logs de création de leads")
+            print("3. Vérifier la synchronisation temps réel")
+            
+        else:
+            print("1. Vérifier la connectivité réseau")
+            print("2. Contrôler les services backend")
+            print("3. Vérifier les configurations de base de données")
+        
+        success_status = diagnostic in ["LEAD_IN_PREVIEW_DISPLAY_ISSUE", "FORM_WORKING_LEAD_NOT_FOUND"]
+        
+        return self.log_test("🚨 Missing Lead Diagnostic Patrick DUARND", success_status,
+                           f"- Diagnostic: {diagnostic}. "
+                           f"Preview: {results.get('preview', {}).get('matching_leads', 0)} leads found, "
+                           f"Production: {results.get('production', {}).get('matching_leads', 0)} leads found, "
+                           f"GitHub form: {'working' if github_working else 'not working'}")
+
     def test_critical_url_detection_github_form(self):
         """🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE - Identifier quelle URL le formulaire utilise"""
         print("\n" + "="*80)
