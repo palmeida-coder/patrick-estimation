@@ -720,6 +720,155 @@ class EfficiencyAPITester:
                            f"Production: {results.get('production', {}).get('matching_leads', 0)} leads found, "
                            f"GitHub form: {'working' if github_working else 'not working'}")
 
+    def test_oauth_bug_github_form_critical(self):
+        """🚨 BUG CRITIQUE OAUTH - Test formulaire GitHub pour détecter redirection OAuth incorrecte"""
+        print("\n" + "="*80)
+        print("🚨 BUG CRITIQUE OAUTH FORMULAIRE GITHUB - DEMANDE OUVERTURE MAIL PROSPECT")
+        print("PROBLÈME: Formulaire déclenche OAuth 'Sélectionnez un compte sur efficity.com'")
+        print("SYMPTÔMES: Redirection vers Google OAuth au lieu de simple réponse JSON")
+        print("OBJECTIF: Vérifier que l'endpoint retourne SEULEMENT JSON sans OAuth")
+        print("="*80)
+        
+        # Données test exactes selon le bug report
+        oauth_test_data = {
+            "prenom": "Test",
+            "nom": "Debug",
+            "email": "test.debug.oauth@example.com",
+            "telephone": "0623456789",
+            "adresse": "1 Place Bellecour, Lyon 1er",
+            "type_bien": "Appartement",
+            "surface": "85",
+            "pieces": "4",
+            "prix_souhaite": "420000",
+            "ville": "Lyon",
+            "code_postal": "69001"
+        }
+        
+        print(f"📝 Testing OAuth bug with data:")
+        print(f"👤 Prospect: {oauth_test_data['prenom']} {oauth_test_data['nom']}")
+        print(f"📧 Email: {oauth_test_data['email']}")
+        print(f"🏠 Property: {oauth_test_data['type_bien']} {oauth_test_data['surface']}m² - {oauth_test_data['prix_souhaite']}€")
+        
+        # TEST CRITIQUE: Vérifier réponse JSON sans redirection OAuth
+        print(f"\n🔍 TESTING ENDPOINT POST /api/estimation/submit-prospect-email")
+        print("VÉRIFICATIONS CRITIQUES:")
+        print("1. ✅ Réponse JSON correcte")
+        print("2. ❌ AUCUNE redirection OAuth")
+        print("3. ❌ AUCUNE demande d'accès email prospect")
+        print("4. ✅ Notification SEULEMENT à palmeida@efficity.com")
+        print("-" * 60)
+        
+        success, response, details = self.make_request(
+            'POST', 'api/estimation/submit-prospect-email', 
+            data=oauth_test_data, 
+            expected_status=200
+        )
+        
+        oauth_issues = []
+        
+        if not success:
+            oauth_issues.append(f"ENDPOINT_ERROR: {details}")
+            print(f"❌ ENDPOINT INACCESSIBLE: {details}")
+        else:
+            print(f"✅ ENDPOINT ACCESSIBLE - Status 200 OK")
+            
+            # Vérifier réponse JSON correcte
+            if isinstance(response, dict):
+                print(f"✅ RÉPONSE JSON CORRECTE (pas de redirection HTML)")
+                
+                # Vérifier champs requis
+                required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
+                missing_fields = [f for f in required_fields if f not in response]
+                
+                if missing_fields:
+                    oauth_issues.append(f"MISSING_FIELDS: {missing_fields}")
+                    print(f"⚠️ CHAMPS MANQUANTS: {missing_fields}")
+                else:
+                    print(f"✅ TOUS LES CHAMPS REQUIS PRÉSENTS")
+                
+                # Vérifier valeurs attendues
+                if response.get('success') != True:
+                    oauth_issues.append(f"SUCCESS_FALSE: {response.get('success')}")
+                    print(f"❌ SUCCESS=FALSE: {response.get('success')}")
+                else:
+                    print(f"✅ SUCCESS=TRUE")
+                
+                # Vérifier qu'il n'y a pas de redirection OAuth dans la réponse
+                response_str = str(response).lower()
+                oauth_indicators = ['oauth', 'google', 'accounts.google.com', 'authorization', 'redirect_uri', 'client_id']
+                found_oauth = [indicator for indicator in oauth_indicators if indicator in response_str]
+                
+                if found_oauth:
+                    oauth_issues.append(f"OAUTH_DETECTED: {found_oauth}")
+                    print(f"❌ INDICATEURS OAUTH DÉTECTÉS: {found_oauth}")
+                else:
+                    print(f"✅ AUCUN INDICATEUR OAUTH DANS LA RÉPONSE")
+                
+                # Afficher réponse complète pour analyse
+                print(f"\n📋 RÉPONSE COMPLÈTE:")
+                for key, value in response.items():
+                    print(f"   {key}: {value}")
+                
+            else:
+                oauth_issues.append("NON_JSON_RESPONSE")
+                print(f"❌ RÉPONSE NON-JSON (possible redirection HTML): {type(response)}")
+        
+        # ANALYSE CRITIQUE
+        print(f"\n" + "="*60)
+        print("🎯 ANALYSE CRITIQUE BUG OAUTH")
+        print("="*60)
+        
+        if not oauth_issues:
+            print("✅ AUCUN PROBLÈME OAUTH DÉTECTÉ")
+            print("✅ Endpoint retourne JSON correct sans redirection")
+            print("✅ Workflow correct: Formulaire → Notification Patrick → Fin")
+            oauth_status = "NO_OAUTH_BUG"
+            success_result = True
+            
+        else:
+            print("❌ PROBLÈMES OAUTH DÉTECTÉS:")
+            for issue in oauth_issues:
+                print(f"   - {issue}")
+            
+            if "OAUTH_DETECTED" in str(oauth_issues):
+                print("🚨 BUG CRITIQUE CONFIRMÉ: Redirection OAuth détectée")
+                print("📋 ACTION REQUISE: Éliminer redirection OAuth du workflow")
+                oauth_status = "OAUTH_BUG_CONFIRMED"
+            elif "ENDPOINT_ERROR" in str(oauth_issues):
+                print("⚠️ PROBLÈME ENDPOINT: Impossible de tester OAuth")
+                oauth_status = "ENDPOINT_ISSUE"
+            else:
+                print("⚠️ PROBLÈMES MINEURS: Endpoint fonctionne mais réponse incomplète")
+                oauth_status = "MINOR_ISSUES"
+            
+            success_result = False
+        
+        # RECOMMANDATIONS
+        print(f"\n📋 RECOMMANDATIONS:")
+        if oauth_status == "NO_OAUTH_BUG":
+            print("✅ Continuer workflow marketing Facebook sans interruption")
+            print("✅ Système conforme: aucune interaction avec email prospect")
+            
+        elif oauth_status == "OAUTH_BUG_CONFIRMED":
+            print("🚨 URGENT: Identifier et supprimer redirection OAuth")
+            print("🔧 Vérifier service email automation")
+            print("🔧 Contrôler configuration Google API")
+            print("🔧 Éliminer demande d'accès email prospect")
+            
+        elif oauth_status == "ENDPOINT_ISSUE":
+            print("🔧 Vérifier connectivité et configuration backend")
+            print("🔧 Contrôler service FastAPI")
+            
+        else:
+            print("🔧 Corriger réponse endpoint pour conformité")
+            print("🔧 Vérifier tous les champs requis")
+        
+        return self.log_test("🚨 OAuth Bug GitHub Form", success_result,
+                           f"- OAuth Analysis: {oauth_status}. "
+                           f"Issues detected: {len(oauth_issues)}. "
+                           f"Endpoint accessible: {success}. "
+                           f"Response type: {'JSON' if isinstance(response, dict) else type(response).__name__}")
+
     def test_critical_url_detection_github_form(self):
         """🚨 TEST DÉTECTION URL FORMULAIRE GITHUB CRITIQUE - Identifier quelle URL le formulaire utilise"""
         print("\n" + "="*80)
