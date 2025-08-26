@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-🎯 BACKEND API TESTS - WORKFLOW GITHUB → EMAIL PROSPECT CRITIQUE
-Tests critiques pour vérification workflow marketing Patrick Almeida
-Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques
+🚨 BACKEND API TESTS - DIAGNOSTIC TABLEAU LEADS VIDE PRODUCTION
+Tests critiques pour résoudre le problème de tableau vide malgré interface fonctionnelle
+URL Production: https://realestate-leads-5.emergentagent.host/leads
 """
 
 import requests
@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 class EfficiencyAPITester:
-    def __init__(self, base_url="https://realestate-leads-5.preview.emergentagent.com"):
+    def __init__(self, base_url="https://realestate-leads-5.emergentagent.host"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
