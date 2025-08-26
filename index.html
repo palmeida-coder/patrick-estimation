@@ -12,88 +12,77 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 20px;
         }
 
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 40px;
             text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 50px;
         }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
         }
 
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .benefits {
-            display: flex;
-            justify-content: space-around;
-            background: #f8f9fa;
-            padding: 30px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
         }
 
         .benefit {
             text-align: center;
-            color: #2c3e50;
-            flex: 1;
-            min-width: 200px;
-            margin: 10px;
-        }
-
-        .benefit-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
 
         .stats {
-            display: flex;
-            justify-content: space-around;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
             background: #2c3e50;
-            color: white;
             padding: 40px;
+            border-radius: 10px;
+            color: white;
             text-align: center;
         }
 
-        .stat {
-            flex: 1;
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #4facfe;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            margin-top: 5px;
+        .stat h3 {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 10px;
         }
 
         .form-section {
+            background: white;
             padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
         }
 
-        .form-title {
+        .form-section h2 {
             text-align: center;
             margin-bottom: 30px;
             color: #2c3e50;
@@ -103,7 +92,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
         }
 
         .form-group {
@@ -112,111 +100,75 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
-        .required {
-            color: #e74c3c;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
 
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #4facfe;
+            border-color: #3498db;
         }
 
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        .btn {
+            background: #3498db;
             color: white;
+            padding: 15px 30px;
             border: none;
-            padding: 18px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 10px;
+            border-radius: 5px;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: transform 0.3s;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-2px);
+        .btn:hover {
+            background: #2980b9;
         }
 
-        .submit-btn:disabled {
-            opacity: 0.6;
+        .btn:disabled {
+            background: #bdc3c7;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .disclaimer {
-            text-align: center;
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .contact-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-top: 1px solid #eee;
-        }
-
-        .contact-title {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        .contact-grid {
+        .contact {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 30px;
             text-align: center;
         }
 
         .contact-item {
             padding: 20px;
-            background: white;
+            background: #f8f9fa;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .contact-icon {
-            font-size: 2em;
+        .contact-item h3 {
+            color: #2c3e50;
             margin-bottom: 10px;
-            color: #4facfe;
         }
 
         .contact-item a {
-            color: #2c3e50;
+            color: #3498db;
             text-decoration: none;
         }
 
-        .contact-item a:hover {
-            color: #4facfe;
-        }
-
-        .loading-message {
-            display: none;
-            text-align: center;
-            color: #4facfe;
-            font-weight: bold;
-            margin-top: 20px;
+        .required {
+            color: #e74c3c;
         }
 
         .success-message {
@@ -225,7 +177,7 @@
             border: 1px solid #c3e6cb;
             color: #155724;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 5px;
             margin-top: 20px;
             text-align: center;
         }
@@ -236,23 +188,21 @@
             border: 1px solid #f5c6cb;
             color: #721c24;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 5px;
             margin-top: 20px;
             text-align: center;
         }
 
+        .loading {
+            display: none;
+            text-align: center;
+            color: #3498db;
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .benefits {
-                flex-direction: column;
+            .hero h1 {
+                font-size: 2rem;
             }
             
             .form-grid {
@@ -262,53 +212,45 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <h1>🏠 Estimation gratuite de votre bien</h1>
-            <p>Obtenez une <strong>estimation précise et gratuite</strong> de votre propriété Lyon par un expert du marché local.</p>
-        </div>
+    <div class="hero">
+        <h1>🏠 Estimation gratuite de votre bien</h1>
+        <p>Obtenez une <strong>estimation précise et gratuite</strong> de votre propriété Lyon par un expert du marché local.</p>
+    </div>
 
-        <!-- Benefits Section -->
+    <div class="container">
         <div class="benefits">
             <div class="benefit">
-                <div class="benefit-icon">📊</div>
-                <h3>Analyse du marché en temps réel</h3>
+                <h3>✓ Analyse du marché en temps réel</h3>
             </div>
             <div class="benefit">
-                <div class="benefit-icon">🏠</div>
-                <h3>Visite gratuite sous 48H</h3>
+                <h3>✓ Visite gratuite sous 48H</h3>
             </div>
             <div class="benefit">
-                <div class="benefit-icon">💼</div>
-                <h3>Stratégie de vente personnalisée</h3>
+                <h3>✓ Stratégie de vente personnalisée</h3>
             </div>
         </div>
 
-        <!-- Stats Section -->
         <div class="stats">
             <div class="stat">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Ventes réalisées</div>
+                <h3>500+</h3>
+                <p>Ventes réalisées</p>
             </div>
             <div class="stat">
-                <div class="stat-number">47j</div>
-                <div class="stat-label">Délai moyen</div>
+                <h3>47j</h3>
+                <p>Délai moyen</p>
             </div>
             <div class="stat">
-                <div class="stat-number">+12%</div>
-                <div class="stat-label">Prix optimisé</div>
+                <h3>+12%</h3>
+                <p>Prix optimisé</p>
             </div>
         </div>
 
-        <!-- Form Section -->
         <div class="form-section">
-            <h2 class="form-title">📝 Demande d'estimation</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 30px;">Remplissez ce formulaire pour recevoir votre estimation gratuite</p>
+            <h2>📝 Demande d'estimation</h2>
+            <p style="text-align: center; margin-bottom: 30px;">Remplissez ce formulaire pour recevoir votre estimation gratuite</p>
 
             <form id="estimationForm">
                 <div class="form-grid">
-                    <!-- Column 1 -->
                     <div>
                         <div class="form-group">
                             <label for="firstName">Prénom <span class="required">*</span></label>
@@ -336,7 +278,6 @@
                         </div>
                     </div>
 
-                    <!-- Column 2 -->
                     <div>
                         <div class="form-group">
                             <label for="propertyType">Type de bien <span class="required">*</span></label>
@@ -351,7 +292,7 @@
 
                         <div class="form-group">
                             <label for="surface">Surface (m²) <span class="required">*</span></label>
-                            <input type="number" id="surface" name="surface" required min="1">
+                            <input type="number" id="surface" name="surface" required>
                         </div>
 
                         <div class="form-group">
@@ -390,77 +331,71 @@
 
                 <div class="form-group">
                     <label for="message">Informations complémentaires</label>
-                    <textarea id="message" name="message" rows="4" placeholder="Décrivez votre bien, vos attentes, contraintes particulières..."></textarea>
+                    <textarea id="message" name="message" rows="4"></textarea>
                 </div>
 
-                <button type="submit" class="submit-btn" id="submitBtn">
+                <button type="submit" class="btn" id="submitBtn">
                     🏠 Demander mon estimation gratuite
                 </button>
 
-                <div class="loading-message" id="loadingMessage">
+                <div class="loading" id="loadingMessage">
                     Envoi de votre demande...
                 </div>
 
                 <div class="success-message" id="successMessage">
-                    ✅ <strong>Demande envoyée avec succès !</strong><br>
+                    Envoi de votre demande...<br>
                     Patrick vous recontactera dans les 24h
                 </div>
 
                 <div class="error-message" id="errorMessage">
-                    ❌ Une erreur s'est produite. Veuillez réessayer ou nous contacter directement.
+                    Une erreur s'est produite. Veuillez réessayer.
                 </div>
 
-                <div class="disclaimer">
+                <p style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #666;">
                     * Champs obligatoires • Données sécurisées • Réponse sous 24h
-                </div>
+                </p>
             </form>
         </div>
 
-        <!-- Contact Section -->
-        <div class="contact-section">
-            <h3 class="contact-title">📞 Contact direct Patrick Almeida</h3>
-            <div class="contact-grid">
-                <div class="contact-item">
-                    <div class="contact-icon">📱</div>
-                    <h4><a href="tel:0682052824">06.82.05.28.24</a></h4>
-                    <p>Direct 7j/7 - Réponse rapide</p>
-                </div>
-                <div class="contact-item">
-                    <div class="contact-icon">✉️</div>
-                    <h4><a href="mailto:palmeida@efficity.com">palmeida@efficity.com</a></h4>
-                    <p>Email professionnel</p>
-                </div>
-                <div class="contact-item">
-                    <div class="contact-icon">📍</div>
-                    <h4>6 place des Tapis</h4>
-                    <p>69004 Lyon - Centre-ville</p>
-                </div>
+        <div class="contact">
+            <div class="contact-item">
+                <h3>📱</h3>
+                <h4><a href="tel:0682052824">06.82.05.28.24</a></h4>
+                <p>Direct 7j/7 - Réponse rapide</p>
+            </div>
+            <div class="contact-item">
+                <h3>✉️</h3>
+                <h4><a href="mailto:palmeida@efficity.com">palmeida@efficity.com</a></h4>
+                <p>Email professionnel</p>
+            </div>
+            <div class="contact-item">
+                <h3>📍</h3>
+                <h4>6 place des Tapis</h4>
+                <p>69004 Lyon - Centre-ville</p>
             </div>
         </div>
     </div>
 
     <script>
-        // ✅ CODE JAVASCRIPT CORRIGÉ - SANS OUVERTURE EMAIL AUTOMATIQUE
+        // ✅ ANCIENNE INTERFACE + CORRECTION BUG OAUTH SEULEMENT
         document.getElementById('estimationForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Éléments DOM
             const submitBtn = document.getElementById('submitBtn');
             const loadingMessage = document.getElementById('loadingMessage');
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
             
-            // Masquer les messages précédents
+            // Reset messages
             successMessage.style.display = 'none';
             errorMessage.style.display = 'none';
             
-            // Afficher le loading
+            // Show loading
             submitBtn.disabled = true;
             submitBtn.textContent = 'Envoi en cours...';
             loadingMessage.style.display = 'block';
             
             try {
-                // Récupérer les données du formulaire
                 const formData = new FormData(this);
                 const data = {
                     prenom: formData.get('firstName'),
@@ -477,9 +412,7 @@
                     message: formData.get('message')
                 };
                 
-                console.log('Envoi des données:', data);
-                
-                // ✅ CORRECTION: Envoi vers l'API backend SEULEMENT
+                // ✅ CORRECTION: API call SANS ouverture automatique email
                 const response = await fetch('https://realestate-leads-5.preview.emergentagent.com/api/estimation/submit-prospect-email', {
                     method: 'POST',
                     headers: {
@@ -489,58 +422,29 @@
                 });
                 
                 const result = await response.json();
-                console.log('Réponse API:', result);
                 
                 if (result.success) {
-                    // ✅ SUCCÈS: Afficher SEULEMENT le message de confirmation
+                    // ✅ SUCCÈS: Message confirmation SEULEMENT
                     loadingMessage.style.display = 'none';
                     successMessage.style.display = 'block';
-                    
-                    // Reset du formulaire
                     this.reset();
                     
-                    // ❌ SUPPRIMÉ: Pas d'ouverture automatique du client email
-                    // ❌ SUPPRIMÉ: window.open() 
-                    // ❌ SUPPRIMÉ: mailto:
-                    // ❌ SUPPRIMÉ: Google OAuth
-                    
-                    console.log('✅ Demande envoyée avec succès - Lead ID:', result.lead_id);
+                    // ❌ SUPPRIMÉ: window.open(), mailto:, OAuth
                     
                 } else {
                     throw new Error(result.message || 'Erreur lors de l\\'envoi');
                 }
                 
             } catch (error) {
-                console.error('❌ Erreur:', error);
-                
-                // Afficher le message d'erreur
+                console.error('Erreur:', error);
                 loadingMessage.style.display = 'none';
                 errorMessage.style.display = 'block';
-                errorMessage.innerHTML = `
-                    ❌ <strong>Erreur lors de l'envoi :</strong><br>
-                    ${error.message}<br>
-                    Veuillez réessayer ou nous contacter directement.
-                `;
             } finally {
-                // Restaurer le bouton
                 submitBtn.disabled = false;
                 submitBtn.textContent = '🏠 Demander mon estimation gratuite';
                 loadingMessage.style.display = 'none';
             }
         });
-        
-        // ✅ VALIDATION EN TEMPS RÉEL (sans email automatique)
-        document.querySelectorAll('input[required], select[required]').forEach(input => {
-            input.addEventListener('blur', function() {
-                if (!this.value.trim()) {
-                    this.style.borderColor = '#e74c3c';
-                } else {
-                    this.style.borderColor = '#4facfe';
-                }
-            });
-        });
-        
-        console.log('✅ Formulaire GitHub Pages initialisé - Version corrigée sans ouverture email');
     </script>
 </body>
 </html>
