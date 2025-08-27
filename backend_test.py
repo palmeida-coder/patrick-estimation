@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-🚨 VÉRIFICATION CRITIQUE - OÙ ARRIVENT LES VRAIS PROSPECTS ?
-Tests critiques pour identifier où arrivent réellement les prospects depuis le formulaire GitHub
-PROBLÈME URGENT: L'utilisateur a déployé pour stabilité mais les vrais prospects n'apparaissent pas dans l'environnement stable
-OBJECTIF: Déterminer où arrivent réellement les prospects depuis https://palmeida-coder.github.io/patrick-estimation/
+🚨 DIAGNOSTIC URGENT - URL PRODUCTION ACCESSIBLE MAIS TABLEAU VIDE
+Tests critiques pour diagnostiquer pourquoi le tableau est complètement vide malgré l'interface qui se charge correctement
+PROBLÈME URGENT: L'utilisateur montre que le tableau est complètement vide malgré l'interface sidebar verticale parfaite
+OBJECTIF: Identifier pourquoi fetchLeads() ne charge pas les données sur l'URL production accessible
+URL PRODUCTION: https://realestate-leads-5.emergentagent.host/leads
 """
 
 import requests
