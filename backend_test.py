@@ -50,6 +50,522 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
+class ImmediateProductionVerifier:
+    """🔍 VÉRIFICATION IMMÉDIATE - ÉTAT ACTUEL DU SYSTÈME PRODUCTION"""
+    
+    def __init__(self):
+        self.production_url = "https://realestate-leads-5.emergent.host"
+        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.tests_run = 0
+        self.tests_passed = 0
+        self.results = {}
+        
+    def log_test(self, name: str, success: bool, details: str = ""):
+        """Log test results"""
+        self.tests_run += 1
+        if success:
+            self.tests_passed += 1
+            print(f"✅ {name} - PASSED {details}")
+        else:
+            print(f"❌ {name} - FAILED {details}")
+        return success
+
+    def make_request(self, base_url: str, method: str, endpoint: str, data: dict = None, expected_status: int = 200) -> tuple:
+        """Make HTTP request and return success status and response"""
+        url = f"{base_url}/{endpoint}"
+        headers = {'Content-Type': 'application/json'}
+        
+        try:
+            if method == 'GET':
+                response = requests.get(url, headers=headers, timeout=15)
+            elif method == 'POST':
+                response = requests.post(url, json=data, headers=headers, timeout=15)
+            else:
+                return False, {}, f"Unsupported method: {method}"
+
+            success = response.status_code == expected_status
+            try:
+                response_data = response.json()
+            except:
+                response_data = {"raw_response": response.text[:500], "status_code": response.status_code}
+            
+            status_info = f"(Status: {response.status_code}, Expected: {expected_status})"
+            return success, response_data, status_info
+
+        except requests.exceptions.RequestException as e:
+            return False, {}, f"Request failed: {str(e)}"
+
+    def test_production_api_current_state(self):
+        """🔍 TEST 1: API BACKEND PRODUCTION ACTUEL - https://realestate-leads-5.emergent.host/api/leads"""
+        print("\n🔍 TEST 1: VÉRIFICATION API BACKEND PRODUCTION ACTUEL")
+        print(f"URL: {self.production_url}/api/leads")
+        print("=" * 80)
+        
+        success, response, details = self.make_request(self.production_url, 'GET', 'api/leads?limite=50', expected_status=200)
+        
+        if not success:
+            self.results['production_api'] = {
+                'accessible': False, 
+                'error': details,
+                'status': 'INACCESSIBLE'
+            }
+            print(f"❌ API PRODUCTION INACCESSIBLE: {details}")
+            return self.log_test("Production API Current State", False, f"API not accessible: {details}")
+        
+        leads = response.get('leads', [])
+        total_leads = response.get('total', 0)
+        
+        print(f"✅ API PRODUCTION ACCESSIBLE")
+        print(f"📊 RÉSULTATS PRODUCTION:")
+        print(f"   - Total leads: {total_leads}")
+        print(f"   - Leads retournés: {len(leads)}")
+        
+        # Analyser les leads par source
+        github_leads = [lead for lead in leads if lead.get('source') == 'estimation_email_externe']
+        recent_leads = []
+        
+        # Analyser les leads récents (dernières 24h)
+        from datetime import datetime, timedelta
+        recent_cutoff = datetime.now() - timedelta(hours=24)
+        
+        for lead in leads:
+            created_date = lead.get('créé_le')
+            if created_date:
+                try:
+                    if isinstance(created_date, str):
+                        lead_date = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    else:
+                        lead_date = created_date
+                    
+                    if lead_date > recent_cutoff:
+                        recent_leads.append(lead)
+                except:
+                    pass
+        
+        print(f"   - Leads GitHub (source=estimation_email_externe): {len(github_leads)}")
+        print(f"   - Leads récents (24h): {len(recent_leads)}")
+        
+        # Afficher quelques leads récents
+        if recent_leads:
+            print(f"\n📋 LEADS RÉCENTS EN PRODUCTION:")
+            for i, lead in enumerate(recent_leads[:3]):
+                created = lead.get('créé_le', 'N/A')
+                print(f"   {i+1}. {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - Créé: {created}")
+        
+        self.results['production_api'] = {
+            'accessible': True,
+            'total_leads': total_leads,
+            'github_leads': len(github_leads),
+            'recent_leads': len(recent_leads),
+            'status': 'ACCESSIBLE',
+            'sample_leads': leads[:5]
+        }
+        
+        return self.log_test("Production API Current State", True, 
+                           f"API accessible with {total_leads} total leads, {len(github_leads)} GitHub leads")
+
+    def test_production_form_endpoint(self):
+        """🔍 TEST 2: ENDPOINT FORMULAIRE PRODUCTION - https://realestate-leads-5.emergent.host/api/estimation/submit-prospect-email"""
+        print("\n🔍 TEST 2: VÉRIFICATION ENDPOINT FORMULAIRE PRODUCTION")
+        print(f"URL: {self.production_url}/api/estimation/submit-prospect-email")
+        print("=" * 80)
+        
+        # Données test exactes selon la review request
+        test_data = {
+            "prenom": "Verification",
+            "nom": "Immediate",
+            "email": "verification.immediate@test.com",
+            "telephone": "06 99 77 66 55",
+            "adresse": "Test Verification Lyon",
+            "ville": "Lyon",
+            "code_postal": "69001",
+            "type_bien": "Appartement",
+            "surface": "75",
+            "pieces": "3",
+            "prix_souhaite": "350000"
+        }
+        
+        print(f"📝 Test avec données: {test_data['prenom']} {test_data['nom']}")
+        print(f"📧 Email: {test_data['email']}")
+        print(f"🏠 Property: {test_data['type_bien']} {test_data['surface']}m²")
+        
+        success, response, details = self.make_request(
+            self.production_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=test_data, expected_status=200
+        )
+        
+        if not success:
+            self.results['production_form'] = {
+                'accessible': False,
+                'error': details,
+                'status': 'FAILED'
+            }
+            print(f"❌ ENDPOINT FORMULAIRE PRODUCTION FAILED: {details}")
+            return self.log_test("Production Form Endpoint", False, f"Form endpoint failed: {details}")
+        
+        print(f"✅ ENDPOINT FORMULAIRE PRODUCTION ACCESSIBLE")
+        print(f"📊 RÉPONSE:")
+        print(f"   - Success: {response.get('success', 'N/A')}")
+        print(f"   - Lead ID: {response.get('lead_id', 'N/A')}")
+        print(f"   - Patrick AI Score: {response.get('patrick_ai_score', 'N/A')}")
+        print(f"   - Tier: {response.get('tier_classification', 'N/A')}")
+        print(f"   - Priority: {response.get('priority_level', 'N/A')}")
+        
+        # Vérifier si le lead a été créé
+        lead_created = False
+        lead_id = response.get('lead_id')
+        if lead_id:
+            verify_success, verify_response, _ = self.make_request(
+                self.production_url, 'GET', f'api/leads/{lead_id}', expected_status=200
+            )
+            if verify_success:
+                lead_created = True
+                print(f"✅ LEAD CRÉÉ ET VÉRIFIABLE EN BASE PRODUCTION")
+            else:
+                print(f"⚠️ LEAD ID RETOURNÉ MAIS NON VÉRIFIABLE EN BASE")
+        
+        self.results['production_form'] = {
+            'accessible': True,
+            'working': response.get('success', False),
+            'lead_created': lead_created,
+            'lead_id': lead_id,
+            'complete_response': all(field in response for field in ['success', 'lead_id', 'patrick_ai_score']),
+            'status': 'WORKING' if response.get('success') else 'PARTIAL'
+        }
+        
+        return self.log_test("Production Form Endpoint", True, 
+                           f"Form endpoint accessible, success={response.get('success')}, lead_created={lead_created}")
+
+    def test_preview_comparison(self):
+        """🔍 TEST 3: COMPARAISON AVEC PREVIEW - https://realestate-leads-5.preview.emergentagent.com/api/leads"""
+        print("\n🔍 TEST 3: COMPARAISON AVEC ENVIRONNEMENT PREVIEW")
+        print(f"URL: {self.preview_url}/api/leads")
+        print("=" * 80)
+        
+        success, response, details = self.make_request(self.preview_url, 'GET', 'api/leads?limite=50', expected_status=200)
+        
+        if not success:
+            self.results['preview_comparison'] = {
+                'accessible': False,
+                'error': details,
+                'status': 'INACCESSIBLE'
+            }
+            print(f"❌ API PREVIEW INACCESSIBLE: {details}")
+            return self.log_test("Preview Comparison", False, f"Preview API not accessible: {details}")
+        
+        leads = response.get('leads', [])
+        total_leads = response.get('total', 0)
+        
+        print(f"✅ API PREVIEW ACCESSIBLE")
+        print(f"📊 RÉSULTATS PREVIEW:")
+        print(f"   - Total leads: {total_leads}")
+        print(f"   - Leads retournés: {len(leads)}")
+        
+        # Analyser les leads par source
+        github_leads = [lead for lead in leads if lead.get('source') == 'estimation_email_externe']
+        
+        # Analyser les leads récents (dernières 24h)
+        from datetime import datetime, timedelta
+        recent_cutoff = datetime.now() - timedelta(hours=24)
+        recent_leads = []
+        
+        for lead in leads:
+            created_date = lead.get('créé_le')
+            if created_date:
+                try:
+                    if isinstance(created_date, str):
+                        lead_date = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    else:
+                        lead_date = created_date
+                    
+                    if lead_date > recent_cutoff:
+                        recent_leads.append(lead)
+                except:
+                    pass
+        
+        print(f"   - Leads GitHub (source=estimation_email_externe): {len(github_leads)}")
+        print(f"   - Leads récents (24h): {len(recent_leads)}")
+        
+        # Identifier leads réels vs tests
+        real_leads = []
+        test_leads = []
+        
+        for lead in github_leads:
+            email = lead.get('email', '').lower()
+            nom = lead.get('nom', '').lower()
+            prenom = lead.get('prénom', '').lower()
+            
+            # Critères pour identifier les leads tests
+            is_test = any([
+                'test' in email,
+                'example' in email,
+                'debug' in email,
+                'verification' in email,
+                'test' in nom,
+                'test' in prenom,
+                'debug' in nom,
+                'verification' in nom
+            ])
+            
+            if is_test:
+                test_leads.append(lead)
+            else:
+                real_leads.append(lead)
+        
+        print(f"   - Leads réels (non-test): {len(real_leads)}")
+        print(f"   - Leads de test: {len(test_leads)}")
+        
+        # Afficher quelques leads réels trouvés
+        if real_leads:
+            print(f"\n📋 LEADS RÉELS TROUVÉS EN PREVIEW:")
+            for i, lead in enumerate(real_leads[:3]):
+                created = lead.get('créé_le', 'N/A')
+                print(f"   {i+1}. {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - Créé: {created}")
+        
+        self.results['preview_comparison'] = {
+            'accessible': True,
+            'total_leads': total_leads,
+            'github_leads': len(github_leads),
+            'recent_leads': len(recent_leads),
+            'real_leads': len(real_leads),
+            'test_leads': len(test_leads),
+            'status': 'ACCESSIBLE',
+            'real_leads_data': real_leads[:5]
+        }
+        
+        return self.log_test("Preview Comparison", True, 
+                           f"Preview accessible with {total_leads} total leads, {len(real_leads)} real prospects")
+
+    def test_quick_lead_creation(self):
+        """🔍 TEST 4: TEST RAPIDE CRÉATION LEAD - Vérifier si le lead apparaît immédiatement"""
+        print("\n🔍 TEST 4: TEST RAPIDE CRÉATION LEAD")
+        print("OBJECTIF: Créer un lead et vérifier s'il apparaît dans les deux environnements")
+        print("=" * 80)
+        
+        # Données test exactes selon la review request
+        quick_test_data = {
+            "prenom": "Verification",
+            "nom": "Immediate", 
+            "email": "verification.immediate@test.com",
+            "telephone": "06 99 77 66 55",
+            "adresse": "Test Verification Lyon",
+            "ville": "Lyon",
+            "code_postal": "69001",
+            "type_bien": "Appartement",
+            "surface": "75",
+            "pieces": "3",
+            "prix_souhaite": "350000"
+        }
+        
+        print(f"📝 Création lead test: {quick_test_data['prenom']} {quick_test_data['nom']}")
+        print(f"📧 Email: {quick_test_data['email']}")
+        
+        results = {}
+        
+        # Test création en Production
+        print(f"\n🔍 TEST CRÉATION EN PRODUCTION:")
+        prod_success, prod_response, prod_details = self.make_request(
+            self.production_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=quick_test_data, expected_status=200
+        )
+        
+        if prod_success:
+            print(f"✅ CRÉATION PRODUCTION RÉUSSIE")
+            print(f"   Lead ID: {prod_response.get('lead_id', 'N/A')}")
+            results['production_creation'] = {
+                'success': True,
+                'lead_id': prod_response.get('lead_id'),
+                'response': prod_response
+            }
+        else:
+            print(f"❌ CRÉATION PRODUCTION ÉCHOUÉE: {prod_details}")
+            results['production_creation'] = {
+                'success': False,
+                'error': prod_details
+            }
+        
+        # Test création en Preview
+        print(f"\n🔍 TEST CRÉATION EN PREVIEW:")
+        prev_success, prev_response, prev_details = self.make_request(
+            self.preview_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=quick_test_data, expected_status=200
+        )
+        
+        if prev_success:
+            print(f"✅ CRÉATION PREVIEW RÉUSSIE")
+            print(f"   Lead ID: {prev_response.get('lead_id', 'N/A')}")
+            results['preview_creation'] = {
+                'success': True,
+                'lead_id': prev_response.get('lead_id'),
+                'response': prev_response
+            }
+        else:
+            print(f"❌ CRÉATION PREVIEW ÉCHOUÉE: {prev_details}")
+            results['preview_creation'] = {
+                'success': False,
+                'error': prev_details
+            }
+        
+        self.results['quick_lead_creation'] = results
+        
+        # Déterminer le succès global
+        creation_success = results.get('production_creation', {}).get('success', False) or \
+                          results.get('preview_creation', {}).get('success', False)
+        
+        return self.log_test("Quick Lead Creation", creation_success, 
+                           f"Production: {'✅' if results.get('production_creation', {}).get('success') else '❌'}, "
+                           f"Preview: {'✅' if results.get('preview_creation', {}).get('success') else '❌'}")
+
+    def analyze_current_system_state(self):
+        """🎯 ANALYSE FINALE - ÉTAT ACTUEL DU SYSTÈME"""
+        print("\n" + "=" * 80)
+        print("🎯 ANALYSE FINALE - ÉTAT ACTUEL DU SYSTÈME PRODUCTION")
+        print("=" * 80)
+        
+        prod_api = self.results.get('production_api', {})
+        prod_form = self.results.get('production_form', {})
+        preview_comp = self.results.get('preview_comparison', {})
+        quick_creation = self.results.get('quick_lead_creation', {})
+        
+        print(f"📊 RÉSUMÉ ÉTAT ACTUEL:")
+        print(f"   PRODUCTION API: {'✅ ACCESSIBLE' if prod_api.get('accessible') else '❌ INACCESSIBLE'}")
+        print(f"   PRODUCTION FORM: {'✅ WORKING' if prod_form.get('working') else '❌ NOT WORKING'}")
+        print(f"   PREVIEW API: {'✅ ACCESSIBLE' if preview_comp.get('accessible') else '❌ INACCESSIBLE'}")
+        
+        # Comparaison des données
+        prod_leads = prod_api.get('total_leads', 0)
+        preview_leads = preview_comp.get('total_leads', 0)
+        preview_real = preview_comp.get('real_leads', 0)
+        
+        print(f"\n📊 COMPARAISON DONNÉES:")
+        print(f"   PRODUCTION: {prod_leads} leads totaux")
+        print(f"   PREVIEW: {preview_leads} leads totaux ({preview_real} vrais prospects)")
+        
+        # Déterminer l'état du système
+        if prod_api.get('accessible') and prod_form.get('working'):
+            if prod_leads > 0:
+                system_status = "PRODUCTION_OPERATIONAL_WITH_DATA"
+                print(f"\n✅ SYSTÈME PRODUCTION OPÉRATIONNEL AVEC DONNÉES")
+                print(f"   - API accessible avec {prod_leads} leads")
+                print(f"   - Formulaire fonctionnel")
+                print(f"   - Création de leads possible")
+            else:
+                system_status = "PRODUCTION_OPERATIONAL_NO_DATA"
+                print(f"\n⚠️ SYSTÈME PRODUCTION OPÉRATIONNEL MAIS SANS DONNÉES")
+                print(f"   - API accessible mais 0 leads")
+                print(f"   - Formulaire fonctionnel")
+                print(f"   - Possible problème de migration ou configuration")
+        elif prod_api.get('accessible') and not prod_form.get('working'):
+            system_status = "PRODUCTION_PARTIAL"
+            print(f"\n⚠️ SYSTÈME PRODUCTION PARTIELLEMENT OPÉRATIONNEL")
+            print(f"   - API accessible")
+            print(f"   - Formulaire non fonctionnel")
+            print(f"   - Problème de configuration endpoint")
+        else:
+            system_status = "PRODUCTION_DOWN"
+            print(f"\n❌ SYSTÈME PRODUCTION NON OPÉRATIONNEL")
+            print(f"   - API inaccessible")
+            print(f"   - Problème d'infrastructure")
+        
+        # Recommandations
+        print(f"\n📋 RECOMMANDATIONS IMMÉDIATES:")
+        
+        if system_status == "PRODUCTION_OPERATIONAL_WITH_DATA":
+            print(f"1. ✅ Le système production fonctionne correctement")
+            print(f"2. 🔍 Vérifier pourquoi l'utilisateur ne voit pas ses {prod_leads} leads")
+            print(f"3. 🔧 Problème probable: filtres dashboard frontend ou cache")
+            print(f"4. 📱 Tester l'interface utilisateur directement")
+            
+        elif system_status == "PRODUCTION_OPERATIONAL_NO_DATA":
+            if preview_real > 0:
+                print(f"1. 🚨 URGENT: {preview_real} vrais prospects sont en Preview, pas en Production")
+                print(f"2. 🔄 Migrer les données de Preview vers Production")
+                print(f"3. 🔧 Configurer le formulaire GitHub vers Production")
+                print(f"4. ✅ Tester le workflow complet après migration")
+            else:
+                print(f"1. 🔍 Vérifier si des leads ont été créés récemment")
+                print(f"2. 🔧 Contrôler la configuration de base de données")
+                print(f"3. 📊 Vérifier les logs de création de leads")
+                
+        elif system_status == "PRODUCTION_PARTIAL":
+            print(f"1. 🔧 Réparer l'endpoint formulaire en production")
+            print(f"2. 🔍 Vérifier la configuration backend")
+            print(f"3. 📊 Contrôler les logs d'erreur")
+            print(f"4. ⚠️ Utiliser Preview temporairement si nécessaire")
+            
+        else:
+            print(f"1. 🚨 CRITIQUE: Contacter le support technique immédiatement")
+            print(f"2. 🔧 Vérifier l'infrastructure et DNS")
+            print(f"3. 📊 Contrôler les services backend")
+            print(f"4. ⚠️ Utiliser Preview comme solution temporaire")
+        
+        # Afficher les vrais prospects trouvés
+        if preview_real > 0:
+            print(f"\n📋 VRAIS PROSPECTS IDENTIFIÉS EN PREVIEW:")
+            real_leads_data = preview_comp.get('real_leads_data', [])
+            for i, lead in enumerate(real_leads_data[:3]):
+                print(f"   {i+1}. {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - {lead.get('créé_le', 'N/A')}")
+        
+        return system_status
+
+    def run_immediate_verification(self):
+        """Exécuter la vérification immédiate complète"""
+        print("🔍 VÉRIFICATION IMMÉDIATE - ÉTAT ACTUEL DU SYSTÈME PRODUCTION")
+        print("=" * 80)
+        print("OBJECTIF: Déterminer l'état RÉEL actuel du système avant toute communication avec le support")
+        print("=" * 80)
+        
+        # Exécuter tous les tests
+        self.test_production_api_current_state()
+        self.test_production_form_endpoint()
+        self.test_preview_comparison()
+        self.test_quick_lead_creation()
+        
+        # Analyse finale
+        system_status = self.analyze_current_system_state()
+        
+        # Résumé final
+        print(f"\n" + "=" * 80)
+        print("📊 RÉSUMÉ EXÉCUTIF - VÉRIFICATION IMMÉDIATE")
+        print("=" * 80)
+        print(f"Tests exécutés: {self.tests_run}")
+        print(f"Tests réussis: {self.tests_passed}")
+        print(f"Taux de succès: {(self.tests_passed/self.tests_run*100):.1f}%")
+        print(f"État système: {system_status}")
+        
+        # Conclusion factuelle
+        prod_accessible = self.results.get('production_api', {}).get('accessible', False)
+        prod_working = self.results.get('production_form', {}).get('working', False)
+        prod_leads = self.results.get('production_api', {}).get('total_leads', 0)
+        preview_real = self.results.get('preview_comparison', {}).get('real_leads', 0)
+        
+        print(f"\n🎯 CONCLUSION FACTUELLE:")
+        print(f"   - API Production accessible: {'OUI' if prod_accessible else 'NON'}")
+        print(f"   - Formulaire Production fonctionnel: {'OUI' if prod_working else 'NON'}")
+        print(f"   - Leads en Production: {prod_leads}")
+        print(f"   - Vrais prospects en Preview: {preview_real}")
+        
+        if prod_accessible and prod_leads > 0:
+            print(f"   ➡️ LE SYSTÈME PRODUCTION FONCTIONNE ET CONTIENT DES DONNÉES")
+        elif prod_accessible and prod_leads == 0 and preview_real > 0:
+            print(f"   ➡️ LES VRAIS PROSPECTS SONT EN PREVIEW, PAS EN PRODUCTION")
+        elif not prod_accessible:
+            print(f"   ➡️ LE SYSTÈME PRODUCTION EST INACCESSIBLE")
+        else:
+            print(f"   ➡️ SITUATION COMPLEXE - ANALYSE DÉTAILLÉE NÉCESSAIRE")
+        
+        return {
+            'tests_run': self.tests_run,
+            'tests_passed': self.tests_passed,
+            'success_rate': (self.tests_passed/self.tests_run*100) if self.tests_run > 0 else 0,
+            'system_status': system_status,
+            'results': self.results,
+            'production_accessible': prod_accessible,
+            'production_working': prod_working,
+            'production_leads': prod_leads,
+            'preview_real_prospects': preview_real
+        }
+
 class CriticalProspectLocationTester:
     def __init__(self):
         self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
