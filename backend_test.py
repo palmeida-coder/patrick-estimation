@@ -1,47 +1,47 @@
 #!/usr/bin/env python3
 """
-🔍 VÉRIFICATION IMMÉDIATE - ÉTAT ACTUEL DU SYSTÈME PRODUCTION
+📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM
 
 **OBJECTIF:**
-Vérifier l'état réel du système de production MAINTENANT avant d'envoyer quoi que ce soit au support.
+Vérifier que quand un prospect remplit le formulaire GitHub, une notification est bien transmise à palmeida@efficity.com.
 
-**TESTS IMMÉDIATS À EFFECTUER:**
+**CONTEXTE:**
+- Environnement preview fonctionne parfaitement (7+ leads visibles dans le tableau)
+- URL preview: https://realestate-leads-5.preview.emergentagent.com/leads
+- En attente correction support pour URL production
+- Besoin confirmer notifications email fonctionnent
 
-**1. TEST API BACKEND PRODUCTION ACTUEL:**
-- URL: https://realestate-leads-5.emergent.host/api/leads
-- Vérifier si l'API répond maintenant
-- Analyser combien de leads sont retournés
+**WORKFLOW À TESTER:**
+1. Formulaire GitHub: https://palmeida-coder.github.io/patrick-estimation/
+2. Soumission → API preview: https://realestate-leads-5.preview.emergentagent.com/api/estimation/submit-prospect-email
+3. Création lead en base CRM (déjà confirmé fonctionnel)
+4. NOTIFICATION EMAIL → palmeida@efficity.com (À VÉRIFIER)
+5. Email automation prospects (déjà confirmé fonctionnel)
 
-**2. TEST ENDPOINT FORMULAIRE PRODUCTION:**
-- URL: https://realestate-leads-5.emergent.host/api/estimation/submit-prospect-email
-- Vérifier si l'endpoint fonctionne
-- Tester création d'un nouveau lead
+**TEST NOTIFICATION EMAIL:**
+Créer un nouveau lead test spécifiquement pour vérifier l'envoi de notification à Patrick:
 
-**3. COMPARAISON AVEC PREVIEW:**
-- URL Preview: https://realestate-leads-5.preview.emergentagent.com/api/leads
-- Comparer le nombre de leads entre preview et production
-- Identifier où sont les vraies données
-
-**4. TEST RAPIDE CRÉATION LEAD:**
-Créer un lead test avec données simples pour voir s'il apparaît:
-- Prénom: Verification
-- Nom: Immediate
-- Email: verification.immediate@test.com
-- Téléphone: 06 99 77 66 55
-- Adresse: Test Verification Lyon
+- Prénom: NotificationTest
+- Nom: PalmeidaEmail
+- Email: notification.test.palmeida@example.com
+- Téléphone: 06 77 88 99 33
+- Adresse: Test Notification Email Lyon
 - Type: Appartement
-- Surface: 75m²
+- Surface: 90m²
+- Message: "Test notification email Patrick Almeida"
 
-**OBJECTIF CRITIQUE:**
-Déterminer l'état RÉEL actuel du système avant toute communication avec le support.
+**VÉRIFICATIONS CRITIQUES:**
+1. ✅ Lead créé avec succès dans le système
+2. ✅ Patrick IA scoring automatique (100/100, Platinum)
+3. 📧 NOTIFICATION ENVOYÉE À palmeida@efficity.com
+4. ✅ Email confirmation prospect
+5. ✅ Workflow complet fonctionnel
 
-**QUESTIONS À RÉSOUDRE:**
-1. L'API backend production fonctionne-t-elle maintenant ?
-2. Y a-t-il des leads en base production ?
-3. Le problème persiste-t-il vraiment ?
-4. Quelle est la différence entre production et preview ?
+**OBJECTIF:**
+Confirmer que Patrick reçoit bien une notification email pour chaque nouveau prospect du formulaire GitHub.
 
-**APPROCHE:** Tests factuels pour donner des informations précises à l'utilisateur.
+**URGENCE:**
+L'utilisateur doit pouvoir recevoir ses notifications pendant qu'il utilise l'environnement preview en attendant la correction support.
 """
 
 import requests
