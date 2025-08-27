@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-🚨 BACKEND API TESTS - DIAGNOSTIC TABLEAU LEADS VIDE PRODUCTION
-Tests critiques pour résoudre le problème de tableau vide malgré interface fonctionnelle
-URL Production: https://realestate-leads-5.emergentagent.host/leads
+🚨 VÉRIFICATION CRITIQUE - OÙ ARRIVENT LES VRAIS PROSPECTS ?
+Tests critiques pour identifier où arrivent réellement les prospects depuis le formulaire GitHub
+PROBLÈME URGENT: L'utilisateur a déployé pour stabilité mais les vrais prospects n'apparaissent pas dans l'environnement stable
+OBJECTIF: Déterminer où arrivent réellement les prospects depuis https://palmeida-coder.github.io/patrick-estimation/
 """
 
 import requests
