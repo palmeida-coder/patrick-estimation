@@ -1,12 +1,47 @@
 #!/usr/bin/env python3
 """
-🚨 VÉRIFICATION POST-SUPPORT - TABLEAU TOUJOURS VIDE APRÈS CONTACT SUPPORT EMERGENT
-Tests critiques pour diagnostiquer pourquoi le tableau reste vide malgré le contact support
-SITUATION CRITIQUE: L'utilisateur a contacté le support Emergent mais le problème persiste
-PROBLÈME URGENT: Interface sidebar verticale parfaite mais tableau complètement vide
-OBJECTIF: Tester API backend production maintenant après intervention support
-URL PRODUCTION: https://realestate-leads-5.emergent.host/leads
-URL API PRODUCTION: https://realestate-leads-5.emergent.host/api/leads
+🔍 VÉRIFICATION IMMÉDIATE - ÉTAT ACTUEL DU SYSTÈME PRODUCTION
+
+**OBJECTIF:**
+Vérifier l'état réel du système de production MAINTENANT avant d'envoyer quoi que ce soit au support.
+
+**TESTS IMMÉDIATS À EFFECTUER:**
+
+**1. TEST API BACKEND PRODUCTION ACTUEL:**
+- URL: https://realestate-leads-5.emergent.host/api/leads
+- Vérifier si l'API répond maintenant
+- Analyser combien de leads sont retournés
+
+**2. TEST ENDPOINT FORMULAIRE PRODUCTION:**
+- URL: https://realestate-leads-5.emergent.host/api/estimation/submit-prospect-email
+- Vérifier si l'endpoint fonctionne
+- Tester création d'un nouveau lead
+
+**3. COMPARAISON AVEC PREVIEW:**
+- URL Preview: https://realestate-leads-5.preview.emergentagent.com/api/leads
+- Comparer le nombre de leads entre preview et production
+- Identifier où sont les vraies données
+
+**4. TEST RAPIDE CRÉATION LEAD:**
+Créer un lead test avec données simples pour voir s'il apparaît:
+- Prénom: Verification
+- Nom: Immediate
+- Email: verification.immediate@test.com
+- Téléphone: 06 99 77 66 55
+- Adresse: Test Verification Lyon
+- Type: Appartement
+- Surface: 75m²
+
+**OBJECTIF CRITIQUE:**
+Déterminer l'état RÉEL actuel du système avant toute communication avec le support.
+
+**QUESTIONS À RÉSOUDRE:**
+1. L'API backend production fonctionne-t-elle maintenant ?
+2. Y a-t-il des leads en base production ?
+3. Le problème persiste-t-il vraiment ?
+4. Quelle est la différence entre production et preview ?
+
+**APPROCHE:** Tests factuels pour donner des informations précises à l'utilisateur.
 """
 
 import requests
