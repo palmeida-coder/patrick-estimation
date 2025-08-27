@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-🚨 DIAGNOSTIC URGENT - URL PRODUCTION ACCESSIBLE MAIS TABLEAU VIDE
-Tests critiques pour diagnostiquer pourquoi le tableau est complètement vide malgré l'interface qui se charge correctement
-PROBLÈME URGENT: L'utilisateur montre que le tableau est complètement vide malgré l'interface sidebar verticale parfaite
-OBJECTIF: Identifier pourquoi fetchLeads() ne charge pas les données sur l'URL production accessible
-URL PRODUCTION: https://realestate-leads-5.emergentagent.host/leads
+🚨 VÉRIFICATION POST-SUPPORT - TABLEAU TOUJOURS VIDE APRÈS CONTACT SUPPORT EMERGENT
+Tests critiques pour diagnostiquer pourquoi le tableau reste vide malgré le contact support
+SITUATION CRITIQUE: L'utilisateur a contacté le support Emergent mais le problème persiste
+PROBLÈME URGENT: Interface sidebar verticale parfaite mais tableau complètement vide
+OBJECTIF: Tester API backend production maintenant après intervention support
+URL PRODUCTION: https://realestate-leads-5.emergent.host/leads
+URL API PRODUCTION: https://realestate-leads-5.emergent.host/api/leads
 """
 
 import requests
