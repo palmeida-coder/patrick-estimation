@@ -1662,16 +1662,26 @@ class CriticalProspectLocationTester:
         print(f"Taux de succès: {(self.tests_passed/self.tests_run*100):.1f}%")
         print(f"Recommandation: {recommendation}")
         
-        return {
-            'tests_run': self.tests_run,
-            'tests_passed': self.tests_passed,
-            'success_rate': (self.tests_passed/self.tests_run*100) if self.tests_run > 0 else 0,
-            'recommendation': recommendation,
-            'results': self.results
-        }
-
-
-# Classe de compatibilité pour les anciens tests
+if __name__ == "__main__":
+    print("🚀 DÉMARRAGE VÉRIFICATION NOTIFICATION EMAIL PATRICK ALMEIDA")
+    print("=" * 80)
+    
+    # Créer et exécuter le testeur de notification email
+    notification_tester = NotificationEmailTester()
+    results = notification_tester.run_notification_email_verification()
+    
+    print(f"\n🏁 VÉRIFICATION TERMINÉE")
+    print(f"Taux de succès global: {results['success_rate']:.1f}%")
+    print(f"Statut workflow: {results['workflow_status']}")
+    
+    if results['notification_lead_id']:
+        print(f"Lead test créé: {results['notification_lead_id']}")
+    
+    # Code de sortie basé sur le succès
+    if results['success_rate'] >= 75:
+        sys.exit(0)  # Succès
+    else:
+        sys.exit(1)  # Échec
 class EfficiencyAPITester:
     def __init__(self, base_url="https://realestate-leads-5.emergentagent.host"):
         self.base_url = base_url
