@@ -12,6 +12,457 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
+class CriticalProspectLocationTester:
+    def __init__(self):
+        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.production_url = "https://realestate-leads-5.emergentagent.host"
+        self.tests_run = 0
+        self.tests_passed = 0
+        self.results = {}
+
+    def log_test(self, name: str, success: bool, details: str = ""):
+        """Log test results"""
+        self.tests_run += 1
+        if success:
+            self.tests_passed += 1
+            print(f"✅ {name} - PASSED {details}")
+        else:
+            print(f"❌ {name} - FAILED {details}")
+        return success
+
+    def make_request(self, base_url: str, method: str, endpoint: str, data: dict = None, expected_status: int = 200) -> tuple:
+        """Make HTTP request and return success status and response"""
+        url = f"{base_url}/{endpoint}"
+        headers = {'Content-Type': 'application/json'}
+        
+        try:
+            if method == 'GET':
+                response = requests.get(url, headers=headers, timeout=15)
+            elif method == 'POST':
+                response = requests.post(url, json=data, headers=headers, timeout=15)
+            else:
+                return False, {}, f"Unsupported method: {method}"
+
+            success = response.status_code == expected_status
+            try:
+                response_data = response.json()
+            except:
+                response_data = {"raw_response": response.text[:500]}
+            
+            status_info = f"(Status: {response.status_code}, Expected: {expected_status})"
+            return success, response_data, status_info
+
+        except requests.exceptions.RequestException as e:
+            return False, {}, f"Request failed: {str(e)}"
+
+    def test_preview_environment_leads(self):
+        """🔍 VÉRIFIER ENVIRONNEMENT PREVIEW - Combien de leads récents avec source='estimation_email_externe'"""
+        print("\n🔍 ÉTAPE 1: VÉRIFICATION ENVIRONNEMENT PREVIEW")
+        print(f"URL: {self.preview_url}/api/leads")
+        print("=" * 80)
+        
+        success, response, details = self.make_request(self.preview_url, 'GET', 'api/leads?limite=100', expected_status=200)
+        
+        if not success:
+            self.results['preview'] = {'accessible': False, 'error': details}
+            return self.log_test("Preview Environment Access", False, f"Cannot access preview environment: {details}")
+        
+        leads = response.get('leads', [])
+        total_leads = response.get('total', 0)
+        
+        # Analyser les leads par source
+        github_leads = [lead for lead in leads if lead.get('source') == 'estimation_email_externe']
+        
+        # Analyser les leads récents (dernières 48h)
+        from datetime import datetime, timedelta
+        recent_cutoff = datetime.now() - timedelta(hours=48)
+        recent_leads = []
+        
+        for lead in leads:
+            created_date = lead.get('créé_le')
+            if created_date:
+                try:
+                    if isinstance(created_date, str):
+                        lead_date = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    else:
+                        lead_date = created_date
+                    
+                    if lead_date > recent_cutoff:
+                        recent_leads.append(lead)
+                except:
+                    pass
+        
+        # Identifier leads réels vs tests
+        real_leads = []
+        test_leads = []
+        
+        for lead in github_leads:
+            email = lead.get('email', '').lower()
+            nom = lead.get('nom', '').lower()
+            prenom = lead.get('prénom', '').lower()
+            
+            # Critères pour identifier les leads tests
+            is_test = any([
+                'test' in email,
+                'example' in email,
+                'debug' in email,
+                'test' in nom,
+                'test' in prenom,
+                'debug' in nom,
+                'sophie.martin.test' in email,
+                'postcorrection' in email,
+                'diagnostic' in email
+            ])
+            
+            if is_test:
+                test_leads.append(lead)
+            else:
+                real_leads.append(lead)
+        
+        print(f"📊 RÉSULTATS ENVIRONNEMENT PREVIEW:")
+        print(f"   Total leads: {total_leads}")
+        print(f"   Leads GitHub (source=estimation_email_externe): {len(github_leads)}")
+        print(f"   Leads récents (48h): {len(recent_leads)}")
+        print(f"   Leads réels (non-test): {len(real_leads)}")
+        print(f"   Leads de test: {len(test_leads)}")
+        
+        # Afficher quelques leads réels trouvés
+        if real_leads:
+            print(f"\n📋 LEADS RÉELS TROUVÉS EN PREVIEW:")
+            for i, lead in enumerate(real_leads[:5]):
+                created = lead.get('créé_le', 'N/A')
+                print(f"   {i+1}. {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - Créé: {created}")
+        
+        self.results['preview'] = {
+            'accessible': True,
+            'total_leads': total_leads,
+            'github_leads': len(github_leads),
+            'recent_leads': len(recent_leads),
+            'real_leads': len(real_leads),
+            'test_leads': len(test_leads),
+            'real_leads_data': real_leads[:10]  # Garder les 10 premiers pour analyse
+        }
+        
+        return self.log_test("Preview Environment Analysis", True, 
+                           f"Found {len(real_leads)} real prospects and {len(test_leads)} test leads")
+
+    def test_production_environment_leads(self):
+        """🔍 VÉRIFIER ENVIRONNEMENT PRODUCTION STABLE - Combien de leads et accessibilité"""
+        print("\n🔍 ÉTAPE 2: VÉRIFICATION ENVIRONNEMENT PRODUCTION STABLE")
+        print(f"URL: {self.production_url}/api/leads")
+        print("=" * 80)
+        
+        success, response, details = self.make_request(self.production_url, 'GET', 'api/leads?limite=100', expected_status=200)
+        
+        if not success:
+            self.results['production'] = {'accessible': False, 'error': details}
+            return self.log_test("Production Environment Access", False, f"Cannot access production environment: {details}")
+        
+        leads = response.get('leads', [])
+        total_leads = response.get('total', 0)
+        
+        # Analyser les leads par source
+        github_leads = [lead for lead in leads if lead.get('source') == 'estimation_email_externe']
+        
+        # Analyser les leads récents
+        from datetime import datetime, timedelta
+        recent_cutoff = datetime.now() - timedelta(hours=48)
+        recent_leads = []
+        
+        for lead in leads:
+            created_date = lead.get('créé_le')
+            if created_date:
+                try:
+                    if isinstance(created_date, str):
+                        lead_date = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+                    else:
+                        lead_date = created_date
+                    
+                    if lead_date > recent_cutoff:
+                        recent_leads.append(lead)
+                except:
+                    pass
+        
+        # Identifier leads réels vs tests
+        real_leads = []
+        test_leads = []
+        
+        for lead in github_leads:
+            email = lead.get('email', '').lower()
+            nom = lead.get('nom', '').lower()
+            prenom = lead.get('prénom', '').lower()
+            
+            is_test = any([
+                'test' in email,
+                'example' in email,
+                'debug' in email,
+                'test' in nom,
+                'test' in prenom,
+                'debug' in nom,
+                'sophie.martin.test' in email,
+                'postcorrection' in email,
+                'diagnostic' in email
+            ])
+            
+            if is_test:
+                test_leads.append(lead)
+            else:
+                real_leads.append(lead)
+        
+        print(f"📊 RÉSULTATS ENVIRONNEMENT PRODUCTION:")
+        print(f"   Total leads: {total_leads}")
+        print(f"   Leads GitHub (source=estimation_email_externe): {len(github_leads)}")
+        print(f"   Leads récents (48h): {len(recent_leads)}")
+        print(f"   Leads réels (non-test): {len(real_leads)}")
+        print(f"   Leads de test: {len(test_leads)}")
+        
+        # Afficher quelques leads réels trouvés
+        if real_leads:
+            print(f"\n📋 LEADS RÉELS TROUVÉS EN PRODUCTION:")
+            for i, lead in enumerate(real_leads[:5]):
+                created = lead.get('créé_le', 'N/A')
+                print(f"   {i+1}. {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - Créé: {created}")
+        
+        self.results['production'] = {
+            'accessible': True,
+            'total_leads': total_leads,
+            'github_leads': len(github_leads),
+            'recent_leads': len(recent_leads),
+            'real_leads': len(real_leads),
+            'test_leads': len(test_leads),
+            'real_leads_data': real_leads[:10]
+        }
+        
+        return self.log_test("Production Environment Analysis", True, 
+                           f"Found {len(real_leads)} real prospects and {len(test_leads)} test leads")
+
+    def test_github_form_endpoints(self):
+        """🔍 TESTER LES DEUX ENVIRONNEMENTS - Vers quelle URL le formulaire GitHub envoie-t-il ?"""
+        print("\n🔍 ÉTAPE 3: TEST DES ENDPOINTS FORMULAIRE GITHUB")
+        print("OBJECTIF: Déterminer quel environnement reçoit les soumissions du formulaire")
+        print("=" * 80)
+        
+        # Données de test réalistes pour identifier l'environnement actif
+        test_data = {
+            "prenom": "Détection",
+            "nom": "EnvironnementActif",
+            "email": "detection.environnement.actif@test.com",
+            "telephone": "0699887766",
+            "adresse": "Test Détection URL, Lyon",
+            "ville": "Lyon",
+            "code_postal": "69001",
+            "type_bien": "Appartement",
+            "surface": "80",
+            "pieces": "3",
+            "prix_souhaite": "400000"
+        }
+        
+        # Test Preview
+        print(f"\n🔍 TEST PREVIEW ENDPOINT:")
+        print(f"URL: {self.preview_url}/api/estimation/submit-prospect-email")
+        
+        preview_success, preview_response, preview_details = self.make_request(
+            self.preview_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=test_data, expected_status=200
+        )
+        
+        if preview_success:
+            print(f"✅ PREVIEW ENDPOINT ACCESSIBLE")
+            print(f"   Success: {preview_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {preview_response.get('lead_id', 'N/A')}")
+            print(f"   Patrick AI Score: {preview_response.get('patrick_ai_score', 'N/A')}")
+            print(f"   Tier: {preview_response.get('tier_classification', 'N/A')}")
+            print(f"   Priority: {preview_response.get('priority_level', 'N/A')}")
+            
+            self.results['preview_endpoint'] = {
+                'accessible': True,
+                'working': preview_response.get('success', False),
+                'complete_response': all(field in preview_response for field in ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']),
+                'lead_id': preview_response.get('lead_id')
+            }
+        else:
+            print(f"❌ PREVIEW ENDPOINT FAILED: {preview_details}")
+            self.results['preview_endpoint'] = {
+                'accessible': False,
+                'error': preview_details
+            }
+        
+        # Test Production
+        print(f"\n🔍 TEST PRODUCTION ENDPOINT:")
+        print(f"URL: {self.production_url}/api/estimation/submit-prospect-email")
+        
+        production_success, production_response, production_details = self.make_request(
+            self.production_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=test_data, expected_status=200
+        )
+        
+        if production_success:
+            print(f"✅ PRODUCTION ENDPOINT ACCESSIBLE")
+            print(f"   Success: {production_response.get('success', 'N/A')}")
+            print(f"   Lead ID: {production_response.get('lead_id', 'N/A')}")
+            print(f"   Patrick AI Score: {production_response.get('patrick_ai_score', 'N/A')}")
+            print(f"   Tier: {production_response.get('tier_classification', 'N/A')}")
+            print(f"   Priority: {production_response.get('priority_level', 'N/A')}")
+            
+            self.results['production_endpoint'] = {
+                'accessible': True,
+                'working': production_response.get('success', False),
+                'complete_response': all(field in production_response for field in ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']),
+                'lead_id': production_response.get('lead_id')
+            }
+        else:
+            print(f"❌ PRODUCTION ENDPOINT FAILED: {production_details}")
+            self.results['production_endpoint'] = {
+                'accessible': False,
+                'error': production_details
+            }
+        
+        # Vérifier si les leads de test ont été créés
+        if self.results.get('preview_endpoint', {}).get('lead_id'):
+            lead_id = self.results['preview_endpoint']['lead_id']
+            verify_success, verify_response, _ = self.make_request(
+                self.preview_url, 'GET', f'api/leads/{lead_id}', expected_status=200
+            )
+            if verify_success:
+                print(f"✅ LEAD TEST TROUVÉ EN BASE PREVIEW: {verify_response.get('email', 'N/A')}")
+        
+        if self.results.get('production_endpoint', {}).get('lead_id'):
+            lead_id = self.results['production_endpoint']['lead_id']
+            verify_success, verify_response, _ = self.make_request(
+                self.production_url, 'GET', f'api/leads/{lead_id}', expected_status=200
+            )
+            if verify_success:
+                print(f"✅ LEAD TEST TROUVÉ EN BASE PRODUCTION: {verify_response.get('email', 'N/A')}")
+        
+        return self.log_test("GitHub Form Endpoints Test", True, "Both endpoints tested")
+
+    def analyze_critical_findings(self):
+        """🎯 ANALYSE CRITIQUE FINALE - Où arrivent les vrais prospects ?"""
+        print("\n" + "=" * 80)
+        print("🎯 ANALYSE CRITIQUE FINALE - OÙ ARRIVENT LES VRAIS PROSPECTS ?")
+        print("=" * 80)
+        
+        preview_real = self.results.get('preview', {}).get('real_leads', 0)
+        production_real = self.results.get('production', {}).get('real_leads', 0)
+        
+        preview_accessible = self.results.get('preview', {}).get('accessible', False)
+        production_accessible = self.results.get('production', {}).get('accessible', False)
+        
+        preview_endpoint_working = self.results.get('preview_endpoint', {}).get('working', False)
+        production_endpoint_working = self.results.get('production_endpoint', {}).get('working', False)
+        
+        print(f"📊 RÉSULTATS COMPARATIFS:")
+        print(f"   PREVIEW - Accessible: {'✅' if preview_accessible else '❌'} | Leads réels: {preview_real} | Endpoint: {'✅' if preview_endpoint_working else '❌'}")
+        print(f"   PRODUCTION - Accessible: {'✅' if production_accessible else '❌'} | Leads réels: {production_real} | Endpoint: {'✅' if production_endpoint_working else '❌'}")
+        
+        # Déterminer où arrivent les vrais prospects
+        if preview_real > 0 and production_real == 0:
+            print(f"\n🚨 PROBLÈME IDENTIFIÉ: LES VRAIS PROSPECTS ARRIVENT EN PREVIEW")
+            print(f"   - Preview: {preview_real} vrais prospects")
+            print(f"   - Production: {production_real} vrais prospects")
+            print(f"   - CAUSE: Le formulaire GitHub pointe vers l'environnement Preview")
+            print(f"   - IMPACT: L'utilisateur perd ses vrais prospects car ils n'arrivent pas en production stable")
+            
+            recommendation = "REDIRECT_FORM_TO_PRODUCTION"
+            
+        elif production_real > 0 and preview_real == 0:
+            print(f"\n✅ CONFIGURATION CORRECTE: LES VRAIS PROSPECTS ARRIVENT EN PRODUCTION")
+            print(f"   - Production: {production_real} vrais prospects")
+            print(f"   - Preview: {preview_real} vrais prospects")
+            print(f"   - Le formulaire GitHub pointe correctement vers la production stable")
+            
+            recommendation = "CONFIGURATION_CORRECT"
+            
+        elif preview_real > 0 and production_real > 0:
+            print(f"\n⚠️ SITUATION MIXTE: PROSPECTS DANS LES DEUX ENVIRONNEMENTS")
+            print(f"   - Preview: {preview_real} vrais prospects")
+            print(f"   - Production: {production_real} vrais prospects")
+            print(f"   - CAUSE: Possible changement récent de configuration ou migration partielle")
+            
+            recommendation = "MIXED_ENVIRONMENT"
+            
+        elif preview_real == 0 and production_real == 0:
+            print(f"\n❌ PROBLÈME CRITIQUE: AUCUN VRAI PROSPECT DANS LES DEUX ENVIRONNEMENTS")
+            print(f"   - Soit le formulaire ne fonctionne pas")
+            print(f"   - Soit aucun vrai prospect n'a été soumis récemment")
+            print(f"   - Soit problème de configuration majeur")
+            
+            recommendation = "NO_REAL_PROSPECTS"
+        
+        # Recommandations spécifiques
+        print(f"\n📋 RECOMMANDATIONS CRITIQUES:")
+        
+        if recommendation == "REDIRECT_FORM_TO_PRODUCTION":
+            print(f"1. 🚨 URGENT: Modifier l'URL du formulaire GitHub")
+            print(f"   - Changer de: {self.preview_url}/api/estimation/submit-prospect-email")
+            print(f"   - Vers: {self.production_url}/api/estimation/submit-prospect-email")
+            print(f"2. 🔄 Migrer les {preview_real} vrais prospects de Preview vers Production")
+            print(f"3. ✅ Tester le workflow complet après modification")
+            
+        elif recommendation == "CONFIGURATION_CORRECT":
+            print(f"1. ✅ Configuration correcte - Continuer avec l'environnement Production")
+            print(f"2. 🔍 Vérifier pourquoi l'utilisateur ne voit pas ses {production_real} prospects")
+            print(f"3. 🔧 Problème probable: filtres dashboard ou pagination frontend")
+            
+        elif recommendation == "MIXED_ENVIRONMENT":
+            print(f"1. 🔍 Déterminer quel environnement utiliser comme référence")
+            print(f"2. 🔄 Consolider tous les prospects dans un seul environnement")
+            print(f"3. 🔧 Configurer le formulaire vers l'environnement choisi")
+            
+        else:
+            print(f"1. 🔍 Vérifier si le formulaire GitHub fonctionne")
+            print(f"2. 🔍 Contrôler les logs de soumission")
+            print(f"3. 🔧 Tester manuellement le workflow complet")
+        
+        # Afficher les leads réels trouvés pour analyse
+        if preview_real > 0:
+            print(f"\n📋 LEADS RÉELS EN PREVIEW (échantillon):")
+            for lead in self.results.get('preview', {}).get('real_leads_data', [])[:3]:
+                print(f"   - {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - {lead.get('créé_le', 'N/A')}")
+        
+        if production_real > 0:
+            print(f"\n📋 LEADS RÉELS EN PRODUCTION (échantillon):")
+            for lead in self.results.get('production', {}).get('real_leads_data', [])[:3]:
+                print(f"   - {lead.get('prénom', '')} {lead.get('nom', '')} - {lead.get('email', '')} - {lead.get('créé_le', 'N/A')}")
+        
+        return recommendation
+
+    def run_critical_analysis(self):
+        """Exécuter l'analyse critique complète"""
+        print("🚨 VÉRIFICATION CRITIQUE - OÙ ARRIVENT LES VRAIS PROSPECTS ?")
+        print("=" * 80)
+        print("PROBLÈME URGENT: L'utilisateur a déployé pour stabilité mais les vrais prospects")
+        print("n'apparaissent pas dans l'environnement stable. Il faut identifier où arrivent")
+        print("réellement les prospects depuis le formulaire GitHub.")
+        print("=" * 80)
+        
+        # Exécuter tous les tests
+        self.test_preview_environment_leads()
+        self.test_production_environment_leads()
+        self.test_github_form_endpoints()
+        
+        # Analyse finale
+        recommendation = self.analyze_critical_findings()
+        
+        # Résumé final
+        print(f"\n" + "=" * 80)
+        print("📊 RÉSUMÉ EXÉCUTIF")
+        print("=" * 80)
+        print(f"Tests exécutés: {self.tests_run}")
+        print(f"Tests réussis: {self.tests_passed}")
+        print(f"Taux de succès: {(self.tests_passed/self.tests_run*100):.1f}%")
+        print(f"Recommandation: {recommendation}")
+        
+        return {
+            'tests_run': self.tests_run,
+            'tests_passed': self.tests_passed,
+            'success_rate': (self.tests_passed/self.tests_run*100) if self.tests_run > 0 else 0,
+            'recommendation': recommendation,
+            'results': self.results
+        }
+
+
+# Classe de compatibilité pour les anciens tests
 class EfficiencyAPITester:
     def __init__(self, base_url="https://realestate-leads-5.emergentagent.host"):
         self.base_url = base_url
