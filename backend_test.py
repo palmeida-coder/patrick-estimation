@@ -5409,16 +5409,46 @@ def main():
         return tester.run_post_configuration_tests()
 
 if __name__ == "__main__":
-    print("🎯 DÉMARRAGE TESTS CRITIQUES WORKFLOW GITHUB → EMAIL PROSPECT")
+    print("🚨 VÉRIFICATION CRITIQUE - OÙ ARRIVENT LES VRAIS PROSPECTS ?")
     print("=" * 80)
-    print("OBJECTIF: Vérifier workflow marketing Patrick Almeida")
-    print("Facebook Marketing → bit.ly → GitHub Pages → API CRM → Emails automatiques")
+    print("PROBLÈME URGENT: L'utilisateur a déployé pour stabilité mais les vrais prospects")
+    print("n'apparaissent pas dans l'environnement stable. Il faut identifier où arrivent")
+    print("réellement les prospects depuis le formulaire GitHub.")
     print("=" * 80)
     
-    tester = EfficiencyAPITester()
+    # Exécuter l'analyse critique
+    critical_tester = CriticalProspectLocationTester()
+    results = critical_tester.run_critical_analysis()
     
-    # Exécuter tests critiques workflow
-    workflow_success = tester.run_critical_workflow_tests()
+    print(f"\n🎯 RÉSUMÉ EXÉCUTIF FINAL")
+    print("=" * 80)
     
-    # Exit code basé sur le succès du workflow critique
-    sys.exit(0 if workflow_success else 1)
+    recommendation = results['recommendation']
+    
+    if recommendation == "REDIRECT_FORM_TO_PRODUCTION":
+        print("🚨 ACTION URGENTE REQUISE:")
+        print("1. Les vrais prospects arrivent en PREVIEW au lieu de PRODUCTION")
+        print("2. Modifier l'URL du formulaire GitHub vers l'environnement stable")
+        print("3. Migrer les prospects existants de Preview vers Production")
+        sys.exit(1)
+        
+    elif recommendation == "CONFIGURATION_CORRECT":
+        print("✅ CONFIGURATION CORRECTE:")
+        print("1. Les vrais prospects arrivent bien en PRODUCTION")
+        print("2. Le problème est probablement dans l'affichage frontend")
+        print("3. Vérifier les filtres et pagination du dashboard")
+        sys.exit(0)
+        
+    elif recommendation == "MIXED_ENVIRONMENT":
+        print("⚠️ SITUATION MIXTE DÉTECTÉE:")
+        print("1. Prospects dans les deux environnements")
+        print("2. Consolider vers un seul environnement")
+        print("3. Configurer le formulaire vers l'environnement choisi")
+        sys.exit(1)
+        
+    else:
+        print("❌ PROBLÈME CRITIQUE:")
+        print("1. Aucun vrai prospect trouvé dans les deux environnements")
+        print("2. Vérifier le fonctionnement du formulaire GitHub")
+        print("3. Investigation approfondie requise")
+        sys.exit(1)
