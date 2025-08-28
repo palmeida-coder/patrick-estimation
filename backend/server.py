@@ -93,6 +93,9 @@ patrick_scoring = get_advanced_lead_scoring_service(db)
 # Initialize Lyon Price Predictor IA
 lyon_predictor = get_lyon_price_predictor_service(db)
 
+# Initialize Gmail Marketing Service
+gmail_marketing_service = GmailMarketingService(client)
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
