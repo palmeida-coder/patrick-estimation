@@ -470,7 +470,7 @@ const EmailMarketing = () => {
                         Créé par: {template.created_by}
                       </p>
                     </div>
-                    <Template className="h-8 w-8 text-blue-500" />
+                    <FileText className="h-8 w-8 text-blue-500" />
                   </div>
                 </div>
               ))}
