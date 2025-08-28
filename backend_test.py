@@ -384,55 +384,66 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Welcome Email Integration", welcome_integration_working, 
                            f"Welcome email: sent={email_sent}, recipient_added={recipient_added}")
 
-    def test_notification_system_stats_after(self):
-        """📧 TEST 6: VÉRIFICATION STATS NOTIFICATIONS APRÈS ENVOI"""
-        print("\n📧 TEST 6: VÉRIFICATION STATS NOTIFICATIONS APRÈS ENVOI")
-        print("Vérifier que le compteur de notifications a augmenté")
+    def test_gmail_campaign_execution(self):
+        """🎯 TEST 6: EXÉCUTION CAMPAGNE EMAIL MARKETING"""
+        print("\n🎯 TEST 6: EXÉCUTION CAMPAGNE EMAIL MARKETING")
+        print("Tester l'exécution d'une campagne créée précédemment")
         print("=" * 80)
         
-        # Récupérer stats notifications après envoi
+        if not self.test_campaign_id:
+            print("⚠️ Aucune campagne créée précédemment, skip du test")
+            self.results['gmail_campaign_execution'] = {
+                'success': False,
+                'error': "No campaign ID available",
+                'status': 'SKIPPED'
+            }
+            return self.log_test("Gmail Campaign Execution", False, "No campaign to execute")
+        
+        print(f"📧 Exécution campagne ID: {self.test_campaign_id}")
+        
         success, response, details = self.make_request(
-            self.preview_url, 'GET', 'api/notifications/stats', expected_status=200
+            self.preview_url, 'POST', f'api/gmail/execute-campaign/{self.test_campaign_id}', 
+            expected_status=200
         )
         
         if not success:
-            self.results['notification_stats_after'] = {
+            self.results['gmail_campaign_execution'] = {
                 'success': False,
                 'error': details,
                 'status': 'FAILED'
             }
-            return self.log_test("Notification System Stats After", False, f"Cannot access notification stats: {details}")
+            return self.log_test("Gmail Campaign Execution", False, f"Campaign execution failed: {details}")
         
-        total_notifications_after = response.get('total_notifications', 0)
-        notifications_today_after = response.get('notifications_today', 0)
+        # Vérifier résultats exécution
+        execution_result = response.get('result', {})
+        execution_success = execution_result.get('success', False)
+        sent_count = execution_result.get('sent_count', 0)
+        total_recipients = execution_result.get('total_recipients', 0)
+        errors = execution_result.get('errors', [])
         
-        # Comparer avec les stats d'avant
-        stats_before = self.results.get('notification_stats_before', {})
-        total_before = stats_before.get('total_notifications', 0)
-        today_before = stats_before.get('notifications_today', 0)
+        print(f"✅ EXÉCUTION CAMPAGNE:")
+        print(f"   - Success: {execution_success}")
+        print(f"   - Emails envoyés: {sent_count}")
+        print(f"   - Total destinataires: {total_recipients}")
+        print(f"   - Erreurs: {len(errors)}")
         
-        total_increase = total_notifications_after - total_before
-        today_increase = notifications_today_after - today_before
+        if errors:
+            print(f"   - Détails erreurs: {errors[:3]}")  # Afficher les 3 premières erreurs
         
-        print(f"✅ STATS NOTIFICATIONS APRÈS ENVOI:")
-        print(f"   - Total notifications: {total_notifications_after} (était {total_before}) +{total_increase}")
-        print(f"   - Notifications aujourd'hui: {notifications_today_after} (était {today_before}) +{today_increase}")
+        campaign_execution_working = execution_success and sent_count >= 0
         
-        # Vérifier que les notifications ont augmenté
-        notifications_increased = total_increase > 0 or today_increase > 0
-        
-        self.results['notification_stats_after'] = {
+        self.results['gmail_campaign_execution'] = {
             'success': True,
-            'total_notifications': total_notifications_after,
-            'notifications_today': notifications_today_after,
-            'total_increase': total_increase,
-            'today_increase': today_increase,
-            'notifications_increased': notifications_increased,
-            'status': 'SUCCESS' if notifications_increased else 'NO_INCREASE'
+            'execution_success': execution_success,
+            'sent_count': sent_count,
+            'total_recipients': total_recipients,
+            'errors_count': len(errors),
+            'campaign_execution_working': campaign_execution_working,
+            'status': 'SUCCESS' if campaign_execution_working else 'FAILED'
         }
         
-        return self.log_test("Notification System Stats After", notifications_increased, 
-                           f"Notification stats updated: +{total_increase} total, +{today_increase} today")
+        return self.log_test("Gmail Campaign Execution", campaign_execution_working, 
+                           f"Campaign executed: {sent_count}/{total_recipients} emails sent")
 
     def test_notification_history_verification(self):
         """📧 TEST 7: VÉRIFICATION HISTORIQUE NOTIFICATIONS"""
