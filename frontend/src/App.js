@@ -82,6 +82,7 @@ function App() {
                 <Route path="/extraction" element={<LeadExtraction />} />
                 <Route path="/notifications" element={<NotificationCenter />} />
                 <Route path="/sequences" element={<IntelligentSequences />} />
+                <Route path="/email-marketing" element={<EmailMarketing />} />
                 <Route path="/market" element={<MarketIntelligence />} />
                 <Route path="/crm" element={<CRMIntegrations />} />
                 <Route path="/rgpd" element={<RGPDCompliance />} />
