@@ -55,6 +55,7 @@ import CRMIntegrations from './components/CRMIntegrations';
 import RGPDCompliance from './components/RGPDCompliance';
 import LyonRealEstatePredictor from './components/LyonRealEstatePredictor';
 import MultiAgencyManagement from './components/MultiAgencyManagement';
+import EmailMarketing from './components/EmailMarketing';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
