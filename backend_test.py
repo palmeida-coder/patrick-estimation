@@ -39,7 +39,7 @@ class GmailMarketingServiceTester:
     """🎯 TEST GMAIL MARKETING SERVICE INTEGRATION COMPLÈTE"""
     
     def __init__(self):
-        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
+        self.preview_url = "http://localhost:8001"
         self.tests_run = 0
         self.tests_passed = 0
         self.results = {}
