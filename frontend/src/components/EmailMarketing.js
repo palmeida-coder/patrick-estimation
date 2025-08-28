@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Send, Users, BarChart3, Template, Campaign, Eye, MousePointer, Calendar, Play } from 'lucide-react';
+import { Mail, Send, Users, BarChart3, FileText, Target, Eye, MousePointer, Calendar, Play } from 'lucide-react';
 
 const EmailMarketing = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
