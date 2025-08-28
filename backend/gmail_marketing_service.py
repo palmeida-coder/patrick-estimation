@@ -260,7 +260,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
         
         # Insérer les templates par défaut s'ils n'existent pas
         for template_data in default_templates:
-            existing = self.templates_collection.find_one({"template_id": template_data["template_id"]})
+            existing = await self.templates_collection.find_one({"template_id": template_data["template_id"]})
             if not existing:
                 template = EmailTemplate(
                     template_id=template_data["template_id"],
@@ -272,7 +272,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                     variables=template_data["variables"],
                     created_at=datetime.utcnow()
                 )
-                self.templates_collection.insert_one(asdict(template))
+                await self.templates_collection.insert_one(asdict(template))
                 logger.info(f"Template créé: {template_data['name']}")
 
     async def send_email(self, recipient_email: str, template_id: str, variables: Dict[str, Any], 
