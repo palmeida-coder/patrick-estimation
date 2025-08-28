@@ -366,7 +366,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             created_at=datetime.utcnow()
         )
         
-        self.campaigns_collection.insert_one(asdict(campaign))
+        await self.campaigns_collection.insert_one(asdict(campaign))
         logger.info(f"Campagne créée: {campaign_id}")
         
         return campaign_id
