@@ -395,7 +395,9 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             errors = []
             
             for recipient_doc in recipients:
-                recipient = EmailRecipient(**recipient_doc)
+                # Nettoyer _id pour dataclass
+                recipient_data = {k: v for k, v in recipient_doc.items() if k != '_id'}
+                recipient = EmailRecipient(**recipient_data)
                 
                 if recipient.subscription_status != "subscribed":
                     continue
