@@ -76,10 +76,10 @@ class GmailMarketingService:
         self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
         
         # Collections MongoDB
-        self.templates_collection = self.db.email_templates
-        self.campaigns_collection = self.db.email_campaigns
-        self.recipients_collection = self.db.email_recipients
-        self.analytics_collection = self.db.email_analytics
+        self.templates_collection = self.db["email_templates"]
+        self.campaigns_collection = self.db["email_campaigns"]  
+        self.recipients_collection = self.db["email_recipients"]
+        self.analytics_collection = self.db["email_analytics"]
         
         # Configuration Jinja2 pour templates
         self.jinja_env = Environment(loader=DictLoader({}))
