@@ -36,14 +36,15 @@ from datetime import datetime
 from typing import Dict, Any
 
 class GmailMarketingServiceTester:
-    """📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM"""
+    """🎯 TEST GMAIL MARKETING SERVICE INTEGRATION COMPLÈTE"""
     
     def __init__(self):
         self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.tests_run = 0
         self.tests_passed = 0
         self.results = {}
-        self.notification_lead_id = None
+        self.test_email = "test.gmail.marketing@example.com"
+        self.test_campaign_id = None
         
     def log_test(self, name: str, success: bool, details: str = ""):
         """Log test results"""
