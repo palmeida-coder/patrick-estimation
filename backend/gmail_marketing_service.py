@@ -374,7 +374,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
     async def execute_campaign(self, campaign_id: str) -> Dict[str, Any]:
         """Execute une campagne email"""
         try:
-            campaign_doc = self.campaigns_collection.find_one({"campaign_id": campaign_id})
+            campaign_doc = await self.campaigns_collection.find_one({"campaign_id": campaign_id})
             if not campaign_doc:
                 return {"success": False, "error": "Campagne non trouvée"}
             
@@ -385,7 +385,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             if campaign.recipient_segments:
                 recipients_query = {"segments": {"$in": campaign.recipient_segments}}
             
-            recipients = list(self.recipients_collection.find(recipients_query))
+            recipients = await self.recipients_collection.find(recipients_query).to_list(length=None)
             
             sent_count = 0
             errors = []
