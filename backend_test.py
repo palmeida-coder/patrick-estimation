@@ -195,53 +195,72 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Send Email Endpoint", email_success, 
                            f"Email sent: {email_success}, tracking: {tracking_id}")
 
-    def test_patrick_ia_automatic_scoring(self):
-        """📧 TEST 3: VÉRIFICATION PATRICK IA SCORING AUTOMATIQUE"""
-        print("\n📧 TEST 3: VÉRIFICATION PATRICK IA SCORING AUTOMATIQUE")
-        print("Vérifier que le lead a reçu un score automatique de 100/100, Platinum, High priority")
+    def test_gmail_campaigns_endpoint(self):
+        """🎯 TEST 3: GESTION CAMPAGNES EMAIL MARKETING"""
+        print("\n🎯 TEST 3: GESTION CAMPAGNES EMAIL MARKETING")
+        print(f"URL: {self.preview_url}/api/gmail/campaigns")
         print("=" * 80)
         
-        if not self.notification_lead_id:
-            return self.log_test("Patrick IA Automatic Scoring", False, "No lead ID available")
-        
-        # Récupérer les données du lead pour vérifier le scoring
+        # Test 1: Récupérer campagnes existantes
         success, response, details = self.make_request(
-            self.preview_url, 'GET', f'api/leads/{self.notification_lead_id}', expected_status=200
+            self.preview_url, 'GET', 'api/gmail/campaigns', expected_status=200
         )
         
         if not success:
-            return self.log_test("Patrick IA Automatic Scoring", False, f"Cannot retrieve lead data: {details}")
+            self.results['gmail_campaigns'] = {
+                'success': False,
+                'error': details,
+                'status': 'FAILED'
+            }
+            return self.log_test("Gmail Campaigns Endpoint", False, f"Get campaigns failed: {details}")
         
-        # Vérifier scoring Patrick IA
-        score = response.get('score_qualification')
-        assignee = response.get('assigné_à')
-        source = response.get('source')
+        existing_campaigns = response.get('campaigns', [])
         
-        # Vérifier les valeurs attendues du scoring automatique
-        scoring_correct = (
-            score == 100 and
-            assignee == 'patrick-almeida' and
-            source == 'estimation_email_externe'
-        )
+        print(f"✅ CAMPAGNES EXISTANTES:")
+        print(f"   - Total campagnes: {len(existing_campaigns)}")
         
-        print(f"✅ PATRICK IA SCORING VÉRIFIÉ:")
-        print(f"   - Score qualification: {score}/100 {'✅' if score == 100 else '❌'}")
-        print(f"   - Assigné à: {assignee} {'✅' if assignee == 'patrick-almeida' else '❌'}")
-        print(f"   - Source: {source} {'✅' if source == 'estimation_email_externe' else '❌'}")
-        print(f"   - Tier classification: Platinum (automatique pour score 100)")
-        print(f"   - Priority level: High (automatique pour score 100)")
-        
-        self.results['patrick_ia_scoring'] = {
-            'success': True,
-            'score_qualification': score,
-            'assignee': assignee,
-            'source': source,
-            'scoring_correct': scoring_correct,
-            'status': 'SUCCESS' if scoring_correct else 'PARTIAL'
+        # Test 2: Créer nouvelle campagne
+        campaign_data = {
+            "name": "Test Campaign Gmail Marketing",
+            "template_id": "patrick_welcome",
+            "recipient_segments": ["prospects_lyon"],
+            "schedule_type": "immediate"
         }
         
-        return self.log_test("Patrick IA Automatic Scoring", scoring_correct, 
-                           f"Patrick IA scoring: score={score}, assignee={assignee}, source={source}")
+        print(f"\n📧 Création nouvelle campagne:")
+        print(f"   - Nom: {campaign_data['name']}")
+        print(f"   - Template: {campaign_data['template_id']}")
+        print(f"   - Segments: {campaign_data['recipient_segments']}")
+        
+        success_create, response_create, details_create = self.make_request(
+            self.preview_url, 'POST', 'api/gmail/create-campaign', 
+            data=campaign_data, expected_status=200
+        )
+        
+        campaign_created = False
+        campaign_id = None
+        
+        if success_create:
+            campaign_created = response_create.get('success', False)
+            campaign_id = response_create.get('campaign_id')
+            self.test_campaign_id = campaign_id
+            
+            print(f"✅ CAMPAGNE CRÉÉE:")
+            print(f"   - Success: {campaign_created}")
+            print(f"   - Campaign ID: {campaign_id}")
+        else:
+            print(f"❌ ERREUR CRÉATION CAMPAGNE: {details_create}")
+        
+        self.results['gmail_campaigns'] = {
+            'success': True,
+            'existing_campaigns_count': len(existing_campaigns),
+            'campaign_created': campaign_created,
+            'campaign_id': campaign_id,
+            'status': 'SUCCESS' if campaign_created else 'PARTIAL'
+        }
+        
+        return self.log_test("Gmail Campaigns Endpoint", campaign_created, 
+                           f"Campaigns: {len(existing_campaigns)} existing, new campaign: {'created' if campaign_created else 'failed'}")
 
     def test_notification_system_stats_before(self):
         """📧 TEST 4: VÉRIFICATION STATS NOTIFICATIONS AVANT ENVOI"""
