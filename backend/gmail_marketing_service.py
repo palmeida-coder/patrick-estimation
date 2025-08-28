@@ -86,7 +86,7 @@ class GmailMarketingService:
         
         logger.info("Gmail Marketing Service initialisé pour Efficity Lyon")
 
-    def _setup_default_templates(self):
+    async def _setup_default_templates(self):
         """Configure les templates par défaut Patrick Almeida"""
         default_templates = [
             {
