@@ -3699,7 +3699,7 @@ async def execute_email_campaign(campaign_id: str):
 async def get_email_analytics():
     """Dashboard analytics des campagnes email"""
     try:
-        analytics = gmail_marketing_service.get_analytics_dashboard()
+        analytics = await gmail_marketing_service.get_analytics_dashboard()
         return {"success": True, "analytics": analytics}
     except Exception as e:
         logger.error(f"Erreur analytics email: {str(e)}")
