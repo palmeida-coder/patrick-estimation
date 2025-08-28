@@ -142,6 +142,13 @@ function SidebarNavigation() {
       active: location.pathname === '/sequences'
     },
     { 
+      path: '/email-marketing', 
+      icon: <Mail className="w-5 h-5" />, 
+      label: 'Email Marketing', 
+      badge: null,
+      active: location.pathname === '/email-marketing'
+    },
+    { 
       path: '/analytics', 
       icon: <TrendingUp className="w-5 h-5" />, 
       label: 'Analytique', 
