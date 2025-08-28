@@ -284,7 +284,9 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             if not template_doc:
                 raise ValueError(f"Template non trouvé: {template_id}")
             
-            template = EmailTemplate(**template_doc)
+            # Nettoyer _id pour dataclass
+            template_data = {k: v for k, v in template_doc.items() if k != '_id'}
+            template = EmailTemplate(**template_data)
             
             # Rendu du template avec variables
             jinja_template_subject = self.jinja_env.from_string(template.subject)
