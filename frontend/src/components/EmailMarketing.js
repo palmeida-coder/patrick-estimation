@@ -511,8 +511,8 @@ const EmailMarketing = () => {
             {[
               { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
               { id: 'send', name: 'Envoi Email', icon: Send },
-              { id: 'campaigns', name: 'Campagnes', icon: Campaign },
-              { id: 'templates', name: 'Templates', icon: Template }
+              { id: 'campaigns', name: 'Campagnes', icon: Target },
+              { id: 'templates', name: 'Templates', icon: FileText }
             ].map((tab) => {
               const Icon = tab.icon;
               return (
