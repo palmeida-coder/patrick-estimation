@@ -103,8 +103,13 @@ class ComprehensiveSystemTester:
             success, response, details = self.make_request(url, 'GET', 'api/leads?limite=5', expected_status=200)
             
             if success:
-                leads = response.get('leads', [])
-                total = response.get('total', 0)
+                # Handle case where response might be a list instead of dict
+                if isinstance(response, dict):
+                    leads = response.get('leads', [])
+                    total = response.get('total', 0)
+                else:
+                    leads = response if isinstance(response, list) else []
+                    total = len(leads)
                 
                 print(f"✅ {name} - API ACCESSIBLE")
                 print(f"   - Total leads: {total}")
