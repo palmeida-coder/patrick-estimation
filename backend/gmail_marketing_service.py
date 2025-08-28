@@ -420,7 +420,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                 await asyncio.sleep(0.5)
             
             # Mettre à jour la campagne
-            self.campaigns_collection.update_one(
+            await self.campaigns_collection.update_one(
                 {"campaign_id": campaign_id},
                 {
                     "$set": {
