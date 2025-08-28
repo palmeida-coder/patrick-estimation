@@ -262,42 +262,65 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Campaigns Endpoint", campaign_created, 
                            f"Campaigns: {len(existing_campaigns)} existing, new campaign: {'created' if campaign_created else 'failed'}")
 
-    def test_notification_system_stats_before(self):
-        """📧 TEST 4: VÉRIFICATION STATS NOTIFICATIONS AVANT ENVOI"""
-        print("\n📧 TEST 4: VÉRIFICATION STATS NOTIFICATIONS AVANT ENVOI")
-        print("Récupérer le nombre actuel de notifications pour comparaison")
+    def test_gmail_analytics_dashboard(self):
+        """🎯 TEST 4: DASHBOARD ANALYTICS EMAIL MARKETING"""
+        print("\n🎯 TEST 4: DASHBOARD ANALYTICS EMAIL MARKETING")
+        print(f"URL: {self.preview_url}/api/gmail/analytics")
         print("=" * 80)
         
-        # Récupérer stats notifications actuelles
         success, response, details = self.make_request(
-            self.preview_url, 'GET', 'api/notifications/stats', expected_status=200
+            self.preview_url, 'GET', 'api/gmail/analytics', expected_status=200
         )
         
         if not success:
-            self.results['notification_stats_before'] = {
+            self.results['gmail_analytics'] = {
                 'success': False,
                 'error': details,
                 'status': 'FAILED'
             }
-            return self.log_test("Notification System Stats Before", False, f"Cannot access notification stats: {details}")
+            return self.log_test("Gmail Analytics Dashboard", False, f"Analytics endpoint failed: {details}")
         
-        total_notifications = response.get('total_notifications', 0)
-        notifications_today = response.get('notifications_today', 0)
+        analytics = response.get('analytics', {})
         
-        print(f"✅ STATS NOTIFICATIONS ACTUELLES:")
-        print(f"   - Total notifications: {total_notifications}")
-        print(f"   - Notifications aujourd'hui: {notifications_today}")
+        # Extraire métriques clés
+        total_campaigns = analytics.get('total_campaigns', 0)
+        total_emails_sent = analytics.get('total_emails_sent', 0)
+        total_opens = analytics.get('total_opens', 0)
+        open_rate = analytics.get('open_rate_percentage', 0)
+        active_templates = analytics.get('active_templates', 0)
+        recent_campaigns = analytics.get('recent_campaigns', [])
         
-        self.results['notification_stats_before'] = {
+        print(f"✅ ANALYTICS EMAIL MARKETING:")
+        print(f"   - Total campagnes: {total_campaigns}")
+        print(f"   - Emails envoyés: {total_emails_sent}")
+        print(f"   - Ouvertures: {total_opens}")
+        print(f"   - Taux d'ouverture: {open_rate}%")
+        print(f"   - Templates actifs: {active_templates}")
+        print(f"   - Campagnes récentes: {len(recent_campaigns)}")
+        
+        # Vérifier que les métriques sont cohérentes
+        analytics_working = (
+            isinstance(total_campaigns, int) and
+            isinstance(total_emails_sent, int) and
+            isinstance(total_opens, int) and
+            isinstance(open_rate, (int, float)) and
+            isinstance(active_templates, int)
+        )
+        
+        self.results['gmail_analytics'] = {
             'success': True,
-            'total_notifications': total_notifications,
-            'notifications_today': notifications_today,
-            'timestamp': datetime.now().isoformat(),
-            'status': 'SUCCESS'
+            'total_campaigns': total_campaigns,
+            'total_emails_sent': total_emails_sent,
+            'total_opens': total_opens,
+            'open_rate_percentage': open_rate,
+            'active_templates': active_templates,
+            'recent_campaigns_count': len(recent_campaigns),
+            'analytics_working': analytics_working,
+            'status': 'SUCCESS' if analytics_working else 'PARTIAL'
         }
         
-        return self.log_test("Notification System Stats Before", True, 
-                           f"Current notification stats: {total_notifications} total, {notifications_today} today")
+        return self.log_test("Gmail Analytics Dashboard", analytics_working, 
+                           f"Analytics: {total_campaigns} campaigns, {total_emails_sent} emails, {open_rate}% open rate")
 
     def test_send_notification_to_patrick(self):
         """📧 TEST 5: ENVOI NOTIFICATION TEST À PALMEIDA@EFFICITY.COM"""
