@@ -137,75 +137,63 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Templates Endpoint", templates_working, 
                            f"Templates: {len(templates)} total, Patrick templates: {'OK' if templates_working else 'MISSING'}")
 
-    def test_lead_creation_in_crm_database(self):
-        """📧 TEST 2: VÉRIFICATION CRÉATION LEAD EN BASE CRM"""
-        print("\n📧 TEST 2: VÉRIFICATION CRÉATION LEAD EN BASE CRM")
-        print(f"Lead ID: {self.notification_lead_id}")
+    def test_gmail_send_email_endpoint(self):
+        """🎯 TEST 2: ENVOI EMAIL AVEC TEMPLATE PATRICK_WELCOME"""
+        print("\n🎯 TEST 2: ENVOI EMAIL AVEC TEMPLATE PATRICK_WELCOME")
+        print(f"URL: {self.preview_url}/api/gmail/send-email")
         print("=" * 80)
         
-        if not self.notification_lead_id:
-            return self.log_test("Lead Creation in CRM Database", False, "No lead ID available from form submission")
+        # Données test pour envoi email
+        email_data = {
+            "recipient_email": self.test_email,
+            "template_id": "patrick_welcome",
+            "variables": {
+                "first_name": "Test Gmail",
+                "property_address": "123 Rue Test Lyon",
+                "estimated_value": "450000",
+                "contact_phone": "04 78 XX XX XX"
+            }
+        }
         
-        # Vérifier que le lead a été créé en base
+        print(f"📧 Test envoi email:")
+        print(f"   - Destinataire: {email_data['recipient_email']}")
+        print(f"   - Template: {email_data['template_id']}")
+        print(f"   - Variables: {email_data['variables']}")
+        
         success, response, details = self.make_request(
-            self.preview_url, 'GET', f'api/leads/{self.notification_lead_id}', expected_status=200
+            self.preview_url, 'POST', 'api/gmail/send-email', 
+            data=email_data, expected_status=200
         )
         
         if not success:
-            self.results['lead_creation'] = {
+            self.results['gmail_send_email'] = {
                 'success': False,
                 'error': details,
-                'status': 'NOT_FOUND'
+                'status': 'FAILED'
             }
-            return self.log_test("Lead Creation in CRM Database", False, f"Lead not found in database: {details}")
+            return self.log_test("Gmail Send Email Endpoint", False, f"Send email failed: {details}")
         
-        # Vérifier données lead
-        expected_data = {
-            'source': 'estimation_email_externe',
-            'assigné_à': 'patrick-almeida',
-            'score_qualification': 100,
-            'prénom': 'NotificationTest',
-            'nom': 'PalmeidaEmail',
-            'email': 'notification.test.palmeida@example.com'
+        # Vérifier réponse
+        email_success = response.get('success', False)
+        tracking_id = response.get('tracking_id')
+        template_used = response.get('template_used')
+        
+        print(f"✅ EMAIL ENVOYÉ:")
+        print(f"   - Success: {email_success}")
+        print(f"   - Tracking ID: {tracking_id}")
+        print(f"   - Template utilisé: {template_used}")
+        print(f"   - Message: {response.get('message', 'N/A')}")
+        
+        self.results['gmail_send_email'] = {
+            'success': email_success,
+            'tracking_id': tracking_id,
+            'template_used': template_used,
+            'response_message': response.get('message'),
+            'status': 'SUCCESS' if email_success else 'FAILED'
         }
         
-        verification_results = {}
-        for field, expected_value in expected_data.items():
-            actual_value = response.get(field)
-            verification_results[field] = {
-                'expected': expected_value,
-                'actual': actual_value,
-                'match': actual_value == expected_value
-            }
-        
-        print(f"✅ LEAD TROUVÉ EN BASE CRM:")
-        print(f"   - ID: {response.get('id')}")
-        print(f"   - Nom complet: {response.get('prénom')} {response.get('nom')}")
-        print(f"   - Email: {response.get('email')}")
-        print(f"   - Source: {response.get('source')}")
-        print(f"   - Assigné à: {response.get('assigné_à')}")
-        print(f"   - Score qualification: {response.get('score_qualification')}")
-        print(f"   - Créé le: {response.get('créé_le')}")
-        
-        # Vérifier que toutes les données correspondent
-        all_match = all(v['match'] for v in verification_results.values())
-        
-        self.results['lead_creation'] = {
-            'success': True,
-            'lead_found': True,
-            'data_verification': verification_results,
-            'all_data_correct': all_match,
-            'lead_data': response,
-            'status': 'SUCCESS' if all_match else 'PARTIAL'
-        }
-        
-        if all_match:
-            return self.log_test("Lead Creation in CRM Database", True, 
-                               f"Lead created correctly with all expected data")
-        else:
-            mismatches = [f for f, v in verification_results.items() if not v['match']]
-            return self.log_test("Lead Creation in CRM Database", True, 
-                               f"Lead created but some data mismatches: {mismatches}")
+        return self.log_test("Gmail Send Email Endpoint", email_success, 
+                           f"Email sent: {email_success}, tracking: {tracking_id}")
 
     def test_patrick_ia_automatic_scoring(self):
         """📧 TEST 3: VÉRIFICATION PATRICK IA SCORING AUTOMATIQUE"""
