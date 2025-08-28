@@ -3636,6 +3636,130 @@ async def full_bidirectional_sync():
 
 # ===== FIN GOOGLE SHEETS INTÉGRATION RÉELLE =====
 
+# =====================================
+# GMAIL MARKETING ENDPOINTS  
+# =====================================
+
+@app.get("/api/gmail/templates")
+async def get_email_templates():
+    """Récupère tous les templates email"""
+    try:
+        templates = gmail_marketing_service.get_templates()
+        return {"success": True, "templates": templates}
+    except Exception as e:
+        logger.error(f"Erreur récupération templates: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/gmail/campaigns")
+async def get_email_campaigns():
+    """Récupère toutes les campagnes email"""
+    try:
+        campaigns = gmail_marketing_service.get_campaigns()
+        return {"success": True, "campaigns": campaigns}
+    except Exception as e:
+        logger.error(f"Erreur récupération campagnes: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/gmail/send-email")
+async def send_marketing_email(request: dict):
+    """Envoie un email marketing"""
+    try:
+        result = await gmail_marketing_service.send_email(
+            recipient_email=request["recipient_email"],
+            template_id=request["template_id"],
+            variables=request.get("variables", {}),
+            campaign_id=request.get("campaign_id")
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Erreur envoi email marketing: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/gmail/create-campaign")
+async def create_email_campaign(request: dict):
+    """Crée une nouvelle campagne email"""
+    try:
+        campaign_id = await gmail_marketing_service.create_campaign(request)
+        return {"success": True, "campaign_id": campaign_id}
+    except Exception as e:
+        logger.error(f"Erreur création campagne: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/gmail/execute-campaign/{campaign_id}")
+async def execute_email_campaign(campaign_id: str):
+    """Execute une campagne email"""
+    try:
+        result = await gmail_marketing_service.execute_campaign(campaign_id)
+        return result
+    except Exception as e:
+        logger.error(f"Erreur exécution campagne: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/gmail/analytics")
+async def get_email_analytics():
+    """Dashboard analytics des campagnes email"""
+    try:
+        analytics = gmail_marketing_service.get_analytics_dashboard()
+        return {"success": True, "analytics": analytics}
+    except Exception as e:
+        logger.error(f"Erreur analytics email: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/email/track/open/{tracking_id}")
+async def track_email_open(tracking_id: str):
+    """Track ouverture email (tracking pixel)"""
+    try:
+        gmail_marketing_service.track_email_open(tracking_id)
+        
+        # Retourner une image pixel transparente
+        import base64
+        pixel_data = base64.b64decode(
+            "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+        )
+        
+        from fastapi.responses import Response
+        return Response(content=pixel_data, media_type="image/gif")
+        
+    except Exception as e:
+        logger.error(f"Erreur tracking ouverture: {str(e)}")
+        return Response(content=b"", media_type="image/gif")
+
+@app.post("/api/gmail/send-welcome-email")
+async def send_welcome_email_to_lead(request: dict):
+    """Envoie email de bienvenue automatique à un lead"""
+    try:
+        # Ajouter le lead comme destinataire
+        recipient_id = gmail_marketing_service.add_recipient_from_lead(request)
+        
+        if not recipient_id:
+            return {"success": False, "error": "Erreur ajout destinataire"}
+        
+        # Variables pour le template de bienvenue Patrick Almeida
+        variables = {
+            "first_name": request.get("first_name", ""),
+            "property_address": request.get("address", ""),
+            "estimated_value": request.get("budget_max", "Non spécifié"),
+            "contact_phone": "04 72 56 89 12"  # Téléphone Patrick Almeida
+        }
+        
+        # Envoyer l'email de bienvenue
+        result = await gmail_marketing_service.send_email(
+            recipient_email=request.get("email", ""),
+            template_id="patrick_welcome",
+            variables=variables
+        )
+        
+        return {
+            "success": True,
+            "message": "Email de bienvenue envoyé",
+            "recipient_id": recipient_id,
+            "email_result": result
+        }
+        
+    except Exception as e:
+        logger.error(f"Erreur envoi email bienvenue: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 # ===== MULTI-AGENCY MANAGEMENT SYSTEM - NOUVELLE FONCTIONNALITÉ =====
 
 @app.get("/api/multi-agency/agencies")
