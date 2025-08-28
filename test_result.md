@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "REPRODUCTION EXACTE CRM PATRICK ALMEIDA - Configuration système pour correspondre exactement aux spécifications détaillées. Corrections des variables d'environnement (MONGO_URL vers efficity_crm, REACT_APP_BACKEND_URL vers efficity-crm.preview.emergentagent.com), migration données, test workflow complet GitHub→API→CRM→Email. Objectif: système 100% conforme aux spécifications utilisateur avec 108 leads pipeline, workflow marketing Facebook actif."
+user_problem_statement: "INTÉGRATION GMAIL API COMPLÈTE - Implémentation système email marketing professionnel Patrick Almeida avec credentials Gmail configurés (lyonhabitatconseil@gmail.com). Service GmailMarketingService complet avec templates email Patrick Almeida, envoi automatique emails bienvenue prospects, campagnes email marketing, tracking ouvertures/clics, interface dashboard campagnes. Intégration complète dans environnement fonctionnel https://realestate-leads-5.preview.emergentagent.com avec 44 leads opérationnels et workflow GitHub→API→CRM→Email 100% actif."
 
 backend:
   - task: "Workflow GitHub → Email Prospect Critique Complet"
