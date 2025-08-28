@@ -516,11 +516,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Workflow GitHub → Email Prospect Critique Complet"
-  stuck_tasks:
-    - "Workflow GitHub → Email Prospect Critique Complet"
+    - "Gmail Marketing Service Integration Complète"
+    - "Gmail Marketing Dashboard Interface" 
+  stuck_tasks: []
   test_all: false
-  test_priority: "critical_environment_configuration_issue"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
