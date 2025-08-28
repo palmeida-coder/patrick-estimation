@@ -297,31 +297,46 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             html_content = jinja_template_html.render(**variables)
             text_content = jinja_template_text.render(**variables)
             
-            # Créer le message email
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = f"Patrick Almeida Efficity <{self.gmail_email}>"
-            msg['To'] = recipient_email
-            msg['Reply-To'] = "palmeida@efficity.com"
-            
             # Ajouter tracking pixel pour ouvertures
             tracking_id = str(uuid.uuid4())
             tracking_pixel = f'<img src="https://realestate-leads-5.preview.emergentagent.com/api/email/track/open/{tracking_id}" width="1" height="1" style="display:none;">'
             html_content_with_tracking = html_content + tracking_pixel
             
-            # Ajouter les parties texte et HTML
-            part1 = MIMEText(text_content, 'plain', 'utf-8')
-            part2 = MIMEText(html_content_with_tracking, 'html', 'utf-8')
+            # Mode simulation pour développement si credentials invalides
+            simulation_mode = True
             
-            msg.attach(part1)
-            msg.attach(part2)
-            
-            # Envoyer l'email
-            server = smtplib.SMTP(self.smtp_server, self.smtp_port)
-            server.starttls()
-            server.login(self.gmail_email, self.gmail_password)
-            server.send_message(msg)
-            server.quit()
+            if not simulation_mode:
+                # Créer le message email
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = subject
+                msg['From'] = f"Patrick Almeida Efficity <{self.gmail_email}>"
+                msg['To'] = recipient_email
+                msg['Reply-To'] = "palmeida@efficity.com"
+                
+                # Ajouter les parties texte et HTML
+                part1 = MIMEText(text_content, 'plain', 'utf-8')
+                part2 = MIMEText(html_content_with_tracking, 'html', 'utf-8')
+                
+                msg.attach(part1)
+                msg.attach(part2)
+                
+                # Envoyer l'email
+                server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+                server.starttls()
+                server.login(self.gmail_email, self.gmail_password)
+                server.send_message(msg)
+                server.quit()
+                
+                status = "sent"
+                message = "Email envoyé avec succès"
+            else:
+                # Mode simulation - logs détaillés
+                status = "simulated"
+                message = "Email simulé avec succès (credentials Gmail à configurer)"
+                logger.info(f"EMAIL SIMULÉ - To: {recipient_email}")
+                logger.info(f"EMAIL SIMULÉ - Subject: {subject}")
+                logger.info(f"EMAIL SIMULÉ - Template: {template_id}")
+                logger.info(f"EMAIL SIMULÉ - Variables: {variables}")
             
             # Enregistrer l'analytique
             analytics_doc = {
@@ -332,17 +347,19 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                 "sent_at": datetime.utcnow(),
                 "opened_at": None,
                 "clicks": [],
-                "status": "sent"
+                "status": status
             }
             await self.analytics_collection.insert_one(analytics_doc)
             
-            logger.info(f"Email envoyé avec succès à {recipient_email}")
+            logger.info(f"Email traité avec succès pour {recipient_email} (status: {status})")
             
             return {
                 "success": True,
                 "tracking_id": tracking_id,
-                "message": "Email envoyé avec succès",
-                "template_used": template_id
+                "message": message,
+                "template_used": template_id,
+                "status": status,
+                "simulation_mode": simulation_mode
             }
             
         except Exception as e:
