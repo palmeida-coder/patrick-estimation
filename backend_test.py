@@ -675,55 +675,61 @@ class GmailMarketingServiceTester:
         
         return service_status
 
-    def run_notification_email_verification(self):
-        """Exécuter la vérification complète du workflow notification email"""
-        print("📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM")
+    def run_gmail_marketing_service_testing(self):
+        """Exécuter les tests complets du Gmail Marketing Service"""
+        print("🎯 TEST GMAIL MARKETING SERVICE INTEGRATION COMPLÈTE")
         print("=" * 80)
-        print("OBJECTIF: Confirmer que Patrick reçoit bien une notification email pour chaque nouveau prospect")
+        print("OBJECTIF: Vérifier l'intégration complète du service Gmail Marketing Patrick Almeida")
         print("ENVIRONNEMENT: Preview (https://einstein-dashboard.preview.emergentagent.com)")
         print("=" * 80)
         
-        # Exécuter tous les tests
-        self.test_github_form_submission_with_notification_data()
-        self.test_lead_creation_in_crm_database()
-        self.test_patrick_ia_automatic_scoring()
-        self.test_notification_system_stats_before()
-        self.test_send_notification_to_patrick()
-        self.test_notification_system_stats_after()
-        self.test_notification_history_verification()
-        self.test_email_automation_for_prospect()
+        # Exécuter tous les tests Gmail Marketing
+        self.test_gmail_templates_endpoint()
+        self.test_gmail_send_email_endpoint()
+        self.test_gmail_campaigns_endpoint()
+        self.test_gmail_analytics_dashboard()
+        self.test_gmail_welcome_email_integration()
+        self.test_gmail_campaign_execution()
+        self.test_gmail_integration_with_lead_workflow()
         
         # Analyse finale
-        workflow_status = self.analyze_notification_workflow_results()
+        service_status = self.analyze_gmail_marketing_results()
         
         # Résumé final
         print(f"\n" + "=" * 80)
-        print("📊 RÉSUMÉ EXÉCUTIF - VÉRIFICATION NOTIFICATION EMAIL")
+        print("📊 RÉSUMÉ EXÉCUTIF - GMAIL MARKETING SERVICE TESTING")
         print("=" * 80)
         print(f"Tests exécutés: {self.tests_run}")
         print(f"Tests réussis: {self.tests_passed}")
         print(f"Taux de succès: {(self.tests_passed/self.tests_run*100):.1f}%")
-        print(f"Statut workflow: {workflow_status}")
+        print(f"Statut service: {service_status}")
         
         # Conclusion pour l'utilisateur
         print(f"\n🎯 CONCLUSION POUR PATRICK ALMEIDA:")
-        if workflow_status == "FULLY_OPERATIONAL":
-            print(f"✅ EXCELLENT: Le système de notification email fonctionne parfaitement")
-            print(f"📧 Vous recevrez bien les notifications à palmeida@efficity.com")
-            print(f"🔄 Continuez à utiliser l'environnement Preview en toute confiance")
-            print(f"📊 Tous les prospects du formulaire GitHub déclencheront des notifications")
+        if service_status == "FULLY_OPERATIONAL":
+            print(f"✅ EXCELLENT: Le service Gmail Marketing est 100% opérationnel")
+            print(f"📧 Templates professionnels Patrick Almeida fonctionnels")
+            print(f"🚀 Campagnes email marketing prêtes à être lancées")
+            print(f"📊 Analytics et tracking emails opérationnels")
+            print(f"🔄 Intégration automatique dans workflow prospects active")
+        elif service_status == "MOSTLY_OPERATIONAL":
+            print(f"⚠️ BON: Le service Gmail Marketing est majoritairement fonctionnel")
+            print(f"📧 Fonctionnalités principales opérationnelles")
+            print(f"🔧 Quelques ajustements mineurs recommandés")
+            print(f"✅ Service utilisable en production avec surveillance")
         else:
-            print(f"⚠️ ATTENTION: Quelques problèmes détectés dans le workflow")
-            print(f"📧 Vérifiez votre boîte email palmeida@efficity.com")
-            print(f"🔧 Consultez les recommandations ci-dessus")
+            print(f"❌ ATTENTION: Le service Gmail Marketing nécessite intervention")
+            print(f"🔧 Vérifiez la configuration Gmail et les credentials")
+            print(f"📊 Consultez les recommandations techniques ci-dessus")
+            print(f"📞 Intervention technique requise avant utilisation production")
         
         return {
             'tests_run': self.tests_run,
             'tests_passed': self.tests_passed,
             'success_rate': (self.tests_passed/self.tests_run*100) if self.tests_run > 0 else 0,
-            'workflow_status': workflow_status,
+            'service_status': service_status,
             'results': self.results,
-            'notification_lead_id': self.notification_lead_id
+            'test_email': self.test_email
         }
 
 class ImmediateProductionVerifier:
