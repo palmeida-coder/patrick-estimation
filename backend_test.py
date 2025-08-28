@@ -1,47 +1,32 @@
 #!/usr/bin/env python3
 """
-📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM
-
-**OBJECTIF:**
-Vérifier que quand un prospect remplit le formulaire GitHub, une notification est bien transmise à palmeida@efficity.com.
+🎯 TEST GMAIL MARKETING SERVICE INTEGRATION COMPLÈTE
 
 **CONTEXTE:**
-- Environnement preview fonctionne parfaitement (7+ leads visibles dans le tableau)
-- URL preview: https://einstein-dashboard.preview.emergentagent.com/leads
-- En attente correction support pour URL production
-- Besoin confirmer notifications email fonctionnent
+- GmailMarketingService implémenté avec credentials lyonhabitatconseil@gmail.com configurés
+- Templates email Patrick Almeida professionnels (patrick_welcome, patrick_followup)
+- Endpoints API Gmail Marketing complets (/api/gmail/*)
+- Envoi automatique emails bienvenue intégré dans workflow prospects
+- Environment preview stable: https://realestate-leads-5.preview.emergentagent.com
 
-**WORKFLOW À TESTER:**
-1. Formulaire GitHub: https://palmeida-coder.github.io/patrick-estimation/
-2. Soumission → API preview: https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email
-3. Création lead en base CRM (déjà confirmé fonctionnel)
-4. NOTIFICATION EMAIL → palmeida@efficity.com (À VÉRIFIER)
-5. Email automation prospects (déjà confirmé fonctionnel)
+**TESTS BACKEND PRIORITAIRES À EFFECTUER:**
 
-**TEST NOTIFICATION EMAIL:**
-Créer un nouveau lead test spécifiquement pour vérifier l'envoi de notification à Patrick:
+1. **SERVICE GMAIL AUTHENTICATION** - Vérifier connexion SMTP Gmail avec credentials
+2. **TEMPLATES EMAIL CREATION** - Valider templates Patrick Almeida en base MongoDB
+3. **ENDPOINTS API GMAIL** - Tester tous les endpoints /api/gmail/* (templates, campaigns, send-email, analytics)
+4. **ENVOI EMAIL AUTOMATIQUE** - Vérifier intégration dans endpoint /api/estimation/submit-prospect-email
+5. **TRACKING EMAIL** - Valider tracking pixels et analytics ouvertures
+6. **CAMPAGNES EMAIL** - Tester création et exécution campagnes marketing
+7. **DASHBOARD ANALYTICS** - Vérifier métriques et statistiques email marketing
 
-- Prénom: NotificationTest
-- Nom: PalmeidaEmail
-- Email: notification.test.palmeida@example.com
-- Téléphone: 06 77 88 99 33
-- Adresse: Test Notification Email Lyon
-- Type: Appartement
-- Surface: 90m²
-- Message: "Test notification email Patrick Almeida"
+**DONNÉES TEST:**
+- Email test: test.gmail.marketing@example.com
+- Template: patrick_welcome
+- Variables: first_name="Test Gmail", property_address="123 Rue Test Lyon", estimated_value="450000"
 
-**VÉRIFICATIONS CRITIQUES:**
-1. ✅ Lead créé avec succès dans le système
-2. ✅ Patrick IA scoring automatique (100/100, Platinum)
-3. 📧 NOTIFICATION ENVOYÉE À palmeida@efficity.com
-4. ✅ Email confirmation prospect
-5. ✅ Workflow complet fonctionnel
+**ENVIRONMENT:** Preview URL fonctionnel avec 44 leads opérationnels, backend Gmail credentials configurés.
 
-**OBJECTIF:**
-Confirmer que Patrick reçoit bien une notification email pour chaque nouveau prospect du formulaire GitHub.
-
-**URGENCE:**
-L'utilisateur doit pouvoir recevoir ses notifications pendant qu'il utilise l'environnement preview en attendant la correction support.
+Teste l'intégration Gmail Marketing complète avec focus sur fonctionnalité email professionnel Patrick Almeida.
 """
 
 import requests
