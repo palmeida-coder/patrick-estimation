@@ -502,7 +502,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             logger.error(f"Erreur tracking ouverture: {str(e)}")
             return False
 
-    def add_recipient_from_lead(self, lead_data: Dict[str, Any]) -> str:
+    async def add_recipient_from_lead(self, lead_data: Dict[str, Any]) -> str:
         """Ajoute un destinataire depuis un lead"""
         try:
             recipient_id = f"recipient_{uuid.uuid4().hex[:12]}"
