@@ -380,7 +380,9 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             if not campaign_doc:
                 return {"success": False, "error": "Campagne non trouvée"}
             
-            campaign = EmailCampaign(**campaign_doc)
+            # Nettoyer _id pour dataclass
+            campaign_data = {k: v for k, v in campaign_doc.items() if k != '_id'}
+            campaign = EmailCampaign(**campaign_data)
             
             # Récupérer les destinataires
             recipients_query = {}
