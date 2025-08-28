@@ -46,7 +46,7 @@ class PostReplaceDeploymentTester:
     
     def __init__(self):
         self.production_url = "https://realestate-leads-5.emergent.host"
-        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.tests_run = 0
         self.tests_passed = 0
         self.results = {}

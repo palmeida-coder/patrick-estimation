@@ -9,7 +9,7 @@ from datetime import datetime
 
 def test_sheets_endpoints():
     """Test all Google Sheets API endpoints"""
-    base_url = "https://realestate-leads-5.preview.emergentagent.com"
+    base_url = "https://einstein-dashboard.preview.emergentagent.com"
     
     print("🔍 Testing Google Sheets API Endpoints")
     print("=" * 50)

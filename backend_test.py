@@ -7,13 +7,13 @@ Vérifier que quand un prospect remplit le formulaire GitHub, une notification e
 
 **CONTEXTE:**
 - Environnement preview fonctionne parfaitement (7+ leads visibles dans le tableau)
-- URL preview: https://realestate-leads-5.preview.emergentagent.com/leads
+- URL preview: https://einstein-dashboard.preview.emergentagent.com/leads
 - En attente correction support pour URL production
 - Besoin confirmer notifications email fonctionnent
 
 **WORKFLOW À TESTER:**
 1. Formulaire GitHub: https://palmeida-coder.github.io/patrick-estimation/
-2. Soumission → API preview: https://realestate-leads-5.preview.emergentagent.com/api/estimation/submit-prospect-email
+2. Soumission → API preview: https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email
 3. Création lead en base CRM (déjà confirmé fonctionnel)
 4. NOTIFICATION EMAIL → palmeida@efficity.com (À VÉRIFIER)
 5. Email automation prospects (déjà confirmé fonctionnel)
@@ -54,7 +54,7 @@ class NotificationEmailTester:
     """📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM"""
     
     def __init__(self):
-        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.tests_run = 0
         self.tests_passed = 0
         self.results = {}
@@ -353,7 +353,7 @@ class NotificationEmailTester:
                 "property_type": "Appartement 90m²",
                 "location": "Test Notification Email Lyon",
                 "message": "🔔 TEST NOTIFICATION EMAIL - Vérification envoi à Patrick Almeida",
-                "app_url": "https://realestate-leads-5.preview.emergentagent.com/leads",
+                "app_url": "https://einstein-dashboard.preview.emergentagent.com/leads",
                 "recipients": ["palmeida@efficity.com"]
             }
         }
@@ -650,7 +650,7 @@ class NotificationEmailTester:
             print(f"   - Lead ID: {self.notification_lead_id}")
             print(f"   - Nom: NotificationTest PalmeidaEmail")
             print(f"   - Email: notification.test.palmeida@example.com")
-            print(f"   - Visible dans le dashboard: https://realestate-leads-5.preview.emergentagent.com/leads")
+            print(f"   - Visible dans le dashboard: https://einstein-dashboard.preview.emergentagent.com/leads")
         
         return workflow_status
 
@@ -659,7 +659,7 @@ class NotificationEmailTester:
         print("📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM")
         print("=" * 80)
         print("OBJECTIF: Confirmer que Patrick reçoit bien une notification email pour chaque nouveau prospect")
-        print("ENVIRONNEMENT: Preview (https://realestate-leads-5.preview.emergentagent.com)")
+        print("ENVIRONNEMENT: Preview (https://einstein-dashboard.preview.emergentagent.com)")
         print("=" * 80)
         
         # Exécuter tous les tests
@@ -710,7 +710,7 @@ class ImmediateProductionVerifier:
     
     def __init__(self):
         self.production_url = "https://realestate-leads-5.emergent.host"
-        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.tests_run = 0
         self.tests_passed = 0
         self.results = {}
@@ -892,7 +892,7 @@ class ImmediateProductionVerifier:
                            f"Form endpoint accessible, success={response.get('success')}, lead_created={lead_created}")
 
     def test_preview_comparison(self):
-        """🔍 TEST 3: COMPARAISON AVEC PREVIEW - https://realestate-leads-5.preview.emergentagent.com/api/leads"""
+        """🔍 TEST 3: COMPARAISON AVEC PREVIEW - https://einstein-dashboard.preview.emergentagent.com/api/leads"""
         print("\n🔍 TEST 3: COMPARAISON AVEC ENVIRONNEMENT PREVIEW")
         print(f"URL: {self.preview_url}/api/leads")
         print("=" * 80)
@@ -1223,7 +1223,7 @@ class ImmediateProductionVerifier:
 
 class CriticalProspectLocationTester:
     def __init__(self):
-        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.production_url = "https://realestate-leads-5.emergentagent.host"
         self.tests_run = 0
         self.tests_passed = 0
@@ -2138,7 +2138,7 @@ class EfficiencyAPITester:
         
         # ÉTAPE 1: Recherche dans base Preview
         print(f"\n🔍 ÉTAPE 1: VÉRIFICATION BASE DONNÉES PREVIEW")
-        print(f"URL: https://realestate-leads-5.preview.emergentagent.com/api/leads")
+        print(f"URL: https://einstein-dashboard.preview.emergentagent.com/api/leads")
         print("-" * 60)
         
         preview_success, preview_response, preview_details = self.make_request('GET', 'api/leads?limite=100', expected_status=200)
@@ -2709,7 +2709,7 @@ class EfficiencyAPITester:
         
         # URLs selon review request
         production_url = "https://realestate-leads-5.emergentagent.host"
-        preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         
         results = {}
         
@@ -2955,7 +2955,7 @@ class EfficiencyAPITester:
         print("="*80)
         
         # URLs à tester selon la demande
-        preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         production_url = "https://efficity-crm.emergent.host"
         
         # Données test d'identification spécifiques selon la demande
@@ -6026,7 +6026,7 @@ class EfficiencyAPITester:
         print("=" * 60)
         print("Testing backend after major configuration corrections:")
         print("- Database: efficity_crm (changed from efficity_leads)")
-        print("- URL: https://realestate-leads-5.preview.emergentagent.com")
+        print("- URL: https://einstein-dashboard.preview.emergentagent.com")
         print("- Expected data: 10 leads (9 migrated + 1 test)")
         print("=" * 60)
         

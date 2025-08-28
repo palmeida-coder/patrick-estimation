@@ -12,7 +12,7 @@ from typing import Dict, Any
 
 class URLPreviewTester:
     def __init__(self):
-        self.preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.production_url = "https://efficity-crm.emergent.host"
         self.tests_run = 0
         self.tests_passed = 0

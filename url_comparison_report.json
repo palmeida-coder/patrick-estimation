@@ -2,12 +2,12 @@
   "test_timestamp": "2025-08-26T16:13:29.382249",
   "test_objective": "Déterminer quelle URL utiliser pour workflow GitHub et publicité Facebook",
   "urls_tested": {
-    "preview": "https://realestate-leads-5.preview.emergentagent.com",
+    "preview": "https://einstein-dashboard.preview.emergentagent.com",
     "production": "https://efficity-crm.emergent.host"
   },
   "results": {
     "preview": {
-      "url": "https://realestate-leads-5.preview.emergentagent.com",
+      "url": "https://einstein-dashboard.preview.emergentagent.com",
       "endpoint": "api/estimation/submit-prospect-email",
       "success": true,
       "response": {

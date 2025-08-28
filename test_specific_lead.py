@@ -9,7 +9,7 @@ from datetime import datetime
 
 def test_specific_lead_scenario():
     """Test the specific lead scenario from the request"""
-    base_url = "https://realestate-leads-5.preview.emergentagent.com"
+    base_url = "https://einstein-dashboard.preview.emergentagent.com"
     
     # Create the specific test lead from the request
     test_lead = {

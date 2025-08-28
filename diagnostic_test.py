@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 class CriticalDiagnosticTester:
-    def __init__(self, base_url="https://realestate-leads-5.preview.emergentagent.com"):
+    def __init__(self, base_url="https://einstein-dashboard.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0
@@ -375,7 +375,7 @@ def main():
     print("🚨 DIAGNOSTIC CRITIQUE - LEADS NON VISIBLES + EMAILS NON REÇUS")
     print("=" * 80)
     print("PROBLÈME URGENT:")
-    print("- Dashboard CRM (https://realestate-leads-5.preview.emergentagent.com/leads) affiche un tableau vide")
+    print("- Dashboard CRM (https://einstein-dashboard.preview.emergentagent.com/leads) affiche un tableau vide")
     print("- palmeida@efficity.com ne reçoit pas les notifications email")
     print("- Workflow GitHub → CRM → Email semble cassé")
     print("=" * 80)

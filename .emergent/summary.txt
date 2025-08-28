@@ -1,9 +1,9 @@
 <analysis>
-The trajectory details the AI engineer's persistent efforts to stabilize and align the Efficity Lyon CRM with user expectations, facing numerous environment and deployment challenges. A recurring pattern was the AI engineer's initial declarations of success, which were consistently challenged by the user due to discrepancies between preview and production environments or incorrect UI. Key issues addressed included correcting MongoDB configuration, fixing an external lead form's API target, ensuring accurate email automation templates, and resolving critical frontend interface mismatches and metric inaccuracies across preview and production. The core challenge escalated from code-level fixes to platform-specific deployment and environment segregation issues, ultimately requiring intervention from Emergent support to clarify the distinct nature of preview and deployed applications and their databases, leading to a Duplicate Job and Replace Deployment strategy.
+The AI engineer's work involved an iterative process of debugging and feature implementation for the Efficity Lyon CRM, constantly challenged by environment inconsistencies and user expectations. Initially, the focus was on stabilizing the UI (vertical sidebar) and external lead form submission to the correct backend endpoint. Key architectural decisions included using environment variables for all URLs and configuring FastAPI with a  prefix. The AI successfully implemented UI changes in  and addressed a critical bug in the GitHub Pages form, removing unintended  calls. However, persistent issues arose from the Emergent platform's deployment environment itself: production URLs were often inaccessible (DNS errors, Status 500) or conflicted with existing deployments. Despite numerous attempts to follow support recommendations (Duplicate Job, Replace Deployment, Fork + Replace), these infrastructure-level problems prevented a stable production deployment. Ultimately, the solution converged on using the functional preview environment () as the de facto production system, as it reliably housed all data and functionality, with explicit communication to the user about its stability and the need to engage Emergent support for long-term production URL resolution.
 </analysis>
 
 <product_requirements>
-The Efficity application serves as a CRM for Lyon real estate, focused on automating lead management for particuliers vendeurs in specific Lyon arrondissements. The system, Efficity Lyon CRM v3.0, requires a zero manual intervention workflow for lead capture from external sources (specifically a GitHub Pages form) into the CRM. This process must trigger automated lead scoring (Patrick IA 3.0/4.0), personalized email sequences for prospects, and detailed notifications for Patrick Almeida (palmeida@efficity.com). A critical bug involved incorrect CTA links in automated emails and the external form submitting to the wrong backend URL. The desired final state is a stable Dashboard Einstein ⚡ Efficity Lyon Pro interface with specific metrics (111 pipeline leads, 78 hot leads, 7 conversions), a complete vertical sidebar with 13+ modules (e.g., Dashboard, Leads Lyon, Patrick IA, Automation), and full functionality for the GitHub form workflow, including accurate email templates and Google Sheets synchronization.
+The Efficity Lyon CRM is designed to automate lead management for particuliers vendeurs in specific Lyon arrondissements, operating as Efficity Lyon CRM v3.0 with zero manual intervention. Leads originate from an external GitHub Pages form, triggering automated scoring via Patrick IA 3.0/4.0, personalized email sequences, and notifications to Patrick Almeida (). The application requires a Dashboard Einstein ⚡ Efficity Lyon Pro with specific metrics (111 pipeline leads, 78 hot leads, 7 conversions, 0 conversions), a vertical sidebar offering 13+ modules (Dashboard, Leads Lyon, Patrick IA, Automation), and seamless Google Sheets synchronization. Initial bugs included incorrect CTA links in emails and the external form submitting to the wrong backend URL. The system has since been updated to display the correct Dashboard Einstein UI with the vertical sidebar and dynamic metrics, and the GitHub form workflow, including email automation and Patrick's notifications, is fully operational on a stable preview environment.
 </product_requirements>
 
 <key_technical_concepts>
@@ -12,33 +12,37 @@ The Efficity application serves as a CRM for Lyon real estate, focused on automa
 - **AI/ML**: Patrick IA (lead scoring).
 - **Cloud/Deployment**: Kubernetes, Supervisor, GitHub Pages, Emergent Platform (preview/production environments).
 - **APIs**: Google Sheets, Gmail (implied), Bitly.
-- **LLMs**: EMERGENT_LLM_KEY for AI services.
+- **LLMs**: Used with  via .
 </key_technical_concepts>
 
 <code_architecture>
 
 -   ****: The main FastAPI application.
-    -   **Summary**: Central API gateway, integrating services and handling endpoints.
-    -   **Changes**:  was changed to . An endpoint  was crucial for external form submissions, handling lead creation, Patrick IA scoring, and email triggers. CORS configuration was set to .
+    -   **Summary**: Acts as the central API gateway, routing requests and integrating various backend services. It handles lead submission, Patrick IA scoring, and email triggers.
+    -   **Changes**: Database connection was updated from  to . A crucial endpoint  was established for external form submissions. CORS was configured to allow .
 -   ****: Backend environment variables.
-    -   **Summary**: Stores critical configurations.
-    -   **Changes**:  was corrected to ,  to .  and  were dynamically configured to use environment variables instead of hardcoded paths.
+    -   **Summary**: Stores configuration details for the backend services, especially database and Google credentials.
+    -   **Changes**:  was corrected to  and  to .  and  were updated to use environment variables, removing hardcoded paths.
 -   ****: Frontend environment variables.
-    -   **Summary**: Stores backend API URL.
-    -   **Changes**:  was updated multiple times to point to the correct backend preview () and then to the production URL ().
+    -   **Summary**: Contains the URL for the backend API that the frontend interacts with.
+    -   **Changes**:  was repeatedly updated to point to different preview and production URLs (, , , ), reflecting the ongoing deployment challenges and the final decision to use the preview environment.
 -   ****: Manages Google Sheets integration.
-    -   **Summary**: Handles authentication and data synchronization with Google Sheets.
-    -   **Changes**: Modified to use environment variables for  and , resolving hardcoding issues.
--   ****: Main React component.
-    -   **Summary**: Renders the core dashboard UI, including metrics and navigation.
+    -   **Summary**: Handles authentication and data synchronization between the CRM and Google Sheets.
+    -   **Changes**: Modified to dynamically retrieve  and  from environment variables, enhancing security and flexibility.
+-   ****: Main React component for the dashboard.
+    -   **Summary**: Responsible for rendering the core CRM dashboard UI, including navigation, metrics, and lead display.
     -   **Changes**:
-        -   Title was changed from Dashboard Prospection to Dashboard Einstein ⚡ Efficity Lyon Pro and then to Tableau de bord Einstein ⚡ Efficity Lyon Pro.
-        -   Metrics were initially hardcoded to 0, then temporarily set to 111, 78, 7, 0, and later restored to dynamically fetched values with fallback.
-        -   A  hook was added for client-side URL redirection from  to  to handle App Preview misconfigurations.
-        -   Branding text Efficity Prospection in the navigation header was updated to Efficity.
+        -   Title was updated from Dashboard Prospection to Dashboard Einstein ⚡ Efficity Lyon Pro and Tableau de bord Einstein ⚡ Efficity Lyon Pro.
+        -   Initial hardcoded metrics were updated to dynamically fetched values, with a temporary fix setting them to 111, 78, 7, 0.
+        -   A  hook was added for client-side URL redirection, addressing App Preview misconfigurations.
+        -   Branding Efficity Prospection in the navigation was changed to Efficity.
+        -   The structure was repeatedly modified to achieve a sidebar verticale layout as per user request, diverging from an initial horizontal navigation.
+        -   The  function was updated to increase  and add  to correctly display all leads in the dashboard.
 -   **External GitHub Pages Site ()**:
-    -   **Summary**: Public-facing estimation form.
-    -   **Changes**: The  URL for form submission was repeatedly corrected to target  for stable operation.
+    -   **Summary**: The public-facing form for property estimations, critical for lead generation.
+    -   **Changes**: The  URL for form submission was frequently corrected to target the currently stable backend URL (primarily ).
+    -   The JavaScript in  was corrected to remove unintended  or OAuth calls that caused the form to try and open the prospect's email client.
+    -   The visual interface was restored to its original Patrick Almeida design with a green header and a professional photo of Patrick Almeida, after a critical error where the UI was inadvertently completely changed.
 </code_architecture>
 
 <pending_tasks>
@@ -55,12 +59,13 @@ The Efficity application serves as a CRM for Lyon real estate, focused on automa
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was grappling with a critical architectural discrepancy: the preview environment () correctly displayed the desired Dashboard Einstein with a vertical sidebar and accurate metrics (111, 78, 7, 0), while the production environment () persisted in showing an older, incorrect interface with horizontal navigation and branding issues, even after multiple code corrections and redeployments. Despite the backend functioning and the frontend code () being updated to reflect the correct UI (title, metrics, branding), the deployment process was not effectively syncing the preview's UI structure to production.
+Immediately before this summary request, the AI engineer was navigating persistent infrastructure issues on the Emergent platform. The primary goal was to achieve a stable production deployment with the correct vertical sidebar UI and fully functional lead management workflow. Despite numerous attempts to use Emergent's deployment tools (, , ) and support's guidance, the production environment () remained problematic, primarily due to backend API inaccessibility (Status 500 errors) and a name conflict ( already active for ).
 
-Emergent support clarified that preview and production environments utilize separate databases and configurations, meaning changes in preview are not automatically reflected in production. The last action received from the user was acknowledging the solution from Emergent support: to Duplicate Job from the correctly configured preview and then perform a Replace Deployment within this duplicated job. This process is expected to copy all data and configurations from the functional preview to the production environment, finally aligning the production UI with the desired sidebar verticale design. The system is functional in the preview environment, but the production environment still requires this specific deployment action to match.
+The frontend () was successfully modified to implement the desired vertical sidebar, display dynamic metrics, and correctly list leads (, ). The external GitHub Pages form () was also stabilized: it now correctly points to the functional preview backend URL (), its JavaScript has been fixed to prevent unintended  calls, and its original visual design (with Patrick Almeida's photo) has been accurately restored.
+
+However, the core issue remained the production environment's instability. After multiple troubleshooting steps and direct communication with Emergent support, it became clear that the name conflict was not resolvable by the platform directly without a custom domain. Therefore, the current state dictates that the **preview environment () is the only 100% operational and stable solution for the Efficity Lyon CRM.** It successfully handles lead submissions, Patrick IA scoring, email automation, notifications to , and displays all 44 leads (including 3 real prospects) with the correct UI. The user has been advised to use this preview URL as their de facto production system while the underlying infrastructure problem persists, and a detailed email was drafted for the user to send to Emergent support to resolve the name conflict for a future, properly branded production URL.
 </current_work>
 
 <optional_next_step>
-The next step is to guide the user to Duplicate Job in the Emergent interface, then perform a Replace Deployment.
+Confirm with the user that the preview URL () is accepted as the stable production environment for their current business operations.
 </optional_next_step>
-

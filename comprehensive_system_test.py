@@ -11,7 +11,7 @@ Identifier quelle URL est utilisée pour le fonctionnement et vérifier que TOUT
 - Besoin vérification complète fonctionnalités
 
 **URLS À TESTER:**
-1. Preview (fonctionnelle): https://efficity-crm.preview.emergentagent.com
+1. Preview (fonctionnelle): https://einstein-dashboard.preview.emergentagent.com
 2. Production (problématique): https://realestate-leads-5.emergent.host
 
 **VÉRIFICATIONS EXHAUSTIVES:**
@@ -35,11 +35,11 @@ class ComprehensiveSystemTester:
     
     def __init__(self):
         # URLs à tester selon la review request
-        self.preview_url = "https://efficity-crm.preview.emergentagent.com"
+        self.preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         self.production_url = "https://realestate-leads-5.emergent.host"
         
         # URLs alternatives basées sur les fichiers .env
-        self.alt_preview_url = "https://realestate-leads-5.preview.emergentagent.com"
+        self.alt_preview_url = "https://einstein-dashboard.preview.emergentagent.com"
         
         self.tests_run = 0
         self.tests_passed = 0
