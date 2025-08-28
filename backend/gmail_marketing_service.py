@@ -83,7 +83,6 @@ class GmailMarketingService:
         
         # Configuration Jinja2 pour templates
         self.jinja_env = Environment(loader=DictLoader({}))
-        self._setup_default_templates()
         
         logger.info("Gmail Marketing Service initialisé pour Efficity Lyon")
 
