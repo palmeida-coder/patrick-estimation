@@ -456,18 +456,20 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             template["_id"] = str(template["_id"])
         return templates
 
-    def get_analytics_dashboard(self) -> Dict[str, Any]:
+    async def get_analytics_dashboard(self) -> Dict[str, Any]:
         """Dashboard analytique des campagnes"""
         try:
-            total_campaigns = self.campaigns_collection.count_documents({})
-            total_sent = self.analytics_collection.count_documents({"status": "sent"})
-            total_opened = self.analytics_collection.count_documents({"opened_at": {"$ne": None}})
+            total_campaigns = await self.campaigns_collection.count_documents({})
+            total_sent = await self.analytics_collection.count_documents({"status": "sent"})
+            total_opened = await self.analytics_collection.count_documents({"opened_at": {"$ne": None}})
             
             # Campagnes récentes
-            recent_campaigns = list(self.campaigns_collection.find().sort("created_at", -1).limit(5))
+            recent_campaigns = await self.campaigns_collection.find().sort("created_at", -1).limit(5).to_list(length=None)
             
             # Taux d'ouverture
             open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0, 2)
+            
+            templates = await self.get_templates()
             
             return {
                 "total_campaigns": total_campaigns,
@@ -475,7 +477,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                 "total_opens": total_opened,
                 "open_rate_percentage": open_rate,
                 "recent_campaigns": recent_campaigns,
-                "active_templates": len(self.get_templates())
+                "active_templates": len(templates)
             }
         except Exception as e:
             logger.error(f"Erreur analytics dashboard: {str(e)}")
