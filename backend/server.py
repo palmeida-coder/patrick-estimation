@@ -3998,6 +3998,23 @@ async def submit_prospect_estimation(data: dict):
             }
         )
         
+        # ENVOYER EMAIL DE BIENVENUE AUTOMATIQUE AU PROSPECT
+        try:
+            welcome_result = await gmail_marketing_service.send_email(
+                recipient_email=lead_data['email'],
+                template_id="patrick_welcome",
+                variables={
+                    "first_name": lead_data['prénom'],
+                    "property_address": lead_data['adresse'],
+                    "estimated_value": f"{lead_data.get('prix_souhaite', 'Non spécifié')}",
+                    "contact_phone": "04 72 56 89 12"
+                }
+            )
+            logger.info(f"Email de bienvenue envoyé au prospect: {lead_data['email']}")
+        except Exception as email_error:
+            logger.error(f"Erreur envoi email bienvenue: {str(email_error)}")
+            # Ne pas faire échouer la création du lead si l'email échoue
+        
         return {
             "success": True,
             "message": "✅ Demande d'estimation reçue avec succès",
