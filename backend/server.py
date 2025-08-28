@@ -3709,7 +3709,7 @@ async def get_email_analytics():
 async def track_email_open(tracking_id: str):
     """Track ouverture email (tracking pixel)"""
     try:
-        gmail_marketing_service.track_email_open(tracking_id)
+        await gmail_marketing_service.track_email_open(tracking_id)
         
         # Retourner une image pixel transparente
         import base64
