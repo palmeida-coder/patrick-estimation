@@ -194,8 +194,13 @@ class ComprehensiveSystemTester:
             self.results['api_backend'] = {'accessible': False, 'error': details}
             return self.log_test("API Backend Complete", False, f"API not accessible: {details}")
         
-        leads = response.get('leads', [])
-        total_leads = response.get('total', 0)
+        # Handle case where response might be a list instead of dict
+        if isinstance(response, dict):
+            leads = response.get('leads', [])
+            total_leads = response.get('total', 0)
+        else:
+            leads = response if isinstance(response, list) else []
+            total_leads = len(leads)
         
         print(f"📊 RÉSULTATS API BACKEND:")
         print(f"   - Total leads: {total_leads}")
