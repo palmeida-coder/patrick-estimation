@@ -81,87 +81,61 @@ class GmailMarketingServiceTester:
         except requests.exceptions.RequestException as e:
             return False, {}, f"Request failed: {str(e)}"
 
-    def test_github_form_submission_with_notification_data(self):
-        """📧 TEST 1: SOUMISSION FORMULAIRE GITHUB AVEC DONNÉES NOTIFICATION TEST"""
-        print("\n📧 TEST 1: SOUMISSION FORMULAIRE GITHUB AVEC DONNÉES NOTIFICATION TEST")
-        print(f"URL: {self.preview_url}/api/estimation/submit-prospect-email")
+    def test_gmail_templates_endpoint(self):
+        """🎯 TEST 1: ENDPOINTS GMAIL TEMPLATES - Vérifier templates Patrick Almeida"""
+        print("\n🎯 TEST 1: ENDPOINTS GMAIL TEMPLATES - VÉRIFIER TEMPLATES PATRICK ALMEIDA")
+        print(f"URL: {self.preview_url}/api/gmail/templates")
         print("=" * 80)
         
-        # Données test spécifiques pour vérifier notifications
-        notification_test_data = {
-            "prenom": "NotificationTest",
-            "nom": "PalmeidaEmail",
-            "email": "notification.test.palmeida@example.com",
-            "telephone": "06 77 88 99 33",
-            "adresse": "Test Notification Email Lyon",
-            "ville": "Lyon",
-            "code_postal": "69001",
-            "type_bien": "Appartement",
-            "surface": "90",
-            "pieces": "4",
-            "prix_souhaite": "450000",
-            "message": "Test notification email Patrick Almeida"
-        }
-        
-        print(f"📝 Test avec données notification: {notification_test_data['prenom']} {notification_test_data['nom']}")
-        print(f"📧 Email: {notification_test_data['email']}")
-        print(f"🏠 Property: {notification_test_data['type_bien']} {notification_test_data['surface']}m²")
-        print(f"💬 Message: {notification_test_data['message']}")
-        
         success, response, details = self.make_request(
-            self.preview_url, 'POST', 'api/estimation/submit-prospect-email', 
-            data=notification_test_data, expected_status=200
+            self.preview_url, 'GET', 'api/gmail/templates', expected_status=200
         )
         
         if not success:
-            self.results['github_form_submission'] = {
+            self.results['gmail_templates'] = {
                 'success': False,
                 'error': details,
                 'status': 'FAILED'
             }
-            return self.log_test("GitHub Form Submission with Notification Data", False, f"Form submission failed: {details}")
+            return self.log_test("Gmail Templates Endpoint", False, f"Templates endpoint failed: {details}")
         
-        # Vérifier réponse complète
-        required_fields = ['success', 'lead_id', 'patrick_ai_score', 'tier_classification', 'priority_level']
-        if not all(field in response for field in required_fields):
-            missing = [f for f in required_fields if f not in response]
-            self.results['github_form_submission'] = {
-                'success': False,
-                'error': f"Missing response fields: {missing}",
-                'status': 'INCOMPLETE_RESPONSE'
-            }
-            return self.log_test("GitHub Form Submission with Notification Data", False, f"Missing response fields: {missing}")
+        templates = response.get('templates', [])
         
-        # Vérifier valeurs attendues
-        if not response.get('success'):
-            self.results['github_form_submission'] = {
-                'success': False,
-                'error': "Success=false in response",
-                'status': 'FAILED'
-            }
-            return self.log_test("GitHub Form Submission with Notification Data", False, "Success=false in response")
+        # Vérifier templates Patrick Almeida spécifiques
+        patrick_welcome = None
+        patrick_followup = None
         
-        self.notification_lead_id = response.get('lead_id')
+        for template in templates:
+            if template.get('template_id') == 'patrick_welcome':
+                patrick_welcome = template
+            elif template.get('template_id') == 'patrick_followup':
+                patrick_followup = template
         
-        print(f"✅ FORMULAIRE GITHUB SOUMIS AVEC SUCCÈS")
-        print(f"   - Success: {response.get('success')}")
-        print(f"   - Lead ID: {self.notification_lead_id}")
-        print(f"   - Patrick AI Score: {response.get('patrick_ai_score')}")
-        print(f"   - Tier: {response.get('tier_classification')}")
-        print(f"   - Priority: {response.get('priority_level')}")
+        print(f"✅ TEMPLATES GMAIL RÉCUPÉRÉS:")
+        print(f"   - Total templates: {len(templates)}")
+        print(f"   - Template patrick_welcome: {'✅ TROUVÉ' if patrick_welcome else '❌ MANQUANT'}")
+        print(f"   - Template patrick_followup: {'✅ TROUVÉ' if patrick_followup else '❌ MANQUANT'}")
         
-        self.results['github_form_submission'] = {
+        if patrick_welcome:
+            print(f"   - Welcome template name: {patrick_welcome.get('name', 'N/A')}")
+            print(f"   - Welcome template subject: {patrick_welcome.get('subject', 'N/A')}")
+            print(f"   - Welcome template variables: {patrick_welcome.get('variables', [])}")
+        
+        templates_working = patrick_welcome is not None and patrick_followup is not None
+        
+        self.results['gmail_templates'] = {
             'success': True,
-            'lead_id': self.notification_lead_id,
-            'patrick_ai_score': response.get('patrick_ai_score'),
-            'tier_classification': response.get('tier_classification'),
-            'priority_level': response.get('priority_level'),
-            'complete_response': True,
-            'status': 'SUCCESS'
+            'total_templates': len(templates),
+            'patrick_welcome_found': patrick_welcome is not None,
+            'patrick_followup_found': patrick_followup is not None,
+            'patrick_welcome_data': patrick_welcome,
+            'patrick_followup_data': patrick_followup,
+            'templates_working': templates_working,
+            'status': 'SUCCESS' if templates_working else 'PARTIAL'
         }
         
-        return self.log_test("GitHub Form Submission with Notification Data", True, 
-                           f"Form submitted successfully, Lead ID: {self.notification_lead_id}")
+        return self.log_test("Gmail Templates Endpoint", templates_working, 
+                           f"Templates: {len(templates)} total, Patrick templates: {'OK' if templates_working else 'MISSING'}")
 
     def test_lead_creation_in_crm_database(self):
         """📧 TEST 2: VÉRIFICATION CRÉATION LEAD EN BASE CRM"""
