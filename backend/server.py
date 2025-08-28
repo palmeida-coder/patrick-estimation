@@ -96,6 +96,14 @@ lyon_predictor = get_lyon_price_predictor_service(db)
 # Initialize Gmail Marketing Service
 gmail_marketing_service = GmailMarketingService(client)
 
+# Initialize Gmail templates asynchronously
+async def setup_gmail_templates():
+    await gmail_marketing_service._setup_default_templates()
+
+# Schedule template setup
+import asyncio
+asyncio.create_task(setup_gmail_templates())
+
 # Pydantic models
 class LeadStatus(str, Enum):
     NEW = "nouveau"
