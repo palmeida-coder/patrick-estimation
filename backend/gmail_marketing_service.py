@@ -442,9 +442,9 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             logger.error(f"Erreur exécution campagne {campaign_id}: {str(e)}")
             return {"success": False, "error": str(e)}
 
-    def get_campaigns(self) -> List[Dict[str, Any]]:
+    async def get_campaigns(self) -> List[Dict[str, Any]]:
         """Récupère toutes les campagnes"""
-        campaigns = list(self.campaigns_collection.find().sort("created_at", -1))
+        campaigns = await self.campaigns_collection.find().sort("created_at", -1).to_list(length=None)
         for campaign in campaigns:
             campaign["_id"] = str(campaign["_id"])
         return campaigns
