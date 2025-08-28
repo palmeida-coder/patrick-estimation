@@ -35,6 +35,7 @@ from advanced_lead_scoring_ai import AdvancedLeadScoringAI, get_advanced_lead_sc
 from lyon_price_predictor_ai import LyonPricePredictorAI, get_lyon_price_predictor_service, PropertyPredictionRequest, PricePredictionResult, DEFAULT_LYON_PREDICTOR_CONFIG
 # Import Multi-Agency Management service - NOUVELLE FONCTIONNALITÉ
 from multi_agency_service import MultiAgencyService, multi_agency_service, Agency, AgencyUser, AgencyStats, AgencyStatus, AgencyType, UserRole
+from gmail_marketing_service import GmailMarketingService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
