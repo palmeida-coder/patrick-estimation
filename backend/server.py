@@ -3644,7 +3644,7 @@ async def full_bidirectional_sync():
 async def get_email_templates():
     """Récupère tous les templates email"""
     try:
-        templates = gmail_marketing_service.get_templates()
+        templates = await gmail_marketing_service.get_templates()
         return {"success": True, "templates": templates}
     except Exception as e:
         logger.error(f"Erreur récupération templates: {str(e)}")
