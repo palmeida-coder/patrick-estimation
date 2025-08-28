@@ -470,7 +470,11 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             total_opened = await self.analytics_collection.count_documents({"opened_at": {"$ne": None}})
             
             # Campagnes récentes
-            recent_campaigns = await self.campaigns_collection.find().sort("created_at", -1).limit(5).to_list(length=None)
+            recent_campaigns_docs = await self.campaigns_collection.find().sort("created_at", -1).limit(5).to_list(length=None)
+            recent_campaigns = []
+            for campaign in recent_campaigns_docs:
+                campaign["_id"] = str(campaign["_id"])
+                recent_campaigns.append(campaign)
             
             # Taux d'ouverture
             open_rate = round((total_opened / total_sent * 100) if total_sent > 0 else 0, 2)
