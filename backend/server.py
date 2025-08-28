@@ -3729,7 +3729,7 @@ async def send_welcome_email_to_lead(request: dict):
     """Envoie email de bienvenue automatique à un lead"""
     try:
         # Ajouter le lead comme destinataire
-        recipient_id = gmail_marketing_service.add_recipient_from_lead(request)
+        recipient_id = await gmail_marketing_service.add_recipient_from_lead(request)
         
         if not recipient_id:
             return {"success": False, "error": "Erreur ajout destinataire"}
