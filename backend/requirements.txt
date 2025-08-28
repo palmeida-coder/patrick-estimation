@@ -15,5 +15,5 @@ scikit-learn==1.3.2
 numpy==1.24.3
 pandas==2.1.4
 aiofiles==23.2.1
-bitlyshortener==0.7.0
+bitlyshortener==0.6.4
 emergentintegrations
