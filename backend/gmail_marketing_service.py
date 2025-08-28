@@ -280,7 +280,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
         """Envoie un email avec template"""
         try:
             # Récupérer le template
-            template_doc = self.templates_collection.find_one({"template_id": template_id})
+            template_doc = await self.templates_collection.find_one({"template_id": template_id})
             if not template_doc:
                 raise ValueError(f"Template non trouvé: {template_id}")
             
