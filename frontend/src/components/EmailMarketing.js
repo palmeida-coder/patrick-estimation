@@ -161,7 +161,7 @@ const EmailMarketing = () => {
               <p className="text-sm font-medium text-gray-600">Campagnes Totales</p>
               <p className="text-2xl font-bold text-gray-900">{analytics.total_campaigns || 0}</p>
             </div>
-            <Campaign className="h-8 w-8 text-blue-500" />
+            <Target className="h-8 w-8 text-blue-500" />
           </div>
         </div>
 
