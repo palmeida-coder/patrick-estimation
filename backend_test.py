@@ -35,7 +35,7 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
-class NotificationEmailTester:
+class GmailMarketingServiceTester:
     """📧 VÉRIFICATION NOTIFICATION EMAIL FORMULAIRE GITHUB → PALMEIDA@EFFICITY.COM"""
     
     def __init__(self):
