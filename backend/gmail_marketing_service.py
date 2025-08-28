@@ -490,10 +490,10 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                 "active_templates": 0
             }
 
-    def track_email_open(self, tracking_id: str) -> bool:
+    async def track_email_open(self, tracking_id: str) -> bool:
         """Enregistre l'ouverture d'un email"""
         try:
-            result = self.analytics_collection.update_one(
+            result = await self.analytics_collection.update_one(
                 {"tracking_id": tracking_id, "opened_at": None},
                 {"$set": {"opened_at": datetime.utcnow()}}
             )
