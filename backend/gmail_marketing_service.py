@@ -523,11 +523,11 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             )
             
             # Vérifier si le destinataire existe déjà
-            existing = self.recipients_collection.find_one({"email": recipient.email})
+            existing = await self.recipients_collection.find_one({"email": recipient.email})
             if existing:
                 return existing["recipient_id"]
             
-            self.recipients_collection.insert_one(asdict(recipient))
+            await self.recipients_collection.insert_one(asdict(recipient))
             logger.info(f"Destinataire ajouté: {recipient.email}")
             
             return recipient_id
