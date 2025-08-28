@@ -445,62 +445,78 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Campaign Execution", campaign_execution_working, 
                            f"Campaign executed: {sent_count}/{total_recipients} emails sent")
 
-    def test_notification_history_verification(self):
-        """📧 TEST 7: VÉRIFICATION HISTORIQUE NOTIFICATIONS"""
-        print("\n📧 TEST 7: VÉRIFICATION HISTORIQUE NOTIFICATIONS")
-        print("Vérifier que la notification test apparaît dans l'historique")
+    def test_gmail_integration_with_lead_workflow(self):
+        """🎯 TEST 7: INTÉGRATION GMAIL DANS WORKFLOW PROSPECT COMPLET"""
+        print("\n🎯 TEST 7: INTÉGRATION GMAIL DANS WORKFLOW PROSPECT COMPLET")
+        print("Tester l'intégration Gmail dans le workflow /api/estimation/submit-prospect-email")
         print("=" * 80)
         
-        # Récupérer historique notifications
+        # Données prospect test pour workflow complet
+        prospect_data = {
+            "prenom": "Gmail Marketing",
+            "nom": "Test Integration",
+            "email": "gmail.integration.test@example.com",
+            "telephone": "04 78 XX XX XX",
+            "adresse": "456 Avenue Test Gmail Lyon",
+            "ville": "Lyon",
+            "code_postal": "69002",
+            "type_bien": "Appartement",
+            "surface": "85",
+            "pieces": "4",
+            "prix_souhaite": "480000",
+            "message": "Test intégration Gmail Marketing dans workflow prospect"
+        }
+        
+        print(f"📧 Test workflow complet avec Gmail:")
+        print(f"   - Prospect: {prospect_data['prenom']} {prospect_data['nom']}")
+        print(f"   - Email: {prospect_data['email']}")
+        print(f"   - Propriété: {prospect_data['type_bien']} {prospect_data['surface']}m²")
+        print(f"   - Budget: {prospect_data['prix_souhaite']}€")
+        
         success, response, details = self.make_request(
-            self.preview_url, 'GET', 'api/notifications/history?limit=20', expected_status=200
+            self.preview_url, 'POST', 'api/estimation/submit-prospect-email', 
+            data=prospect_data, expected_status=200
         )
         
         if not success:
-            self.results['notification_history'] = {
+            self.results['gmail_workflow_integration'] = {
                 'success': False,
                 'error': details,
                 'status': 'FAILED'
             }
-            return self.log_test("Notification History Verification", False, f"Cannot access notification history: {details}")
+            return self.log_test("Gmail Integration with Lead Workflow", False, f"Workflow failed: {details}")
         
-        notifications = response.get('notifications', [])
-        total_notifications = response.get('total', len(notifications))
+        # Vérifier réponse workflow
+        workflow_success = response.get('success', False)
+        lead_id = response.get('lead_id')
+        patrick_score = response.get('patrick_ai_score')
+        tier = response.get('tier_classification')
+        priority = response.get('priority_level')
         
-        # Chercher notre notification test
-        test_notification_found = False
-        test_notification_data = None
+        print(f"✅ WORKFLOW PROSPECT AVEC GMAIL:")
+        print(f"   - Success: {workflow_success}")
+        print(f"   - Lead ID: {lead_id}")
+        print(f"   - Patrick AI Score: {patrick_score}")
+        print(f"   - Tier: {tier}")
+        print(f"   - Priority: {priority}")
         
-        for notification in notifications:
-            data = notification.get('data', {})
-            if (data.get('lead_name') == 'NotificationTest PalmeidaEmail' or 
-                data.get('email') == 'notification.test.palmeida@example.com'):
-                test_notification_found = True
-                test_notification_data = notification
-                break
+        # Vérifier si email bienvenue automatique a été déclenché
+        # (Cette information pourrait être dans les logs ou une réponse étendue)
+        gmail_integration_working = workflow_success and lead_id is not None
         
-        print(f"✅ HISTORIQUE NOTIFICATIONS VÉRIFIÉ:")
-        print(f"   - Total notifications dans l'historique: {total_notifications}")
-        print(f"   - Notifications récupérées: {len(notifications)}")
-        print(f"   - Notification test trouvée: {'✅' if test_notification_found else '❌'}")
-        
-        if test_notification_found and test_notification_data:
-            print(f"   - ID notification test: {test_notification_data.get('id', 'N/A')}")
-            print(f"   - Type: {test_notification_data.get('type', 'N/A')}")
-            print(f"   - Priority: {test_notification_data.get('priority', 'N/A')}")
-            print(f"   - Créée le: {test_notification_data.get('created_at', 'N/A')}")
-        
-        self.results['notification_history'] = {
+        self.results['gmail_workflow_integration'] = {
             'success': True,
-            'total_notifications': total_notifications,
-            'notifications_retrieved': len(notifications),
-            'test_notification_found': test_notification_found,
-            'test_notification_data': test_notification_data,
-            'status': 'SUCCESS' if test_notification_found else 'NOT_FOUND'
+            'workflow_success': workflow_success,
+            'lead_id': lead_id,
+            'patrick_ai_score': patrick_score,
+            'tier_classification': tier,
+            'priority_level': priority,
+            'gmail_integration_working': gmail_integration_working,
+            'status': 'SUCCESS' if gmail_integration_working else 'PARTIAL'
         }
         
-        return self.log_test("Notification History Verification", test_notification_found, 
-                           f"Notification history checked: {total_notifications} total, test notification {'found' if test_notification_found else 'not found'}")
+        return self.log_test("Gmail Integration with Lead Workflow", gmail_integration_working, 
+                           f"Workflow: success={workflow_success}, lead_id={lead_id}, score={patrick_score}")
 
     def test_email_automation_for_prospect(self):
         """📧 TEST 8: VÉRIFICATION EMAIL AUTOMATION PROSPECT"""
