@@ -1690,19 +1690,19 @@ class CriticalProspectLocationTester:
         print(f"Recommandation: {recommendation}")
         
 if __name__ == "__main__":
-    print("🚀 DÉMARRAGE VÉRIFICATION NOTIFICATION EMAIL PATRICK ALMEIDA")
+    print("🎯 DÉMARRAGE TEST GMAIL MARKETING SERVICE INTEGRATION COMPLÈTE")
     print("=" * 80)
     
-    # Créer et exécuter le testeur de notification email
-    notification_tester = NotificationEmailTester()
-    results = notification_tester.run_notification_email_verification()
+    # Créer et exécuter le testeur Gmail Marketing
+    gmail_tester = GmailMarketingServiceTester()
+    results = gmail_tester.run_gmail_marketing_service_testing()
     
-    print(f"\n🏁 VÉRIFICATION TERMINÉE")
+    print(f"\n🏁 TESTS GMAIL MARKETING TERMINÉS")
     print(f"Taux de succès global: {results['success_rate']:.1f}%")
-    print(f"Statut workflow: {results['workflow_status']}")
+    print(f"Statut service: {results['service_status']}")
     
-    if results['notification_lead_id']:
-        print(f"Lead test créé: {results['notification_lead_id']}")
+    if results['test_email']:
+        print(f"Email test utilisé: {results['test_email']}")
     
     # Code de sortie basé sur le succès
     if results['success_rate'] >= 75:
