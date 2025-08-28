@@ -322,71 +322,67 @@ class GmailMarketingServiceTester:
         return self.log_test("Gmail Analytics Dashboard", analytics_working, 
                            f"Analytics: {total_campaigns} campaigns, {total_emails_sent} emails, {open_rate}% open rate")
 
-    def test_send_notification_to_patrick(self):
-        """📧 TEST 5: ENVOI NOTIFICATION TEST À PALMEIDA@EFFICITY.COM"""
-        print("\n📧 TEST 5: ENVOI NOTIFICATION TEST À PALMEIDA@EFFICITY.COM")
-        print("Envoyer une notification de test spécifique pour vérifier l'envoi email")
+    def test_gmail_welcome_email_integration(self):
+        """🎯 TEST 5: INTÉGRATION EMAIL BIENVENUE AUTOMATIQUE"""
+        print("\n🎯 TEST 5: INTÉGRATION EMAIL BIENVENUE AUTOMATIQUE")
+        print(f"URL: {self.preview_url}/api/gmail/send-welcome-email")
         print("=" * 80)
         
-        # Données notification test spécifique
-        test_notification = {
-            "type": "lead_new",
-            "priority": "high",
-            "data": {
-                "lead_name": "NotificationTest PalmeidaEmail",
-                "email": "notification.test.palmeida@example.com",
-                "telephone": "06 77 88 99 33",
-                "source": "Formulaire GitHub Pages - Test Notification",
-                "score": 100,
-                "tier": "Platinum",
-                "priority_level": "high",
-                "property_type": "Appartement 90m²",
-                "location": "Test Notification Email Lyon",
-                "message": "🔔 TEST NOTIFICATION EMAIL - Vérification envoi à Patrick Almeida",
-                "app_url": "https://einstein-dashboard.preview.emergentagent.com/leads",
-                "recipients": ["palmeida@efficity.com"]
-            }
+        # Données lead test pour email bienvenue
+        lead_data = {
+            "first_name": "Test Gmail Marketing",
+            "last_name": "Prospect",
+            "email": self.test_email,
+            "phone": "04 78 XX XX XX",
+            "address": "123 Rue Test Lyon",
+            "property_type": "Appartement",
+            "budget_max": "450000",
+            "source": "gmail_marketing_test"
         }
         
-        print(f"📧 Envoi notification test:")
-        print(f"   - Type: {test_notification['type']}")
-        print(f"   - Priority: {test_notification['priority']}")
-        print(f"   - Lead: {test_notification['data']['lead_name']}")
-        print(f"   - Recipients: {test_notification['data']['recipients']}")
+        print(f"📧 Test email bienvenue automatique:")
+        print(f"   - Prospect: {lead_data['first_name']} {lead_data['last_name']}")
+        print(f"   - Email: {lead_data['email']}")
+        print(f"   - Propriété: {lead_data['property_type']}")
+        print(f"   - Budget: {lead_data['budget_max']}€")
         
         success, response, details = self.make_request(
-            self.preview_url, 'POST', 'api/notifications/send', 
-            data=test_notification, expected_status=200
+            self.preview_url, 'POST', 'api/gmail/send-welcome-email', 
+            data=lead_data, expected_status=200
         )
         
         if not success:
-            self.results['send_notification'] = {
+            self.results['gmail_welcome_email'] = {
                 'success': False,
                 'error': details,
                 'status': 'FAILED'
             }
-            return self.log_test("Send Notification to Patrick", False, f"Notification send failed: {details}")
+            return self.log_test("Gmail Welcome Email Integration", False, f"Welcome email failed: {details}")
         
-        notification_id = response.get('notification_id')
-        status = response.get('status', 'unknown')
+        # Vérifier réponse
+        email_sent = response.get('email_sent', False)
+        recipient_added = response.get('recipient_added', False)
+        tracking_id = response.get('tracking_id')
         
-        print(f"✅ NOTIFICATION ENVOYÉE AVEC SUCCÈS:")
-        print(f"   - Notification ID: {notification_id}")
-        print(f"   - Status: {status}")
-        print(f"   - Destinataire: palmeida@efficity.com")
-        print(f"   - Contenu: Nouveau lead NotificationTest PalmeidaEmail")
+        print(f"✅ EMAIL BIENVENUE AUTOMATIQUE:")
+        print(f"   - Email envoyé: {email_sent}")
+        print(f"   - Destinataire ajouté: {recipient_added}")
+        print(f"   - Tracking ID: {tracking_id}")
+        print(f"   - Message: {response.get('message', 'N/A')}")
         
-        self.results['send_notification'] = {
+        welcome_integration_working = email_sent and recipient_added
+        
+        self.results['gmail_welcome_email'] = {
             'success': True,
-            'notification_id': notification_id,
-            'status': status,
-            'recipients': ["palmeida@efficity.com"],
-            'notification_sent': True,
-            'status': 'SUCCESS'
+            'email_sent': email_sent,
+            'recipient_added': recipient_added,
+            'tracking_id': tracking_id,
+            'welcome_integration_working': welcome_integration_working,
+            'status': 'SUCCESS' if welcome_integration_working else 'PARTIAL'
         }
         
-        return self.log_test("Send Notification to Patrick", True, 
-                           f"Notification sent successfully to palmeida@efficity.com, ID: {notification_id}")
+        return self.log_test("Gmail Welcome Email Integration", welcome_integration_working, 
+                           f"Welcome email: sent={email_sent}, recipient_added={recipient_added}")
 
     def test_notification_system_stats_after(self):
         """📧 TEST 6: VÉRIFICATION STATS NOTIFICATIONS APRÈS ENVOI"""
