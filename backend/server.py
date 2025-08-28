@@ -3654,7 +3654,7 @@ async def get_email_templates():
 async def get_email_campaigns():
     """Récupère toutes les campagnes email"""
     try:
-        campaigns = gmail_marketing_service.get_campaigns()
+        campaigns = await gmail_marketing_service.get_campaigns()
         return {"success": True, "campaigns": campaigns}
     except Exception as e:
         logger.error(f"Erreur récupération campagnes: {str(e)}")
