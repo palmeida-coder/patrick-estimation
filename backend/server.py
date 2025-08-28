@@ -94,7 +94,7 @@ patrick_scoring = get_advanced_lead_scoring_service(db)
 lyon_predictor = get_lyon_price_predictor_service(db)
 
 # Initialize Gmail Marketing Service
-gmail_marketing_service = GmailMarketingService(client)
+gmail_marketing_service = GmailMarketingService(db)
 
 # Initialize Gmail templates asynchronously
 async def setup_gmail_templates():
