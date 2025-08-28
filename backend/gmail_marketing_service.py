@@ -449,9 +449,9 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
             campaign["_id"] = str(campaign["_id"])
         return campaigns
 
-    def get_templates(self) -> List[Dict[str, Any]]:
+    async def get_templates(self) -> List[Dict[str, Any]]:
         """Récupère tous les templates"""
-        templates = list(self.templates_collection.find({"is_active": True}))
+        templates = await self.templates_collection.find({"is_active": True}).to_list(length=None)
         for template in templates:
             template["_id"] = str(template["_id"])
         return templates
