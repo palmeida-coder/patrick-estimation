@@ -332,7 +332,7 @@ Patrick Almeida - Expert Immobilier Efficity Lyon
                 "clicks": [],
                 "status": "sent"
             }
-            self.analytics_collection.insert_one(analytics_doc)
+            await self.analytics_collection.insert_one(analytics_doc)
             
             logger.info(f"Email envoyé avec succès à {recipient_email}")
             
