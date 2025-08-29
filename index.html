@@ -56,7 +56,7 @@ body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1DB584;color:#3
 <div class="main">
 <div class="header">
 <div class="logo-img">
-  <img src="https://user-images.githubusercontent.com/12018179/276941638-2d9a83a6-7b99-4e19-8eab-8f6e8e5b9c79.png" alt="Logo Efficity">
+  <img src="logo-efficity.png" alt="Logo Efficity">
 </div>
 <img src="https://raw.githubusercontent.com/palmeida-coder/patrick-estimation/main/patrick-visage-pour-site-estimation.jpg" alt="Patrick Almeida" class="photo">
 <h1 class="title">🏠 Estimation Gratuite Lyon</h1>
@@ -181,42 +181,4 @@ document.getElementById('estimationForm').addEventListener('submit',function(e){
 e.preventDefault();
 var loadingMsg=document.getElementById('loadingMsg');
 var successMsg=document.getElementById('successMsg');
-var errorMsg=document.getElementById('errorMsg');
-loadingMsg.style.display='none';
-successMsg.style.display='none';
-errorMsg.style.display='none';
-loadingMsg.style.display='block';
-var formData=new FormData(this);
-var data={
-prenom:formData.get('firstName'),
-nom:formData.get('lastName'),
-email:formData.get('email'),
-telephone:formData.get('phone'),
-adresse:formData.get('address'),
-type_bien:formData.get('propertyType'),
-surface:formData.get('surface'),
-projet_delai:formData.get('projetDelai'), // Ajout du délai du projet
-commentaires:formData.get('message')
-};
-fetch('https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify(data)
-}).then(function(response){
-return response.json();
-}).then(function(result){
-loadingMsg.style.display='none';
-if(result.success){
-successMsg.style.display='block';
-document.getElementById('estimationForm').reset();
-}else{
-errorMsg.style.display='block';
-}
-}).catch(function(error){
-loadingMsg.style.display='none';
-errorMsg.style.display='block';
-});
-});
-</script>
-</body>
-</html>
+var errorMsg=document.get
