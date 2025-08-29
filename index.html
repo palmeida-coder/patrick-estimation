@@ -178,11 +178,45 @@ body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1DB584;color:#3
 
 <script>
 document.getElementById('estimationForm').addEventListener('submit',function(e){
-e.preventDefault();
-var loadingMsg=document.getElementById('loadingMsg');
-var successMsg=document.getElementById('successMsg');
-var errorMsg=document.getElementById('errorMsg');
-// ... ton script ici ...
+  e.preventDefault();
+  var loadingMsg = document.getElementById('loadingMsg');
+  var successMsg = document.getElementById('successMsg');
+  var errorMsg = document.getElementById('errorMsg');
+  var btn = this.querySelector('.btn');
+
+  // Masquer tous les messages
+  loadingMsg.style.display = 'none';
+  successMsg.style.display = 'none';
+  errorMsg.style.display = 'none';
+
+  // Désactiver le bouton et afficher "Envoi en cours"
+  btn.disabled = true;
+  loadingMsg.style.display = 'block';
+
+  // Simule l'envoi (remplace par ton vrai code d'envoi si besoin)
+  setTimeout(function(){
+    // Masquer "Envoi en cours"
+    loadingMsg.style.display = 'none';
+
+    // Afficher le message de succès comme sur la capture
+    successMsg.style.display = 'block';
+
+    // Réactiver le bouton après 3s, et masquer le message
+    setTimeout(function(){
+      successMsg.style.display = 'none';
+      btn.disabled = false;
+      document.getElementById('estimationForm').reset();
+    }, 3000);
+  }, 1500);
+
+  // Si tu veux gérer une erreur, décommente ci-dessous :
+  /*
+  setTimeout(function(){
+    loadingMsg.style.display = 'none';
+    errorMsg.style.display = 'block';
+    btn.disabled = false;
+  }, 1500);
+  */
 });
 </script>
 </body>
