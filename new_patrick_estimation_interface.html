@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimation Gratuite Lyon | Patrick Almeida - Efficity Expert Immobilier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            min-height: 100vh;
+        }
+
+        /* Header Efficity avec Patrick centré */
+        .hero-header {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 50%, #00b894 100%);
+            padding: 40px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .efficity-logo {
+            display: inline-block;
+            background: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .efficity-logo h1 {
+            color: #00b894;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        /* Photo Patrick centrée avec effet moderne */
+        .patrick-photo-container {
+            position: relative;
+            margin: 20px auto 30px;
+            width: 140px;
+            height: 140px;
+            z-index: 10;
+        }
+
+        .patrick-photo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 6px solid rgba(255,255,255,0.9);
+            object-fit: cover;
+            object-position: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .patrick-photo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+        }
+
+        .patrick-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0,184,148,0.4);
+            z-index: 3;
+        }
+
+        .hero-title {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-subtitle {
+            color: rgba(255,255,255,0.95);
+            font-size: 1.3rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .patrick-credentials {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 30px auto 0;
+            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        .patrick-name {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .patrick-title {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .patrick-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Container principal */
+        .main-container {
+            max-width: 1200px;
+            margin: -30px auto 0;
+            position: relative;
+            z-index: 20;
+            padding: 0 20px;
+        }
+
+        /* Bénéfices avec design moderne */
+        .benefits-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .benefit-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,184,148,0.1);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-color: rgba(0,184,148,0.3);
+        }
+
+        .benefit-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #00b894, #00a085);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .benefit-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .benefit-description {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        /* Formulaire moderne */
+        .form-container {
+            background: white;
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #00b894, #00a085, #667eea);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .form-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00b894;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,184,148,0.1);
+        }
+
+        .form-input:valid {
+            border-color: #00b894;
+            background: white;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00b894, #00a085);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0,184,148,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.6s;
+            transform: translate(-50%, -50%);
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,184,148,0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Messages d'état */
+        .message {
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .loading-message {
+            background: #ebf8ff;
+            border: 2px solid #90cdf4;
+            color: #2b6cb0;
+        }
+
+        .success-message {
+            background: #f0fff4;
+            border: 2px solid #9ae6b4;
+            color: #2f855a;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            border: 2px solid #fc8181;
+            color: #c53030;
+        }
+
+        /* Footer contact */
+        .contact-section {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .contact-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .contact-item {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-3px);
+        }
+
+        .contact-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #00b894;
+        }
+
+        .contact-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .contact-value {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .contact-value a {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .contact-value a:hover {
+            color: #00b894;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .patrick-photo-container {
+                width: 120px;
+                height: 120px;
+            }
+
+            .patrick-photo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .benefits-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Animations d'entrée */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00b894;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Hero avec Patrick centré -->
+    <section class="hero-header">
+        <div class="efficity-logo">
+            <h1><i class="fas fa-home"></i> EFFICITY</h1>
+        </div>
+        
+        <!-- Photo Patrick centrée -->
+        <div class="patrick-photo-container">
+            <img src="https://raw.githubusercontent.com/palmeida-coder/patrick-estimation/main/patrick-visage-pour-site-estimation.jpg"
+                 alt="Patrick Almeida - Expert Immobilier Efficity Lyon"
+                 class="patrick-photo"
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI3MCIgY3k9IjcwIiByPSI3MCIgZmlsbD0iIzAwYjg5NCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0id2hpdGUiIGZvbnQtc2l6ZT0iMzYiIGZvbnQtZmFtaWx5PSJBcmlhbCI+UEE8L3RleHQ+PC9zdmc+'">
+            <div class="patrick-badge">
+                <i class="fas fa-star"></i>
+            </div>
+        </div>
+
+        <h1 class="hero-title">🏠 Estimation Gratuite Lyon</h1>
+        <p class="hero-subtitle">Obtenez une estimation précise et gratuite de votre propriété par un expert du marché lyonnais</p>
+        
+        <div class="patrick-credentials">
+            <div class="patrick-name">Patrick Almeida</div>
+            <div class="patrick-title">Expert Immobilier Certifié Efficity Lyon</div>
+            <div class="patrick-stats">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Ventes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">47j</span>
+                    <span class="stat-label">Délai Moyen</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">+12%</span>
+                    <span class="stat-label">Prix Optimisé</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="main-container">
+        <!-- Bénéfices -->
+        <section class="benefits-section animate-in">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="benefit-title">Analyse Marché IA</h3>
+                <p class="benefit-description">Estimation précise basée sur l'intelligence artificielle et les données du marché lyonnais en temps réel</p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="benefit-title">Visite sous 48H</h3>
+                <p class="benefit-description">Rendez-vous garanti sous 48H pour une évaluation personnalisée et une stratégie de vente adaptée</p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="fas fa-target"></i>
+                </div>
+                <h3 class="benefit-title">Vente Optimisée</h3>
+                <p class="benefit-description">Accompagnement 360° de l'estimation à la signature avec un réseau d'acquéreurs qualifiés</p>
+            </div>
+        </section>
+
+        <!-- Formulaire -->
+        <section class="form-container animate-in">
+            <div class="form-header">
+                <h2 class="form-title">📋 Demande d'Estimation Gratuite</h2>
+                <p class="form-subtitle">Remplissez ce formulaire sécurisé pour recevoir votre estimation personnalisée</p>
+            </div>
+
+            <form id="estimationForm">
+                <div class="form-grid">
+                    <!-- Informations personnelles -->
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">Prénom <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="firstName" class="form-input" required 
+                               placeholder="Votre prénom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Nom <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="lastName" class="form-input" required 
+                               placeholder="Votre nom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Téléphone <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" class="form-input" required 
+                               placeholder="06 12 34 56 78">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" class="form-input" required 
+                               placeholder="votre.email@exemple.com">
+                    </div>
+
+                    <!-- Informations du bien -->
+                    <div class="form-group full-width">
+                        <label for="address" class="form-label">Adresse du bien <span class="required">*</span></label>
+                        <input type="text" id="address" name="address" class="form-input" required 
+                               placeholder="Ex: 15 Place Bellecour, Lyon 69002">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="propertyType" class="form-label">Type de bien <span class="required">*</span></label>
+                        <select id="propertyType" name="propertyType" class="form-select" required>
+                            <option value="">Sélectionnez le type</option>
+                            <option value="Appartement">Appartement</option>
+                            <option value="Maison">Maison</option>
+                            <option value="Studio">Studio</option>
+                            <option value="Loft">Loft</option>
+                            <option value="Duplex">Duplex</option>
+                            <option value="Villa">Villa</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="surface" class="form-label">Surface (m²) <span class="required">*</span></label>
+                        <input type="number" id="surface" name="surface" class="form-input" required min="1" 
+                               placeholder="Ex: 85">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rooms" class="form-label">Nombre de pièces</label>
+                        <select id="rooms" name="rooms" class="form-select">
+                            <option value="">Sélectionnez</option>
+                            <option value="1">1 pièce</option>
+                            <option value="2">2 pièces</option>
+                            <option value="3">3 pièces</option>
+                            <option value="4">4 pièces</option>
+                            <option value="5">5 pièces</option>
+                            <option value="6+">6+ pièces</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="floor" class="form-label">Étage</label>
+                        <input type="text" id="floor" name="floor" class="form-input" 
+                               placeholder="Ex: 3ème étage">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priceWished" class="form-label">Prix souhaité (optionnel)</label>
+                        <input type="number" id="priceWished" name="priceWished" class="form-input" 
+                               placeholder="En euros">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="timeline" class="form-label">Délai de vente souhaité</label>
+                        <select id="timeline" name="timeline" class="form-select">
+                            <option value="">Sélectionnez</option>
+                            <option value="Rapidement (cette semaine)">Rapidement (cette semaine)</option>
+                            <option value="Dans le mois">Dans le mois</option>
+                            <option value="1-3 mois">1 à 3 mois</option>
+                            <option value="3-6 mois">3 à 6 mois</option>
+                            <option value="6+ mois">Plus de 6 mois</option>
+                            <option value="Pas pressé">Pas pressé</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="message" class="form-label">Informations complémentaires</label>
+                        <textarea id="message" name="message" class="form-textarea" rows="4" 
+                                placeholder="Décrivez votre bien, vos attentes, contraintes particulières..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Obtenir mon estimation gratuite
+                </button>
+
+                <div class="message loading-message" id="loadingMessage">
+                    <div class="spinner"></div>
+                    Envoi de votre demande en cours...
+                </div>
+
+                <div class="message success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Demande envoyée avec succès !</strong><br>
+                    Patrick vous recontactera dans les 24h pour planifier votre visite gratuite.
+                </div>
+
+                <div class="message error-message" id="errorMessage">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Erreur lors de l'envoi</strong><br>
+                    Veuillez réessayer ou contacter Patrick directement.
+                </div>
+
+                <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: #718096;">
+                    <i class="fas fa-shield-alt"></i> Données sécurisées • Réponse garantie sous 24h • Service 100% gratuit
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <!-- Contact Footer -->
+    <section class="contact-section">
+        <h3 class="contact-title"><i class="fas fa-headset"></i> Contact Direct Patrick Almeida</h3>
+        
+        <div class="contact-grid">
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div class="contact-label">Téléphone Direct</div>
+                <div class="contact-value">
+                    <a href="tel:0682052824">06.82.05.28.24</a>
+                    <div style="font-size: 0.85rem; margin-top: 5px;">Disponible 7j/7</div>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="contact-label">Email Professionnel</div>
+                <div class="contact-value">
+                    <a href="mailto:palmeida@efficity.com">palmeida@efficity.com</a>
+                    <div style="font-size: 0.85rem; margin-top: 5px;">Réponse rapide</div>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="contact-label">Agence Lyon</div>
+                <div class="contact-value">
+                    6 place des Tapis<br>
+                    69004 Lyon Centre
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); font-size: 0.9rem;">
+            © 2025 Efficity Lyon - Patrick Almeida | Expert Immobilier Certifié | Tous droits réservés
+        </div>
+    </section>
+
+    <script>
+        // Animation d'entrée progressive
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateElements = document.querySelectorAll('.animate-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
+                    }
+                });
+            });
+
+            animateElements.forEach(el => observer.observe(el));
+        });
+
+        // Gestion du formulaire avec URL corrigée
+        document.getElementById('estimationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Reset tous les messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Afficher loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div> Envoi en cours...';
+            loadingMessage.style.display = 'block';
+
+            try {
+                const formData = new FormData(this);
+                const data = {
+                    prenom: formData.get('firstName'),
+                    nom: formData.get('lastName'),
+                    email: formData.get('email'),
+                    téléphone: formData.get('phone'),
+                    adresse: formData.get('address'),
+                    type_bien: formData.get('propertyType'),
+                    surface: formData.get('surface'),
+                    pieces: formData.get('rooms'),
+                    etage: formData.get('floor'),
+                    prix_souhaité: formData.get('priceWished'),
+                    urgence_estimation: formData.get('timeline'),
+                    commentaires: formData.get('message')
+                };
+
+                console.log('🎯 Envoi données vers CRM Patrick Almeida Efficity:', data);
+
+                // ✅ URL CORRIGÉE - Einstein Dashboard
+                const response = await fetch('https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('✅ Réponse CRM Efficity:', result);
+
+                if (result.success) {
+                    // Succès - Affichage message de confirmation
+                    loadingMessage.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    
+                    // Reset formulaire
+                    this.reset();
+                    
+                    // Scroll vers message de succès
+                    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    console.log('🎉 Lead créé avec succès - ID:', result.lead_id);
+                    console.log('🧠 Patrick IA Score:', result.patrick_ai_score || 'En cours...');
+                    console.log('📧 Email bienvenue:', result.email_sent ? 'Envoyé' : 'Simulé');
+                    console.log('🔔 Notification Patrick: Envoyée à palmeida@efficity.com');
+                } else {
+                    throw new Error(result.message || 'Erreur lors de l\'envoi de la demande');
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur soumission formulaire:', error);
+                
+                // Afficher message d'erreur avec contact direct
+                loadingMessage.style.display = 'none';
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Erreur lors de l'envoi :</strong><br>
+                    ${error.message}<br><br>
+                    <strong>Contactez Patrick directement :</strong><br>
+                    📞 <a href="tel:0682052824" style="color: #c53030; text-decoration: underline;">06.82.05.28.24</a><br>
+                    ✉️ <a href="mailto:palmeida@efficity.com" style="color: #c53030; text-decoration: underline;">palmeida@efficity.com</a>
+                `;
+                
+                // Scroll vers message d'erreur
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } finally {
+                // Restaurer bouton
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Obtenir mon estimation gratuite';
+                loadingMessage.style.display = 'none';
+            }
+        });
+
+        // Validation temps réel avec animations
+        document.querySelectorAll('input[required], select[required]').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.style.borderColor = '#e53e3e';
+                    this.style.boxShadow = '0 0 0 3px rgba(229, 62, 62, 0.1)';
+                } else {
+                    this.style.borderColor = '#00b894';
+                    this.style.boxShadow = '0 0 0 3px rgba(0, 184, 148, 0.1)';
+                }
+            });
+
+            input.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    this.style.borderColor = '#00b894';
+                    this.style.boxShadow = '0 0 0 3px rgba(0, 184, 148, 0.1)';
+                }
+            });
+        });
+
+        // Effet parallax léger sur le header
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const header = document.querySelector('.hero-header');
+            if (header) {
+                header.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+
+        console.log('🎨 Interface Patrick Almeida Efficity initialisée');
+        console.log('✅ Design moderne et avant-gardiste activé');
+        console.log('🎯 URL CRM corrigée: einstein-dashboard.preview.emergentagent.com');
+        console.log('📱 Responsive design et animations activées');
+        console.log('🏢 Branding Efficity intégré');
+    </script>
+</body>
+</html>
