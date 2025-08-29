@@ -34,6 +34,7 @@ body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1DB584;color:#3
 .full-width{grid-column:1/span 2}
 .btn{background:#1DB584;color:white;border:none;padding:15px 30px;border-radius:25px;font-size:16px;font-weight:bold;cursor:pointer;width:100%;margin-top:15px}
 .btn:hover{background:#16A075}
+.btn:disabled{opacity:0.6;cursor:not-allowed}
 .message{padding:15px;border-radius:8px;margin:15px 0;text-align:center;font-weight:bold;display:none}
 .loading{background:#e7f3ff;color:#004085;border:2px solid #b8daff}
 .success{background:#d4edda;color:#155724;border:2px solid #c3e6cb}
@@ -177,47 +178,94 @@ body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1DB584;color:#3
 </div>
 
 <script>
-document.getElementById('estimationForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  var loadingMsg = document.getElementById('loadingMsg');
-  var successMsg = document.getElementById('successMsg');
-  var errorMsg = document.getElementById('errorMsg');
-  var btn = this.querySelector('.btn');
-
-  // Masquer tous les messages
-  loadingMsg.style.display = 'none';
-  successMsg.style.display = 'none';
-  errorMsg.style.display = 'none';
-
-  // Désactiver le bouton et afficher "Envoi en cours"
-  btn.disabled = true;
-  loadingMsg.style.display = 'block';
-
-  // Simule l'envoi (remplace par ton vrai code d'envoi si besoin)
-  setTimeout(function(){
-    // Masquer "Envoi en cours"
+document.getElementById('estimationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var loadingMsg = document.getElementById('loadingMsg');
+    var successMsg = document.getElementById('successMsg');
+    var errorMsg = document.getElementById('errorMsg');
+    var btn = this.querySelector('.btn');
+    
+    // Masquer tous les messages
     loadingMsg.style.display = 'none';
-
-    // Afficher le message de succès comme sur la capture
-    successMsg.style.display = 'block';
-
-    // Réactiver le bouton après 3s, et masquer le message
-    setTimeout(function(){
-      successMsg.style.display = 'none';
-      btn.disabled = false;
-      document.getElementById('estimationForm').reset();
-    }, 3000);
-  }, 1500);
-
-  // Si tu veux gérer une erreur, décommente ci-dessous :
-  /*
-  setTimeout(function(){
-    loadingMsg.style.display = 'none';
-    errorMsg.style.display = 'block';
-    btn.disabled = false;
-  }, 1500);
-  */
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+    
+    // Désactiver le bouton et afficher "Envoi en cours"
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Envoi en cours...';
+    loadingMsg.style.display = 'block';
+    
+    // Récupérer données formulaire
+    var formData = new FormData(this);
+    var data = {
+        prenom: formData.get('firstName'),
+        nom: formData.get('lastName'),
+        email: formData.get('email'),
+        telephone: formData.get('phone'),
+        adresse: formData.get('address'),
+        type_bien: formData.get('propertyType'),
+        surface: formData.get('surface'),
+        urgence_estimation: formData.get('projetDelai'),
+        commentaires: formData.get('message')
+    };
+    
+    console.log('📤 Envoi vers CRM Efficity:', data);
+    
+    // 🚨 ENVOI RÉEL VERS CRM EINSTEIN DASHBOARD (REMPLACE LA SIMULATION)
+    fetch('https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Erreur réseau: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(result) {
+        loadingMsg.style.display = 'none';
+        
+        console.log('📥 Réponse CRM:', result);
+        
+        if (result.success) {
+            // Afficher le message de succès
+            successMsg.style.display = 'block';
+            
+            // Reset formulaire
+            document.getElementById('estimationForm').reset();
+            
+            console.log('✅ Lead créé - ID:', result.lead_id);
+            console.log('🧠 Patrick IA Score:', result.patrick_ai_score);
+            
+            // Masquer le message après 3s et réactiver le bouton
+            setTimeout(function() {
+                successMsg.style.display = 'none';
+                btn.disabled = false;
+                btn.innerHTML = '🏠 Demander mon estimation gratuite';
+            }, 3000);
+        } else {
+            throw new Error(result.message || 'Erreur serveur');
+        }
+    })
+    .catch(function(error) {
+        loadingMsg.style.display = 'none';
+        errorMsg.style.display = 'block';
+        
+        console.error('❌ Erreur:', error);
+        
+        errorMsg.innerHTML = '❌ <strong>Erreur technique</strong><br>Contactez Patrick: <a href="tel:0682052824" style="color:#721c24;font-weight:bold;">06.82.05.28.24</a>';
+        
+        // Réactiver le bouton
+        btn.disabled = false;
+        btn.innerHTML = '🏠 Demander mon estimation gratuite';
+    });
 });
+
+console.log('✅ Script CRM Einstein Dashboard connecté');
 </script>
 </body>
 </html>
