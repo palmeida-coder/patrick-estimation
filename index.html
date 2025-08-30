@@ -132,7 +132,6 @@ body{margin:0;padding:0;font-family:Arial,sans-serif;background:#1DB584;color:#3
 <input type="number" name="surface" class="form-input" required min="1" placeholder="75">
 </div>
 </div>
-<!-- Ajout de l'onglet Votre projet -->
 <div class="form-group full-width">
 <label class="form-label">Votre projet <span class="required">*</span></label>
 <select name="projetDelai" class="form-select" required>
@@ -212,8 +211,8 @@ document.getElementById('estimationForm').addEventListener('submit', function(e)
     
     console.log('📤 Envoi vers CRM Efficity:', data);
     
-    // 🚨 ENVOI RÉEL VERS CRM EINSTEIN DASHBOARD (REMPLACE LA SIMULATION)
-    fetch('https://einstein-dashboard.preview.emergentagent.com/api/estimation/submit-prospect-email', {
+    // 🎯 ENVOI RÉEL VERS CRM PRODUCTION FINALE - URL CORRIGÉE
+    fetch('https://lyon-realestate.emergent.host/api/estimation/submit-prospect-email', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -240,6 +239,7 @@ document.getElementById('estimationForm').addEventListener('submit', function(e)
             
             console.log('✅ Lead créé - ID:', result.lead_id);
             console.log('🧠 Patrick IA Score:', result.patrick_ai_score);
+            console.log('📧 Notification envoyée à palmeida@efficity.com');
             
             // Masquer le message après 3s et réactiver le bouton
             setTimeout(function() {
@@ -265,7 +265,8 @@ document.getElementById('estimationForm').addEventListener('submit', function(e)
     });
 });
 
-console.log('✅ Script CRM Einstein Dashboard connecté');
+console.log('✅ Script CRM Production connecté à lyon-realestate.emergent.host');
+console.log('📧 Notifications configurées pour palmeida@efficity.com');
 </script>
 </body>
 </html>
